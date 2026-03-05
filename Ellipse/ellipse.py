@@ -27,11 +27,9 @@ def findTiltAngles(coordinates):
 
 
 
-<<<<<<< HEAD
 initial_guess = [5,5]
 solution = sp.optimize.fsolve(system, initial_guess)
 print(solution)
-=======
 def find_semi_axes(Area, Circumference):
     def system(vars):
         a,b = vars
@@ -47,4 +45,3 @@ def find_semi_axes(Area, Circumference):
     return solution
 
 print(find_semi_axes(37.69911184,26.72978556))
->>>>>>> 31c42a8d30de546b76b04ce7ff07ae3f81ea4a20
