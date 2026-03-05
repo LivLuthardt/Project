@@ -9,10 +9,11 @@ df = pd.read_csv('raw_data.csv')
 df_clean = df.dropna()
 
 #3D plot
+''' 
 fig = px.line_3d(df, x="x", y="y", z="z", color='fibre_id')
 fig.update_layout(scene=dict(aspectmode='manual',aspectratio=dict(x=15,y=7.5,z=1)))
 fig.show()
-
+'''
 #PART 2: CLEANING SHORT ONES
 # remove ones that dont reach the full z length 
 # global end‑points
@@ -35,8 +36,7 @@ print(f"{len(full_ids)} fibres span [{zmin},{zmax}]; "
       f"{len(partial_ids)} do not.")
 
 # plot both sets
-import plotly.express as px
-
+'''
 for dset, title in ((df_full,    "Fibres reaching full z range"),
                     (df_partial, "Fibres not reaching full z range")):
     fig = px.line_3d(dset,
@@ -48,7 +48,7 @@ for dset, title in ((df_full,    "Fibres reaching full z range"),
                    aspectratio=dict(x=15, y=7.5, z=1))
     )
     fig.show()
-
+'''
 #PART 3: CLEANING WONKY ONES
 # tilt angle relative to the Z-axis
 # sort.values to compare consecutive points
@@ -80,6 +80,7 @@ print(f" - {len(kinked_ids)} fibres removed (Max tilt > {threshold}°)")
 print(f" - {len(clean_ids)} fibres kept.")
 
 #plot it
+'''
 fig_clean = px.line_3d(df_clean, x="x", y="y", z="z", color="fibre_id", title="Cleaned")
 fig_clean.update_layout(scene=dict(aspectratio=dict(x=15, y=7.5, z=1)))
 fig_clean.show()
@@ -87,3 +88,4 @@ fig_clean.show()
 fig_kink = px.line_3d(df_kinked, x="x", y="y", z="z", color="fibre_id", title="Removed Kinks")
 fig_kink.update_layout(scene=dict(aspectratio=dict(x=15, y=7.5, z=1)))
 fig_kink.show()
+'''
