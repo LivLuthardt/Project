@@ -5,10 +5,11 @@ import Geometry3D as geo
 def getEllipse(x1, x2):
     #takes inputs of the two points (x, y, z) as ndarrays to construct ellipse projection
     #returns ellipse area and length
-    x3 = x2-x1
-    cyl = geo.Cylinder(geo.Point(x1.tolist()),7,x3.tolist(),n=100)
-    midpoint = (x1 + x2)/2 
-    plane = geo.Plane(midpoint.tolist(), geo.z_axis()) # construct at midpoint of cylinder to avoid endpoint cut issues
+    p1, p2 = geo.Point(x1), geo.Point(x2)
+    v1 = geo.Vector(p1, p2)
+    cyl = geo.Cylinder(p1,7,v1,n=100)
+    midpoint = geo.Point((x1 + x2)/2)
+    plane = geo.Plane(midpoint, geo.z_unit_vector()) # construct at midpoint of cylinder to avoid endpoint cut issues
     ellipse = geo.intersection(cyl, plane)
     return ellipse.length(), ellipse.area()
 
@@ -19,9 +20,6 @@ def findTiltAngles(coordinates):
         if i == 0: continue
         x2, x1 = x, coordinates[i-1]
         len, area = getEllipse(x1, x2)
-
-
-
 
 
 
