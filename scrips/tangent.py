@@ -1,7 +1,7 @@
 
 import pandas as pd 
 import numpy as np
-from ourmain import df_full
+from ourmain import df_cleaned
 
 def get_tangent_angles(df_cleaned):
     # Use your exact sorting logic to ensure consecutive point comparison
@@ -24,5 +24,4 @@ def get_tangent_angles(df_cleaned):
     # Return the dataframe with the new tilt columns, removing NaN rows from .diff()
     return df.dropna(subset=['dx', 'dy', 'dz'])
 
-# Now you call it using df_full
 df_final = get_tangent_angles(df_cleaned)
