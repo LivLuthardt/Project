@@ -1,7 +1,16 @@
 import numpy as np 
 import scipy as sp
+import Geometry3D as geo
 
-
+def getEllipse(x1, x2):
+    #takes inputs of the two points (x, y, z) as ndarrays to construct ellipse projection
+    #returns ellipse area and length
+    x3 = x2-x1
+    cyl = geo.Cylinder(geo.Point(x1.tolist()),7,x3.tolist(),n=100)
+    midpoint = (x1 + x2)/2 
+    plane = geo.Plane(midpoint.tolist(), geo.z_axis()) # construct at midpoint of cylinder to avoid endpoint cut issues
+    ellipse = geo.intersection(cyl, plane)
+    return ellipse.length(), ellipse.area()
 
 
 
