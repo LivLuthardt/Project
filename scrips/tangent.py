@@ -1,7 +1,7 @@
 
 import pandas as pd 
 import numpy as np
-from main import df_full
+from ourmain import df_full
 
 def get_tangent_angles(df_cleaned):
     # Use your exact sorting logic to ensure consecutive point comparison
