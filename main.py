@@ -53,28 +53,31 @@ for dset, title in ((df_full,    "Fibres reaching full z range"),
 #PART 3: CLEANING WONKY ONES
 # tilt angle relative to the Z-axis
 # sort.values to compare consecutive points
-df = df_full.sort_values(['fibre_id', 'z'])
+def calculating_tilt_angle():
+    df = df_full.sort_values(['fibre_id', 'z'])
 
 # Calculate differences between steps
-df['dx'] = df.groupby('fibre_id')['x'].diff()
-df['dy'] = df.groupby('fibre_id')['y'].diff()
-df['dz'] = df.groupby('fibre_id')['z'].diff()
+    df['dx'] = df.groupby('fibre_id')['x'].diff()
+    df['dy'] = df.groupby('fibre_id')['y'].diff()
+    df['dz'] = df.groupby('fibre_id')['z'].diff()
 
 # angle = arctan(lateral_distance / vertical_distance)
 # np.arctan2 handles division by zero apparently i cant use normal arctan
-df['lateral_dist'] = np.sqrt(df['dx']**2 + df['dy']**2)
-df['tilt_angle_rad'] = np.arctan2(df['lateral_dist'], df['dz'])
+    df['lateral_dist'] = np.sqrt(df['dx']**2 + df['dy']**2)
+    df['tilt_angle_rad'] = np.arctan2(df['lateral_dist'], df['dz'])
 
 # find maximum kink for every fiber
-threshold = 45
-df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
-max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
+    threshold = 45
+    df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
+    max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
 
-kinked_ids = max_tilts[max_tilts > threshold].index
-clean_ids = max_tilts[max_tilts <= threshold].index
+    kinked_ids = max_tilts[max_tilts > threshold].index
+    clean_ids = max_tilts[max_tilts <= threshold].index
 
-df_kinked = df[df['fibre_id'].isin(kinked_ids)]
-df_cleaned = df[df['fibre_id'].isin(clean_ids)]
+    df_kinked = df[df['fibre_id'].isin(kinked_ids)]
+    df_cleaned = df[df['fibre_id'].isin(clean_ids)]
+
+    return df, df['dx'],df['dy'], df['dz'], df['lateral_dist'], df['tilt_angle_rad'], df_cleaned
 
 print(f"Analysis complete:")
 print(f" - {len(kinked_ids)} fibres removed (Max tilt > {threshold}°)")
