@@ -16,8 +16,7 @@ def getEllipse(x1, x2):
 
 def findTiltAngles(coordinates):
     #Return a list of length n-1 with all tilt angles
-    for i, x in enumerate(coordinates):
-        if i == 0: continue
+    for i, x in enumerate(coordinates[1:]):
         x2, x1 = x, coordinates[i-1]
         len, area = getEllipse(x1, x2)
 
