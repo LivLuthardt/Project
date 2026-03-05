@@ -1,79 +1,59 @@
-#Data Import
-import pandas as pd 
 
+import pandas as pd 
+import numpy as np
+import plotly.express as px
+
+#PART 1: CLEANING NAN
+#Data Import
 df = pd.read_csv('raw_data.csv')
 #Data Cleanup
 df_clean = df.dropna()
-#3D Plot
-import plotly.express as px
 
+#3D plot
 fig = px.line_3d(df, x="x", y="y", z="z", color='fibre_id')
 fig.update_layout(scene=dict(aspectmode='manual',aspectratio=dict(x=15,y=7.5,z=1)))
 fig.show()
-#getting rid of short ones 
-'''import numpy as np 
 
-def fibre_length(group):
-    # group is a DataFrame containing all rows for one fibre
-    # difference between rows
-    diff = group[['x', 'y', 'z']].diff().dropna()
-    dist = np.sqrt((diff**2).sum(axis=1))
-    return dist.sum()
+#PART 2: CLEANING SHORT ONES
+# remove ones that dont reach the full z length 
+# global end‑points
+zmin = df_clean['z'].min()
+zmax = df_clean['z'].max()
 
-# appply to each fibre
-#grouping the cleaned data
-fibre_lengths = df_clean.groupby('fibre_id').apply(fibre_length, include_groups=False)
+# take z values for each fibre, compute min and max, return new DataFrame indexed by fibre_id
+#agg: computes BOTH min and max
+z_ext = df_clean.groupby('fibre_id')['z'].agg(['min','max'])
 
-#threshold (used range of z for this)
-z_total = df_clean['z'].max() - df_clean['z'].min()
-threshold = 0.5*z_total 
-#take their fibre ids (index)
-valid_fibres = fibre_lengths[fibre_lengths >= threshold].index
+# strict test for full_ids
+full_ids = z_ext[(z_ext['min'] == zmin) & (z_ext['max'] == zmax)].index
+partial_ids = z_ext.index.difference(full_ids)
 
-#True for rows that are in a valid fibre (tells which ones should not be cut)
-df_filtered = df_clean['fibre_id'].isin(valid_fibres)
-# cleaned-up data
-df_trimmed = df_clean[df_filtered]  
+# make two dataframes
+df_full = df_clean[df_clean['fibre_id'].isin(full_ids)]
+df_partial = df_clean[df_clean['fibre_id'].isin(partial_ids)]
 
-print(f"Removed {len(fibre_lengths) - len(valid_fibres)} short fibers.")'''
-#plotting short ones
-''' 
+print(f"{len(full_ids)} fibres span [{zmin},{zmax}]; "
+      f"{len(partial_ids)} do not.")
+
+# plot both sets
 import plotly.express as px
 
-# Identify removed fibers
-removed_ids = fibre_lengths[fibre_lengths < threshold].index
-#for every row in df_clean: True when the row's fibre id is in removed_ids list
-#df_removed only contains removed points 
-df_removed = df_clean[df_clean['fibre_id'].isin(removed_ids)]
-
-fig = px.line_3d(
-    df_removed, 
-    x="x", 
-    y="y", 
-    z="z", 
-    color='fibre_id', 
-    line_group='fibre_id', 
-    title="Removed Short Fibers"
-)
-
-# Your aspect ratio settings
-fig.update_layout(
-    scene=dict(
-        aspectmode='manual', 
-        aspectratio=dict(x=15, y=7.5, z=1)
+for dset, title in ((df_full,    "Fibres reaching full z range"),
+                    (df_partial, "Fibres not reaching full z range")):
+    fig = px.line_3d(dset,
+                    x="x", y="y", z="z",
+                    color="fibre_id",
+                    title=title)
+    fig.update_layout(
+        scene=dict(aspectmode="manual",
+                   aspectratio=dict(x=15, y=7.5, z=1))
     )
-)
+    fig.show()
 
-fig.show()
-'''
-
-import numpy as np
-import pandas as pd
-import plotly.express as px
-
+#PART 3: CLEANING WONKY ONES
 # tilt angle relative to the Z-axis
 # sort.values to compare consecutive points
-df = df_clean.sort_values(['fibre_id', 'z'])
+df = df_full.sort_values(['fibre_id', 'z'])
 
 # Calculate differences between steps
 df['dx'] = df.groupby('fibre_id')['x'].diff()
