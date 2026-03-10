@@ -37,7 +37,6 @@ def find_semi_axes(Area, Circumference):
         return [f_area, f_circum]
     initial_guess = [5,5]
     solution = sp.optimize.fsolve(system, initial_guess)
-    a,b = solution
     return solution
 
 def Ellipse_Angle(x1, x2):
@@ -50,21 +49,21 @@ def Ellipse_Angle(x1, x2):
 
 """def Tilt_Angles(a, b, theta):
     #Checks if major axis is larger than minor axis
-    if b > a:
-        dummy = a
-        a = b
-        b = dummy
-    
+    axes =np.array([a, b])
+    a, b = axes.max(), axes.min()
+    gamma = np.arccos(b/a)
+    dxdz = -np.cos(theta)/np.tan(gamma)
+    dydz = -np.sin(theta)/np.tan(gamma)
+    """
     #Calculates values for alpha and beta, and then returns them 
     tan2 = np.tan(theta)**2
     alpha = np.arccos(np.sqrt((1 + (b ** 2 / a ** 2) * tan2) / (1 + tan2)))
     beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
-    return alpha, beta """
-
+    """
+    return dxdz, dydz
 
 test_coordinates = [(0, 0, 0), (0, 0, 1), (0, 1, 2)]
-test = findTiltAngles(test_coordinates)
-print(test)
+print(findTiltAngles(test_coordinates))
 
 
 
