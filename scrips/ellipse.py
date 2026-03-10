@@ -16,17 +16,16 @@ def getEllipse(x1, x2):
 
 def findTiltAngles(coordinates):
     #Return a list of length n-1 with all tilt angles
+    angles = []
     for i, x in enumerate(coordinates[1:]):
         x2, x1 = x, coordinates[i-1]
         len, area = getEllipse(x1, x2)
+        theta = Ellipse_Angle(x1, x2)
+        a, b = find_semi_axes(area, len)
+        alpha, beta = Tilt_Angles(a, b, theta)
+        angles.append(alpha, beta)
+    return np.array(angles)
 
-
-
-
-
-initial_guess = [5,5]
-solution = sp.optimize.fsolve(system, initial_guess)
-print(solution)
 def find_semi_axes(Area, Circumference):
     def system(vars):
         a,b = vars
@@ -40,9 +39,6 @@ def find_semi_axes(Area, Circumference):
     solution = sp.optimize.fsolve(system, initial_guess)
     a,b = solution
     return solution
-
-print(find_semi_axes(37.69911184,26.72978556))
-
 
 def Ellipse_Angle(x1, x2):
     #Determines the ellipse angle theta as the angle of vector u projected on the xy plane
@@ -65,7 +61,7 @@ def Tilt_Angles(a, b, theta):
     beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
     return alpha, beta
 
-
-
+test_coordinates = [(0, 0, 0), (0, 0, 1), (0, 1, 2)]
+findTiltAngles(test_coordinates)
 
 
