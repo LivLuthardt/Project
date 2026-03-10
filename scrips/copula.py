@@ -5,18 +5,17 @@ import matplotlib as plt
 from ourmain import df_cleaned
 from tangent import tangent_angles
 
-np.random.seed(0)  # seed for the random generator
-n = 1000  # number of observations
-d = 3  # the dimension
-mean = 1 + np.random.normal(size=d)  # mean vector
-cov = np.random.normal(size=(d, d))  # covariance matrix
-cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
-x = np.random.multivariate_normal(mean, cov, n)
+# np.random.seed(0)  # seed for the random generator
+# n = 1000  # number of observations
+# d = 3  # the dimension
+# mean = 1 + np.random.normal(size=d)  # mean vector
+# cov = np.random.normal(size=(d, d))  # covariance matrix
+# cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
+# x = np.random.multivariate_normal(mean, cov, n)
 
-data = df_cleaned.groupby(by=['z']).get_group('1')
+data = df_cleaned.groupby(by=['z'])
 print(data)
 
-print(tangent_angles(df_cleaned))
 def copula_model(data,n): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
     pv.pairs_copula_data(u, scatter_size=0.5)
