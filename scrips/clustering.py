@@ -11,7 +11,7 @@ from tangent import fiber_summary
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
      
-def perform_kmeans_clustering(summary_df, n_clusters=5):
+def perform_kmeans_clustering(df, n_clusters=5):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
@@ -66,8 +66,9 @@ def perform_gmm_clustering(df,n_clusters=5):
     return df
 
 # Use GMM clustering instead of KMeans
-df_clustered = perform_gmm_clustering(fiber_summary)
+fiber_summary = perform_gmm_clustering(fiber_summary)
 
+df_clustered = df_final.merge(fiber_summary[['fibre_id', 'cluster_id']], on='fibre_id')
 # Plot clusters
 
 fig = px.line_3d(

@@ -31,11 +31,12 @@ def tiltAngles(a, b, theta):
     #Checks if major axis is larger than minor axis
     axes =np.array([a, b])
     a, b = axes.max(), axes.min()
-    gamma = np.arccos(b/a)
+    gamma = np.arccos(b/a) * (180/np.pi) #Convert to degrees
     alpha = gamma * np.cos(theta)
     beta = gamma * np.sin(theta)
     return alpha, beta
 
 if __name__ == "__main__":
     print(eTiltAngles([0, 0, 0], [0, 2, 1]))
+
 
