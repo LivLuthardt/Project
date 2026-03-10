@@ -1,32 +1,23 @@
 # OVERVIEW OF DIFFERENT METHODS: https://scikit-learn.org/stable/modules/clustering.html
 
 
-# METHOD 1: k means 
+# ---------------------------------------METHOD 1: k means------------------------------------------
 import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from tangent import df_final  # Import the DF containing your planar tilts
+from tangent import df_final  
 
 def perform_kmeans_clustering(df, n_clusters=4):
-
-    # 1. Feature Selection
-    # We use x, y for spatial coherence and the tilts for orientation [cite: 105, 106]
     features = ['x', 'y', 'angle_x_deg', 'angle_y_deg']
-    
-    # 2. Scaling (Essential for K-Means)
-    # Since x/y and angles have different units, we must normalize them
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
-    
-    # 3. Apply K-Means
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     df['cluster_id'] = kmeans.fit_predict(scaled_data)
     
     return df
 
-# Run the clustering
 df_clustered = perform_kmeans_clustering(df_final)
 
 
@@ -50,7 +41,7 @@ fig_3d = px.line_3d(
 fig_3d.show()
 
 
-# METHOD 2: DBSCAN 
+# -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 
 
 # METHOD 3: HDBSCAN
