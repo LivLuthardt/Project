@@ -35,7 +35,7 @@ def find_semi_axes(Area, Circumference):
         f_area = Area - np.pi*a*b
         f_circum = Circumference - np.pi*(a+b)*(1+(3*h)/(10+np.sqrt(4-3*h)))
         return [f_area, f_circum]
-    initial_guess = [5,5]
+    initial_guess = [7,7]
     solution = sp.optimize.fsolve(system, initial_guess)
     return solution
 
