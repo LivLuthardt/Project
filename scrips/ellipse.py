@@ -23,7 +23,7 @@ def findTiltAngles(coordinates):
         theta = Ellipse_Angle(x1, x2)
         a, b = find_semi_axes(area, len)
         alpha, beta = Tilt_Angles(a, b, theta)
-        angles.append(alpha, beta)
+        angles.append((alpha, beta))
     return np.array(angles)
 
 def find_semi_axes(Area, Circumference):
@@ -42,13 +42,13 @@ def find_semi_axes(Area, Circumference):
 
 def Ellipse_Angle(x1, x2):
     #Determines the ellipse angle theta as the angle of vector u projected on the xy plane
-    u = x2 - x1
+    u = np.array(x2) - np.array(x1)
     ux = u[0]
     uy = u[1]
     theta = np.arctan2(uy, ux)
     return theta
 
-def Tilt_Angles(a, b, theta):
+"""def Tilt_Angles(a, b, theta):
     #Checks if major axis is larger than minor axis
     if b > a:
         dummy = a
@@ -59,10 +59,12 @@ def Tilt_Angles(a, b, theta):
     tan2 = np.tan(theta)**2
     alpha = np.arccos(np.sqrt((1 + (b ** 2 / a ** 2) * tan2) / (1 + tan2)))
     beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
-    return alpha, beta
+    return alpha, beta """
+
 
 test_coordinates = [(0, 0, 0), (0, 0, 1), (0, 1, 2)]
-findTiltAngles(test_coordinates)
+test = findTiltAngles(test_coordinates)
+print(test)
 
 
 
