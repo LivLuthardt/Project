@@ -114,7 +114,7 @@ fig_3d = px.line_3d(
     x='x', y='y', z='z', 
     color='cluster_id',
     line_group='fibre_id',
-    title="GMM"
+    title="AGGL"
 )
 fig_3d.show()
 
