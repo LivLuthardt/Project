@@ -29,12 +29,15 @@ theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
 
 theta_lists = []
 
-for z in range(1, 129):   # z = 1 to 128
+for z in range(1, 129):
     subset = df_final[df_final['z'] == z]
     tuples = list(zip(subset['angle_x_deg'], subset['angle_y_deg']))
     theta_lists.append(tuples)
 
-z_specific_angles = theta_lists[120]
+z_value = 11
+
+z_specific_angles = theta_lists[z_value - 1]
+
 angles = np.array(z_specific_angles)
 
 theta_x = angles[:, 0]
@@ -47,7 +50,7 @@ print(corr)
 plt.scatter(theta_x, theta_y, alpha=0.6)
 plt.xlabel("Theta X (degrees)")
 plt.ylabel("Theta Y (degrees)")
-plt.title("Fibre angles at z = 1")
+plt.title(f"Fibre angles at z = {z_value}")
 plt.grid(True)
 plt.show()
 
