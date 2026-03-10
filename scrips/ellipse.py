@@ -8,7 +8,7 @@ def getEllipse(x1, x2):
     p1, p2 = geo.Point(x1), geo.Point(x2)
     v1 = geo.Vector(p1, p2)
     cyl = geo.Cylinder(p1,7,v1,n=100)
-    midpoint = geo.Point((x1 + x2)/2)
+    midpoint = geo.Point((np.array(x1) + np.array(x2))/2)
     plane = geo.Plane(midpoint, geo.z_unit_vector()) # construct at midpoint of cylinder to avoid endpoint cut issues
     ellipse = geo.intersection(cyl, plane)
     return ellipse.length(), ellipse.area()
