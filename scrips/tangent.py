@@ -1,7 +1,6 @@
 
 import pandas as pd 
 import numpy as np
-from data_clean import df_cleaned 
 
 def tangent_angles(df_cleaned):
     #consecutive point comparison
