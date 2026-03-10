@@ -24,8 +24,19 @@ def tangent_angles(df_cleaned):
 
 df_final = tangent_angles(df_cleaned)
 
-theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
+# 1. Define your point and how much "wiggle room" (tolerance) to allow
+target_x = 10
+target_y = 50
 
+# 2. Filter and print
+result = df_final[
+    (df_final['x'].between(target_x, target_x)) & 
+    (df_final['y'].between(target_y, target_y))
+]
+
+print(result[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
+
+theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
 theta_lists = []
 
 for z in range(1, 129):   # z = 1 to 128
@@ -44,12 +55,4 @@ fiber_summary = df_final.groupby('fibre_id').agg({
 
 # Rename the columns to reflect they are means
 fiber_summary.columns = ['fibre_id', 'x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'tilt_angle_mean']
-
-print(fiber_summary.head())
-
-#print(theta_tuples)
-# Look for rows where tilt is noticeable
-#tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
-#print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
-#hello
 
