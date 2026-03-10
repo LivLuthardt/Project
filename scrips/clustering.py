@@ -10,17 +10,17 @@ from tangent import fiber_summary
 
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
-"""   
+     
 def perform_kmeans_clustering(summary_df, n_clusters=5):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(summary_df[features])
+    scaled_data = scaler.fit_transform(df[features])
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
     scaled_df['x_mean'] *= 1.5
     scaled_df['y_mean'] *= 1.5
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    summary_df['cluster_id'] = kmeans.fit_predict(scaled_data)
-    return summary_df
+    df['cluster_id'] = kmeans.fit_predict(scaled_data)
+    return df
 
 fiber_summary = perform_kmeans_clustering(fiber_summary)
 
