@@ -66,4 +66,17 @@ test_coordinates = [(0, 0, 0), (0, 0, 1), (0, 1, 2)]
 print(findTiltAngles(test_coordinates))
 
 
+def getgamma(x1,x2):
+    v = np.array(x2)-np.array(x1)
+    print(v)
+    n = (0,0,1)
+    delta_z = v[2]
+    delta_x = v[0]
+    delta_y = v[1]
+    gamma = np.arccos(delta_z/np.sqrt(delta_x**2 + delta_y**2 + delta_z**2))
 
+
+
+    return gamma
+
+getgamma((0,0,0),(0,1,2))
