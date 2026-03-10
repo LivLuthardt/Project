@@ -89,4 +89,23 @@ fig_3d.show()
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 
+<<<<<<< HEAD
+def Aggl_clustering(X):
+    
+    features = ['x', 'y', 'tilt_angle_deg']
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(X[features])
+    
+    model = AgglomerativeClustering(linkage = 'ward', distance_threshold = 0, n_clusters = None)
+    model.fit(data_scaled)
+
+    
+
+
+
+
+
+
+=======
+>>>>>>> 5fcd4a7ee34690afe895dae33ed73b2b5a70b98c
 
