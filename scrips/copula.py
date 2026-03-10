@@ -2,15 +2,19 @@ import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
 import matplotlib as plt
+from ourmain import df_cleaned
+from tangent import tangent_angles
 
-np.random.seed(0)  # seed for the random generator
-n = 1000  # number of observations
-d = 3  # the dimension
-mean = 1 + np.random.normal(size=d)  # mean vector
-cov = np.random.normal(size=(d, d))  # covariance matrix
-cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
-x = np.random.multivariate_normal(mean, cov, n)
+# np.random.seed(0)  # seed for the random generator
+# n = 1000  # number of observations
+# d = 3  # the dimension
+# mean = 1 + np.random.normal(size=d)  # mean vector
+# cov = np.random.normal(size=(d, d))  # covariance matrix
+# cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
+# x = np.random.multivariate_normal(mean, cov, n)
 
+data = df_cleaned.groupby(by=['z'])
+print(data)
 
 def copula_model(data,n): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
@@ -25,9 +29,10 @@ def copula_model(data,n): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
     return data_sim
 
-data_sim = copula_model(x,1000)
-print(np.mean(x), np.std(x))
-print(np.mean(data_sim), np.std(data_sim))
+# data_sim = copula_model(tangent_angles(df_cleaned),len(tangent_angles(df_cleaned)))
+# print(np.mean(tangent_angles(df_cleaned)), np.std(tangent_angles(df_cleaned)))
+# print(np.mean(data_sim), np.std(data_sim))
+
 
 def coordinates(layer, data_sim, deltaz):
     # newlayer = np.empty(len(data_sim),2)
@@ -43,3 +48,4 @@ def coordinates(layer, data_sim, deltaz):
         newlayer.append([x,y])
 
     return newlayer
+
