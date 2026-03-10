@@ -49,7 +49,7 @@ def Ellipse_Angle(x1, x2):
 
 def Tilt_Angles(a, b, theta):
     #Checks if major axis is larger than minor axis
-    axes = np.array([a, b])
+    axes =np.array([a, b])
     a, b = axes.max(), axes.min()
     gamma = np.arccos(b/a)
     dxdz = -np.cos(theta)/np.tan(gamma)
@@ -59,6 +59,7 @@ def Tilt_Angles(a, b, theta):
     tan2 = np.tan(theta)**2
     alpha = np.arccos(np.sqrt((1 + (b ** 2 / a ** 2) * tan2) / (1 + tan2)))
     beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
+    """
     return dxdz, dydz
 
 test_coordinates = [(0, 0, 0), (0, 0, 1), (0, 1, 2)]
