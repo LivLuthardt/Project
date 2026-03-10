@@ -25,6 +25,23 @@ def tangent_angles(df_cleaned):
 df_final = tangent_angles(df_cleaned)
 
 theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
+
+theta_lists = []
+
+for z in range(1, 129):   # z = 1 to 128
+    subset = df_final[df_final['z'] == z]
+    tuples = list(zip(subset['angle_x_deg'], subset['angle_y_deg']))
+    theta_lists.append(tuples)
+
+
+
+
+
+#print(theta_tuples)
+# Look for rows where tilt is noticeable
+#tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
+#print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
+#hello
 # Look for rows where tilt is noticeable
 tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
 print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
