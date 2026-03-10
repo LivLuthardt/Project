@@ -1,0 +1,11 @@
+from sklearn.cluster import DBSCAN
+import numpy as np
+X = np.array([[1, 2], [2, 2], [2, 3],
+              [8, 7], [8, 8], [25, 80]])
+clustering = DBSCAN(eps=3, min_samples=2).fit(X)
+clustering.labels_
+np.array([ 0,  0,  0,  1,  1, -1])
+clustering
+DBSCAN(eps=3, min_samples=2)
+
+
