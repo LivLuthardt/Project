@@ -6,6 +6,8 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from tangent import df_final  
 from tangent import fiber_summary
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
      
@@ -89,7 +91,6 @@ fig_3d.show()
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 
-<<<<<<< HEAD
 def Aggl_clustering(X):
     
     features = ['x', 'y', 'tilt_angle_deg']
@@ -106,6 +107,4 @@ def Aggl_clustering(X):
 
 
 
-=======
->>>>>>> 5fcd4a7ee34690afe895dae33ed73b2b5a70b98c
 
