@@ -94,21 +94,21 @@ fig_3d.show()
 from sklearn.cluster import AgglomerativeClustering
 from scipy.cluster.hierarchy import dendrogram, linkage
 
-def Aggl_clustering(X):
-    
+def perform_agglomerative_clustering(X, n_clusters=5):
     features = ['x', 'y', 'tilt_angle_deg']
+    
     scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(X[features])
+    scaled_data = scaler.fit_transform(X[features])
     
     model = AgglomerativeClustering(
         n_clusters=n_clusters,
         linkage='ward'
     )
     
-    df = df.copy()
-    df['cluster_id'] = model.fit_predict(data_scaled)
+    X = X.copy()
+    X['cluster_id'] = model.fit_predict(scaled_data)
     
-    return df, model
+    return X, model
 
 clustered, model = perform_agglomerative_clustering(df_final)
 
