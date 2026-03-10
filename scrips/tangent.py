@@ -23,3 +23,5 @@ def tangent_angles(df_cleaned):
     return df.dropna(subset=['dx', 'dy', 'dz'])
 
 df_final = tangent_angles(df_cleaned)
+
+theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
