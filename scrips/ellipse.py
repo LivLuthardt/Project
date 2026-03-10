@@ -42,3 +42,30 @@ def find_semi_axes(Area, Circumference):
     return solution
 
 print(find_semi_axes(37.69911184,26.72978556))
+
+
+def Ellipse_Angle(x1, x2):
+    #Determines the ellipse angle theta as the angle of vector u projected on the xy plane
+    u = x2 - x1
+    ux = u[0]
+    uy = u[1]
+    theta = np.arctan2(uy, ux)
+    return theta
+
+def Tilt_Angles(a, b, theta):
+    #Checks if major axis is larger than minor axis
+    if b > a:
+        dummy = a
+        a = b
+        b = dummy
+    
+    #Calculates values for alpha and beta, and then returns them 
+    tan2 = np.tan(theta)**2
+    alpha = np.arccos(np.sqrt((1 + (b ** 2 / a ** 2) * tan2) / (1 + tan2)))
+    beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
+    return alpha, beta
+
+
+
+
+
