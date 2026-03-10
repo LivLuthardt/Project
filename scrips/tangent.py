@@ -52,7 +52,7 @@ plt.xlabel("Theta X (degrees)")
 plt.ylabel("Theta Y (degrees)")
 plt.title(f"Fibre angles at z = {z_value}")
 plt.grid(True)
-plt.show()
+#plt.show()
 
 
 
