@@ -1,45 +1,25 @@
 import numpy as np 
-import scipy as sp
-import Geometry3D as geo
+def eTiltAngles(x1, x2):
+    #Input two points (x1, y1, x1), (x2, y2, z2), get planar tilts alpha and beta
+    theta = ellipseAngle(x1, x2)
+    a, b = getEllipse(x1, x2)
+    alpha, beta = tiltAngles(a, b, theta)
+    return alpha, beta
 
-def getEllipse(x1, x2):
-    #takes inputs of the two points (x, y, z) as ndarrays to construct ellipse projection
-    #returns ellipse area and length
-    p1, p2 = geo.Point(x1), geo.Point(x2)
-    v1 = geo.Vector(p1, p2)
-    cyl = geo.Cylinder(p1,7,v1,n=100)
-    midpoint = geo.Point((np.array(x1) + np.array(x2))/2)
-    plane = geo.Plane(midpoint, geo.z_unit_vector()) # construct at midpoint of cylinder to avoid endpoint cut issues
-    ellipse = geo.intersection(cyl, plane)
-    return ellipse.length(), ellipse.area()
+def getEllipse(x1, x2): 
+    x1, x2 = np.array(x1), np.array(x2)
+    N = np.array([0, 0, 1]) #Normal vector of intersection plane
+    W = x2 - x1 #Axis vector of cylinder
+    W = W / np.linalg.norm(W)
+    A = (np.identity(3) - N @ N.T) @ W #Vector of ellipse major axis
+    B = np.cross(A, N)  #Vector of ellipse minor axis
+    scaling_factor = 7 / np.linalg.norm(B)  #Scale to 7 micrometer cylinder
+    A *= scaling_factor
+    B *= scaling_factor
+    a, b = np.linalg.norm(A), np.linalg.norm(B)
+    return a, b
 
-
-def findTiltAngles(coordinates):
-    #Return a list of length n-1 with all tilt angles
-    angles = []
-    for i, x in enumerate(coordinates[1:]):
-        x2, x1 = x, coordinates[i]
-        len, area = getEllipse(x1, x2)
-        theta = Ellipse_Angle(x1, x2)
-        a, b = find_semi_axes(area, len)
-        alpha, beta = Tilt_Angles(a, b, theta)
-        angles.append((alpha, beta))
-    return np.array(angles)
-
-def find_semi_axes(Area, Circumference):
-    def system(vars):
-        a,b = vars
-        if a <= 0 or b <= 0:
-            return [1e6, 1e6]
-        h = (a-b)**2/(a+b)**2
-        f_area = Area - np.pi*a*b
-        f_circum = Circumference - np.pi*(a+b)*(1+(3*h)/(10+np.sqrt(4-3*h)))
-        return [f_area, f_circum]
-    initial_guess = [5,5]
-    solution = sp.optimize.fsolve(system, initial_guess)
-    return solution
-
-def Ellipse_Angle(x1, x2):
+def ellipseAngle(x1, x2):
     #Determines the ellipse angle theta as the angle of vector u projected on the xy plane
     u = np.array(x2) - np.array(x1)
     ux = u[0]
@@ -47,23 +27,15 @@ def Ellipse_Angle(x1, x2):
     theta = np.arctan2(uy, ux)
     return theta
 
-def Tilt_Angles(a, b, theta):
+def tiltAngles(a, b, theta):
     #Checks if major axis is larger than minor axis
     axes =np.array([a, b])
     a, b = axes.max(), axes.min()
     gamma = np.arccos(b/a)
-    dxdz = -np.cos(theta)/np.tan(gamma)
-    dydz = -np.sin(theta)/np.tan(gamma)
-    """
-    #Calculates values for alpha and beta, and then returns them 
-    tan2 = np.tan(theta)**2
-    alpha = np.arccos(np.sqrt((1 + (b ** 2 / a ** 2) * tan2) / (1 + tan2)))
-    beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
-    """
-    return dxdz, dydz
+    alpha = gamma * np.cos(theta)
+    beta = gamma * np.sin(theta)
+    return alpha, beta
 
-test_coordinates = [(0, 0, 0), (0, 0, 1), (0, 1, 2)]
-print(findTiltAngles(test_coordinates))
-
-
+if __name__ == "__main__":
+    print(eTiltAngles([0, 0, 0], [0, 2, 1]))
 
