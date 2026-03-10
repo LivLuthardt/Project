@@ -48,16 +48,16 @@ fig.show()
 
 from sklearn.mixture import GaussianMixture
 
-def perform_gmm_clustering(df, n_components=2):
+def perform_gmm_clustering(df,n_clusters=5):
     # Features to use for clustering
-    features = ['angle_x_deg','angle_y_deg']
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     
     # Scale features
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
     
     # Fit Gaussian Mixture Model
-    gmm = GaussianMixture(n_components=n_components, random_state=42)
+    gmm = GaussianMixture(n_components=n_clusters, random_state=42)
     cluster_labels = gmm.fit_predict(scaled_data)
     
     # Add cluster labels to DataFrame
@@ -66,18 +66,9 @@ def perform_gmm_clustering(df, n_components=2):
     return df
 
 # Use GMM clustering instead of KMeans
-df_clustered = perform_gmm_clustering(df_final)
+df_clustered = perform_gmm_clustering(fiber_summary)
 
 # Plot clusters
-fig = px.scatter(
-    df_clustered, 
-    x='angle_x_deg', 
-    y='angle_y_deg', 
-    color='cluster_id',
-    title="Fiber Clusters by Planar Tilt",
-    labels={'angle_x_deg': 'ZX Planar Tilt [deg]', 'angle_y_deg': 'ZY Planar Tilt [deg]'}
-)
-fig.show()
 
 fig_3d = px.line_3d(
     df_clustered, 
