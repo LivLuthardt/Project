@@ -2,7 +2,6 @@
 import pandas as pd 
 import numpy as np
 from ourmain import df_cleaned
-import matplotlib.pyplot as plt
 
 def tangent_angles(df_cleaned):
     #consecutive point comparison
@@ -29,38 +28,28 @@ theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
 
 theta_lists = []
 
-for z in range(1, 129):
+for z in range(1, 129):   # z = 1 to 128
     subset = df_final[df_final['z'] == z]
     tuples = list(zip(subset['angle_x_deg'], subset['angle_y_deg']))
     theta_lists.append(tuples)
 
-z_value = 11
+# Create the fiber summary with mean values
+fiber_summary = df_final.groupby('fibre_id').agg({
+    'x': 'mean',
+    'y': 'mean',
+    'angle_x_deg': 'mean',
+    'angle_y_deg': 'mean',
+    'tilt_angle_deg': 'mean'
+}).reset_index()
 
-z_specific_angles = theta_lists[z_value - 1]
+# Rename the columns to reflect they are means
+fiber_summary.columns = ['fibre_id', 'x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'tilt_angle_mean']
 
-angles = np.array(z_specific_angles)
-
-theta_x = angles[:, 0]
-theta_y = angles[:, 1]
-
-corr = np.corrcoef(theta_x, theta_y)
-
-print(corr)
-
-plt.scatter(theta_x, theta_y, alpha=0.6)
-plt.xlabel("Theta X (degrees)")
-plt.ylabel("Theta Y (degrees)")
-plt.title(f"Fibre angles at z = {z_value}")
-plt.grid(True)
-#plt.show()
-
-
+print(fiber_summary.head())
 
 #print(theta_tuples)
 # Look for rows where tilt is noticeable
 #tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
 #print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
 #hello
-# Look for rows where tilt is noticeable
-#tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
-#print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
+
