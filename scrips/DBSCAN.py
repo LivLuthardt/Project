@@ -9,8 +9,10 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from tangent import df_final  
 
-def perform_kmeans_clustering(df, n_clusters=4):
-    features = ['x', 'y', 'angle_x_deg', 'angle_y_deg']
+
+def perform_kmeans_clustering(df, n_clusters=6):
+    #'angle_x_deg', 'angle_y_deg',
+    features = ['x', 'y', 'tilt_angle_deg']
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
@@ -40,18 +42,17 @@ fig_3d = px.line_3d(
 )
 fig_3d.show()
 
-
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 
 
-# METHOD 3: HDBSCAN
+#-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
 
 
 
-# METHOD 4: Gaussian Mixture GMM
+# ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 
 
 
-# METHOD 5: Agglomerative (Hierarchical)
+# ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 
 
