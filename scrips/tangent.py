@@ -1,7 +1,7 @@
 
 import pandas as pd 
 import numpy as np
-from scrips.data_clean import df_cleaned
+from data_clean import df_cleaned 
 
 def tangent_angles(df_cleaned):
     #consecutive point comparison
@@ -23,26 +23,6 @@ def tangent_angles(df_cleaned):
     return df.dropna(subset=['dx', 'dy', 'dz'])
 
 df_final = tangent_angles(df_cleaned)
-
-# 1. Define your point and how much "wiggle room" (tolerance) to allow
-target_x = 10
-target_y = 50
-
-# 2. Filter and print
-result = df_final[
-    (df_final['x'].between(target_x, target_x)) & 
-    (df_final['y'].between(target_y, target_y))
-]
-
-print(result[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
-
-theta_tuples = list(zip(df_final['angle_x_deg'], df_final['angle_y_deg']))
-theta_lists = []
-
-for z in range(1, 129):   # z = 1 to 128
-    subset = df_final[df_final['z'] == z]
-    tuples = list(zip(subset['angle_x_deg'], subset['angle_y_deg']))
-    theta_lists.append(tuples)
 
 # Create the fiber summary with mean values
 fiber_summary = df_final.groupby('fibre_id').agg({
