@@ -8,7 +8,7 @@ from tangent import df_final
 from tangent import fiber_summary
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
-
+     
 def perform_kmeans_clustering(summary_df, n_clusters=5):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
