@@ -7,8 +7,10 @@ from sklearn.preprocessing import StandardScaler
 from tangent import df_final  
 from tangent import fiber_summary
 
+
+
 # ---------------------------------------METHOD 1: k means------------------------------------------
-"""  
+     
 def perform_kmeans_clustering(summary_df, n_clusters=5):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
@@ -34,7 +36,7 @@ fig = px.line_3d(
     title="K-means "
 )
 fig.show()
-"""
+
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 
 
@@ -46,27 +48,26 @@ fig.show()
 
 from sklearn.mixture import GaussianMixture
 
-def perform_gmm_clustering(summary_df, n_components=3):
+def perform_gmm_clustering(df, n_components=2):
     # Features to use for clustering
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['angle_x_deg','angle_y_deg']
     
     # Scale features
     scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(summary_df[features])
+    scaled_data = scaler.fit_transform(df[features])
     
     # Fit Gaussian Mixture Model
     gmm = GaussianMixture(n_components=n_components, random_state=42)
     cluster_labels = gmm.fit_predict(scaled_data)
     
     # Add cluster labels to DataFrame
-    summary_df['cluster_id'] = cluster_labels
+    df['cluster_id'] = cluster_labels
     
-    return summary_df
+    return df
 
 # Use GMM clustering instead of KMeans
-fiber_summary = perform_gmm_clustering(fiber_summary)
+df_clustered = perform_gmm_clustering(df_final)
 
-df_clustered = df_final.merge(fiber_summary[['fibre_id', 'cluster_id']], on='fibre_id')
 # Plot clusters
 fig = px.scatter(
     df_clustered, 
@@ -89,6 +90,9 @@ fig_3d.show()
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
+
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 def Aggl_clustering(X):
     
