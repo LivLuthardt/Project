@@ -44,6 +44,47 @@ fig.show()
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 
+from sklearn.mixture import GaussianMixture
+
+def perform_gmm_clustering(df, n_components=2):
+    # Features to use for clustering
+    features = ['angle_x_deg','angle_y_deg']
+    
+    # Scale features
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(df[features])
+    
+    # Fit Gaussian Mixture Model
+    gmm = GaussianMixture(n_components=n_components, random_state=42)
+    cluster_labels = gmm.fit_predict(scaled_data)
+    
+    # Add cluster labels to DataFrame
+    df['cluster_id'] = cluster_labels
+    
+    return df
+
+# Use GMM clustering instead of KMeans
+df_clustered = perform_gmm_clustering(df_final)
+
+# Plot clusters
+fig = px.scatter(
+    df_clustered, 
+    x='angle_x_deg', 
+    y='angle_y_deg', 
+    color='cluster_id',
+    title="Fiber Clusters by Planar Tilt",
+    labels={'angle_x_deg': 'ZX Planar Tilt [deg]', 'angle_y_deg': 'ZY Planar Tilt [deg]'}
+)
+fig.show()
+
+fig_3d = px.line_3d(
+    df_clustered, 
+    x='x', y='y', z='z', 
+    color='cluster_id',
+    line_group='fibre_id',
+    title="Spatial Coherence of Fiber Clusters"
+)
+fig_3d.show()
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
