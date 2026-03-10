@@ -1,12 +1,12 @@
 import numpy as np 
-def eTiltAngles(x1, x2):
+def emTiltAngles(x1, x2):
     #Input two points (x1, y1, x1), (x2, y2, z2), get planar tilts alpha and beta
-    theta = ellipseAngle(x1, x2)
-    a, b = getEllipse(x1, x2)
-    alpha, beta = tiltAngles(a, b, theta)
+    theta = getTheta(x1, x2)
+    a, b = getEllipseAxes(x1, x2)
+    alpha, beta = getTiltAngles(a, b, theta)
     return alpha, beta
 
-def getEllipse(x1, x2): 
+def getEllipseAxes(x1, x2): 
     x1, x2 = np.array(x1), np.array(x2)
     N = np.array([0, 0, 1]) #Normal vector of intersection plane
     W = x2 - x1 #Axis vector of cylinder
@@ -19,7 +19,7 @@ def getEllipse(x1, x2):
     a, b = np.linalg.norm(A), np.linalg.norm(B)
     return a, b
 
-def ellipseAngle(x1, x2):
+def getTheta(x1, x2):
     #Determines the ellipse angle theta as the angle of vector u projected on the xy plane
     u = np.array(x2) - np.array(x1)
     ux = u[0]
@@ -27,7 +27,7 @@ def ellipseAngle(x1, x2):
     theta = np.arctan2(uy, ux)
     return theta
 
-def tiltAngles(a, b, theta):
+def getTiltAngles(a, b, theta):
     #Checks if major axis is larger than minor axis
     axes =np.array([a, b])
     a, b = axes.max(), axes.min()
@@ -37,5 +37,5 @@ def tiltAngles(a, b, theta):
     return alpha, beta
 
 if __name__ == "__main__":
-    print(eTiltAngles([0, 0, 0], [0, 2, 1]))
+    print(emTiltAngles([0, 0, 0], [0, 2, 1]))
 
