@@ -107,10 +107,10 @@ def perform_agglomerative_clustering(df, n_clusters=5):
     
     return df, model
 
-    
+clustered, model = perform_agglomerative_clustering(df_final)
 
 fig_3d = px.line_3d(
-    df_clustered, 
+    clustered, 
     x='x', y='y', z='z', 
     color='cluster_id',
     line_group='fibre_id',
