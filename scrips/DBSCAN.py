@@ -90,17 +90,33 @@ fig_3d.show()
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
-
-def Aggl_clustering(X):
     
+def perform_agglomerative_clustering(df, n_clusters=5):
     features = ['x', 'y', 'tilt_angle_deg']
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(X[features])
     
-    model = AgglomerativeClustering(linkage = 'ward', distance_threshold = 0, n_clusters = None)
-    model.fit(data_scaled)
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(df[features])
+    
+    model = AgglomerativeClustering(
+        n_clusters=n_clusters,
+        linkage='ward'
+    )
+    
+    df = df.copy()
+    df['cluster_id'] = model.fit_predict(data_scaled)
+    
+    return df, model
 
     
+
+fig_3d = px.line_3d(
+    df_clustered, 
+    x='x', y='y', z='z', 
+    color='cluster_id',
+    line_group='fibre_id',
+    title="GMM"
+)
+fig_3d.show()
 
 
 
