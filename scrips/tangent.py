@@ -42,3 +42,6 @@ for z in range(1, 129):   # z = 1 to 128
 #tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
 #print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
 #hello
+# Look for rows where tilt is noticeable
+tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
+print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
