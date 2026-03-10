@@ -11,7 +11,7 @@ from tangent import fiber_summary
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
      
-def perform_kmeans_clustering(df, n_clusters=5):
+def perform_kmeans_clustering(summary_df, n_clusters=5):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
@@ -70,14 +70,14 @@ df_clustered = perform_gmm_clustering(fiber_summary)
 
 # Plot clusters
 
-fig_3d = px.line_3d(
+fig = px.line_3d(
     df_clustered, 
     x='x', y='y', z='z', 
     color='cluster_id',
     line_group='fibre_id',
     title="GMM"
 )
-fig_3d.show()
+fig.show()
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
@@ -85,21 +85,21 @@ fig_3d.show()
 from sklearn.cluster import AgglomerativeClustering
 from scipy.cluster.hierarchy import dendrogram, linkage
 
-def Aggl_clustering(X):
-    
+def perform_agglomerative_clustering(X, n_clusters=5):
     features = ['x', 'y', 'tilt_angle_deg']
+    
     scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(X[features])
+    scaled_data = scaler.fit_transform(X[features])
     
     model = AgglomerativeClustering(
         n_clusters=n_clusters,
         linkage='ward'
     )
     
-    df = df.copy()
-    df['cluster_id'] = model.fit_predict(data_scaled)
+    X = X.copy()
+    X['cluster_id'] = model.fit_predict(scaled_data)
     
-    return df, model
+    return X, model
 
 clustered, model = perform_agglomerative_clustering(df_final)
 
