@@ -18,7 +18,7 @@ def findTiltAngles(coordinates):
     #Return a list of length n-1 with all tilt angles
     angles = []
     for i, x in enumerate(coordinates[1:]):
-        x2, x1 = x, coordinates[i-1]
+        x2, x1 = x, coordinates[i]
         len, area = getEllipse(x1, x2)
         theta = Ellipse_Angle(x1, x2)
         a, b = find_semi_axes(area, len)
