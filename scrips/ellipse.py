@@ -73,7 +73,6 @@ def getgamma(x1,x2):
     delta_z = v[2]
     delta_x = v[0]
     delta_y = v[1]
-    gamma = np.arccos(delta_z/np.sqrt(delta_x**2 + delta_y**2 + delta_z**2))
 
 
 
