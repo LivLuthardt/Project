@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from tangent import df_final  
 from tangent import fiber_summary
-
+"""
 # ---------------------------------------METHOD 1: k means------------------------------------------
      
 def perform_kmeans_clustering(summary_df, n_clusters=5):
@@ -34,7 +34,7 @@ fig = px.line_3d(
     title="K-means "
 )
 fig.show()
-
+"""
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 
 
@@ -46,26 +46,27 @@ fig.show()
 
 from sklearn.mixture import GaussianMixture
 
-def perform_gmm_clustering(df, n_components=2):
+def perform_gmm_clustering(summary_df, n_components=3):
     # Features to use for clustering
-    features = ['angle_x_deg','angle_y_deg']
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     
     # Scale features
     scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(df[features])
+    scaled_data = scaler.fit_transform(summary_df[features])
     
     # Fit Gaussian Mixture Model
     gmm = GaussianMixture(n_components=n_components, random_state=42)
     cluster_labels = gmm.fit_predict(scaled_data)
     
     # Add cluster labels to DataFrame
-    df['cluster_id'] = cluster_labels
+    summary_df['cluster_id'] = cluster_labels
     
-    return df
+    return summary_df
 
 # Use GMM clustering instead of KMeans
-df_clustered = perform_gmm_clustering(df_final)
+fiber_summary = perform_gmm_clustering(fiber_summary)
 
+df_clustered = df_final.merge(fiber_summary[['fibre_id', 'cluster_id']], on='fibre_id')
 # Plot clusters
 fig = px.scatter(
     df_clustered, 
@@ -89,23 +90,4 @@ fig_3d.show()
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 
-<<<<<<< HEAD
-def Aggl_clustering(X):
-    
-    features = ['x', 'y', 'tilt_angle_deg']
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(X[features])
-    
-    model = AgglomerativeClustering(linkage = 'ward', distance_threshold = 0, n_clusters = None)
-    model.fit(data_scaled)
-
-    
-
-
-
-
-
-
-=======
->>>>>>> 5fcd4a7ee34690afe895dae33ed73b2b5a70b98c
 
