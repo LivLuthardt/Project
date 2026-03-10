@@ -48,25 +48,25 @@ fig.show()
 
 from sklearn.mixture import GaussianMixture
 
-def perform_gmm_clustering(df, n_components=2):
+def perform_gmm_clustering(summary_df,n_clusters=5):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     
     # Scale features
     scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(df[features])
+    scaled_data = scaler.fit_transform(summary_df[features])
     
     # Fit Gaussian Mixture Model
-    gmm = GaussianMixture(n_components=n_components, random_state=42)
+    gmm = GaussianMixture(n_components=n_clusters, random_state=42)
     cluster_labels = gmm.fit_predict(scaled_data)
     
     # Add cluster labels to DataFrame
-    df['cluster_id'] = cluster_labels
+    summary_df['cluster_id'] = cluster_labels
     
-    return df
+    return summary_df
 
 # Use GMM clustering instead of KMeans
-df_clustered = perform_gmm_clustering(df_final)
+df_clustered = perform_gmm_clustering(fiber_summary)
 
 # Plot clusters
 
