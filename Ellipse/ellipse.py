@@ -22,6 +22,8 @@ def getEllipse(x1, x2):
 
 
 def find_semi_axes(Area, Circumference):
+    #Takes inputs as the area of an ellipse and circumference as floats
+    #Returns semi major and minor axes as 
     def system(vars):
         a,b = vars
         if a <= 0 or b <= 0:
@@ -33,6 +35,6 @@ def find_semi_axes(Area, Circumference):
     initial_guess = [5,5]
     solution = sp.optimize.fsolve(system, initial_guess)
     a,b = solution
-    return solution
+    return a,b
 
 print(find_semi_axes(37.69911184,26.72978556))
