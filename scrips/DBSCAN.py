@@ -33,7 +33,7 @@ fig = px.line_3d(
     x='x', y='y', z='z', 
     color='cluster_id',
     line_group='fibre_id',
-    title="Spatial Coherence of Fiber Clusters"
+    title="K-means "
 )
 fig.show()
 
@@ -84,7 +84,7 @@ fig_3d = px.line_3d(
     x='x', y='y', z='z', 
     color='cluster_id',
     line_group='fibre_id',
-    title="Spatial Coherence of Fiber Clusters"
+    title="GMM"
 )
 fig_3d.show()
 
