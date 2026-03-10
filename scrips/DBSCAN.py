@@ -10,7 +10,7 @@ from tangent import fiber_summary
 
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
-     
+"""   
 def perform_kmeans_clustering(summary_df, n_clusters=5):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
@@ -36,7 +36,7 @@ fig = px.line_3d(
     title="K-means "
 )
 fig.show()
-
+"""
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 
 
@@ -70,14 +70,14 @@ df_clustered = perform_gmm_clustering(fiber_summary)
 
 # Plot clusters
 
-fig_3d = px.line_3d(
+fig = px.line_3d(
     df_clustered, 
     x='x', y='y', z='z', 
     color='cluster_id',
     line_group='fibre_id',
     title="GMM"
 )
-fig_3d.show()
+fig.show()
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
