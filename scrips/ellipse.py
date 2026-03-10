@@ -34,12 +34,6 @@ def tiltAngles(a, b, theta):
     gamma = np.arccos(b/a)
     alpha = gamma * np.cos(theta)
     beta = gamma * np.sin(theta)
-    """
-    #Calculates values for alpha and beta, and then returns them 
-    tan2 = np.tan(theta)**2
-    alpha = np.arccos(np.sqrt((1 + (b ** 2 / a ** 2) * tan2) / (1 + tan2)))
-    beta = np.arccos((b / a) * np.sqrt((1 + tan2) / (1 + (b ** 2 / a **2 ) * tan2)))
-    """
     return alpha, beta
 
 if __name__ == "__main__":
