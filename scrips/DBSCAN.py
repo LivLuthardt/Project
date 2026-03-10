@@ -57,8 +57,9 @@ fig_3d.show()
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 
-def Aggl_clustering(df)
-    linkage_model = AgglomerativeClustering(linkage = 'single', distance_threshold = 0, n_clusters = None)
+def Aggl_clustering(X)
+    model = AgglomerativeClustering(linkage = 'ward', distance_threshold = 0, n_clusters = None)
+    model.fit(X)
 
     
 
