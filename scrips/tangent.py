@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from ourmain import df_cleaned
 
-def get_tangent_angles(df_cleaned):
+def tangent_angles(df_cleaned):
     #consecutive point comparison
     df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
 
@@ -22,4 +22,4 @@ def get_tangent_angles(df_cleaned):
     # Return the dataframe with the new tilt columns, removing NaN: the first points
     return df.dropna(subset=['dx', 'dy', 'dz'])
 
-df_final = get_tangent_angles(df_cleaned)
+df_final = tangent_angles(df_cleaned)
