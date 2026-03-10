@@ -2,6 +2,7 @@
 import pandas as pd 
 import numpy as np
 from ourmain import df_cleaned
+import matplotlib.pyplot as plt
 
 def tangent_angles(df_cleaned):
     #consecutive point comparison
@@ -33,6 +34,24 @@ for z in range(1, 129):   # z = 1 to 128
     tuples = list(zip(subset['angle_x_deg'], subset['angle_y_deg']))
     theta_lists.append(tuples)
 
+z_specific_angles = theta_lists[120]
+angles = np.array(z_specific_angles)
+
+theta_x = angles[:, 0]
+theta_y = angles[:, 1]
+
+corr = np.corrcoef(theta_x, theta_y)
+
+print(corr)
+
+plt.scatter(theta_x, theta_y, alpha=0.6)
+plt.xlabel("Theta X (degrees)")
+plt.ylabel("Theta Y (degrees)")
+plt.title("Fibre angles at z = 1")
+plt.grid(True)
+plt.show()
+
+
 
 #print(theta_tuples)
 # Look for rows where tilt is noticeable
@@ -40,5 +59,5 @@ for z in range(1, 129):   # z = 1 to 128
 #print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
 #hello
 # Look for rows where tilt is noticeable
-tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
-print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
+#tilted_samples = df_final[df_final['tilt_angle_deg'] > 5].head(10)
+#print(tilted_samples[['fibre_id', 'z', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']])
