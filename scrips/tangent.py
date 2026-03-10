@@ -11,7 +11,7 @@ def get_tangent_angles(df_cleaned):
     df['dy'] = df.groupby('fibre_id')['y'].diff()
     df['dz'] = df.groupby('fibre_id')['z'].diff()
 
-    # zx and zy planar tilit
+    # zx and zy planar tilt
     df['angle_x_deg'] = np.degrees(np.arctan2(df['dx'], df['dz']))
     df['angle_y_deg'] = np.degrees(np.arctan2(df['dy'], df['dz']))
     
