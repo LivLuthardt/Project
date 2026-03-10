@@ -8,6 +8,8 @@ import plotly.express as px
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from tangent import df_final  
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 def perform_kmeans_clustering(df, n_clusters=4):
     features = ['x', 'y', 'angle_x_deg', 'angle_y_deg']
@@ -55,7 +57,8 @@ fig_3d.show()
 # METHOD 5: Agglomerative (Hierarchical)
 
 def Aggl_clustering(df)
-    linkage = 'single'
+    linkage_model = AgglomerativeClustering(linkage = 'single', distance_threshold = 0, n_clusters = None)
+
     
 
 
