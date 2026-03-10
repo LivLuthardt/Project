@@ -54,4 +54,13 @@ fig_3d.show()
 
 # METHOD 5: Agglomerative (Hierarchical)
 
+def Aggl_clustering(df)
+    linkage = 'single'
+    
+
+
+
+
+
+
 
