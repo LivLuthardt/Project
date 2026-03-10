@@ -19,19 +19,21 @@ def tangent_angles(df_cleaned):
     df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
     
     # Return the dataframe with the new tilt columns, removing NaN: the first points
-    return df.dropna(subset=['dx', 'dy', 'dz'])
+    df.dropna(subset=['dx', 'dy', 'dz'])
 
-df_final = tangent_angles(df_cleaned)
+    return df
 
-# Create the fiber summary with mean values
-fiber_summary = df_final.groupby('fibre_id').agg({
-    'x': 'mean',
-    'y': 'mean',
-    'angle_x_deg': 'mean',
-    'angle_y_deg': 'mean',
-    'tilt_angle_deg': 'mean'
-}).reset_index()
+def fiber_summary(df):
+    # Create the fiber summary with mean values
+    fiber_summary = df.groupby('fibre_id').agg({
+        'x': 'mean',
+        'y': 'mean',
+        'angle_x_deg': 'mean',
+        'angle_y_deg': 'mean',
+        'tilt_angle_deg': 'mean'
+    }).reset_index()
 
-# Rename the columns to reflect they are means
-fiber_summary.columns = ['fibre_id', 'x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'tilt_angle_mean']
+    # Rename the columns to reflect they are means
+    fiber_summary.columns = ['fibre_id', 'x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'tilt_angle_mean']
+    return fiber_summary
 

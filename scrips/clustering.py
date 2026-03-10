@@ -4,9 +4,6 @@ import numpy as np
 import plotly.express as px
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from tangent import df_final  
-from tangent import fiber_summary
-
 
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
@@ -22,20 +19,17 @@ def perform_kmeans_clustering(df, n_clusters=5):
     df['cluster_id'] = kmeans.fit_predict(scaled_data)
     return df
 
-fiber_summary = perform_kmeans_clustering(fiber_summary)
 
-# 2. Merge cluster IDs back to the original points for 3D plotting
-df_clustered = df_final.merge(fiber_summary[['fibre_id', 'cluster_id']], on='fibre_id')
-
-# 3. Plotting (Now df_clustered has x, y, z AND cluster_id)
-fig = px.line_3d(
-    df_clustered, 
-    x='x', y='y', z='z', 
-    color='cluster_id',
-    line_group='fibre_id',
-    title="K-means "
-)
-fig.show()
+def plot_k(df_clustered):
+    # 3. Plotting (Now df_clustered has x, y, z AND cluster_id)
+    fig = px.line_3d(
+        df_clustered, 
+        x='x', y='y', z='z', 
+        color='cluster_id',
+        line_group='fibre_id',
+        title="K-means "
+    )
+    fig.show()
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 
@@ -65,20 +59,17 @@ def perform_gmm_clustering(df,n_clusters=5):
     
     return df
 
-# Use GMM clustering instead of KMeans
-fiber_summary = perform_gmm_clustering(fiber_summary)
 
-df_clustered = df_final.merge(fiber_summary[['fibre_id', 'cluster_id']], on='fibre_id')
 # Plot clusters
-
-fig = px.line_3d(
-    df_clustered, 
-    x='x', y='y', z='z', 
-    color='cluster_id',
-    line_group='fibre_id',
-    title="GMM"
-)
-fig.show()
+def plot_gmm(df_clustered):
+    fig = px.line_3d(
+        df_clustered, 
+        x='x', y='y', z='z', 
+        color='cluster_id',
+        line_group='fibre_id',
+        title="GMM"
+    )
+    fig.show()
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
@@ -102,16 +93,15 @@ def perform_agglomerative_clustering(X, n_clusters=5):
     
     return X, model
 
-clustered, model = perform_agglomerative_clustering(df_final)
-
-fig_3d = px.line_3d(
-    clustered, 
-    x='x', y='y', z='z', 
-    color='cluster_id',
-    line_group='fibre_id',
-    title="AGGL"
-)
-fig_3d.show()
+def plot_agg(clustered):
+    fig_3d = px.line_3d(
+        clustered, 
+        x='x', y='y', z='z', 
+        color='cluster_id',
+        line_group='fibre_id',
+        title="AGGL"
+    )
+    fig_3d.show()
 
 
 

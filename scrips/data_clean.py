@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 
-def data_clean():
+def data_cleaned():
     #PART 1: CLEANING NAN
     #Data Import
     df = pd.read_csv('raw_data.csv')
