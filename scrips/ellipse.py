@@ -37,6 +37,6 @@ def tiltAngles(a, b, theta):
     return alpha, beta
 
 if __name__ == "__main__":
-    print(eTiltAngles([0, 0, 0], [0, 2, 1]))
+    print(eTiltAngles([0, 0, 0], [1, 0, 1]))
 
 
