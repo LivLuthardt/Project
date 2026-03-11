@@ -16,9 +16,11 @@ def getEllipse(x1, x2, r = 7):
     W = x2 - x1
     W = W / np.linalg.norm(W)
     #Determine major/minor axes of ellipse intersection
-    b = r
+    b = r                     #Scaling factor is 1/cos(angle below)
     a = r / abs(np.dot(N, W)) #a=r/cos(angle fiber-normal) ->cos(angle)=|N dot W|
     return a, b 
+    #We dont actually need ellipse axis directional matrices,
+    #the ellipse intersection is built into direct calculation of a=r/abs(...) 
 
     """
     x1, x2 = np.array(x1), np.array(x2)
@@ -46,9 +48,10 @@ def tiltAngles(a, b, theta):
     axes =np.array([a, b])
     a, b = axes.max(), axes.min()
     gamma = np.arccos(b / a)
+    #Redefine alpha and beta as angle decompositions, not vector 
     alpha = np.arctan(np.tan(gamma) * np.cos(theta))
     beta = np.arctan(np.tan(gamma) * np.sin(theta))
-    return alpha * 180 / np.pi, beta * 180 / np.pi
+    return alpha * 180 / np.pi, beta * 180 / np.pi #Convert to degrees
 
     """
     gamma = np.arccos(b/a) * (180/np.pi) #Convert to degrees
@@ -59,4 +62,4 @@ def tiltAngles(a, b, theta):
 if __name__ == "__main__":
     print(eTiltAngles([0, 0, 0], [1.48, 0.77, 1]))
 
-
+#End
