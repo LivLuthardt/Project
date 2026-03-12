@@ -23,9 +23,10 @@ df = df.dropna(subset=['dx', 'dy', 'dz'])
 print(df)
 """
 copula_lst = [0 for _ in range(129)]
-for row_n in range(1,129+1):
-    data_sorted = sort(df,row_n)
-    copula_lst[row_n-1] = bivariate_copula(data_sorted,len(data_sorted))
+# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
+for row_n in range(1,129):
+    data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
+    copula_lst[row_n-1] = bivariate_copula(data_filtered,len(data_filtered))
 print(copula_lst)
 """
 #define a number of clusters for all methods
