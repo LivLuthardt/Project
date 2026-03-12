@@ -13,26 +13,26 @@ fiber_sum = fiber_summary(df)
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 for r in df.itertuples(index=True):
     x2 = (r[3], r[4], r[2]) #Current fiber point
-    if r[0] == 0: 
-        tilt = (0, 0) #Can't compute tilt from a single point
-    else:  
-        tilt = eTiltAngles(x1, x2) #Pass the past and current points
+    if r[0] == 0: tilt = (0, 0) #Can't compute tilt from a single point
+    else:  tilt = eTiltAngles(x1, x2) #Pass the past and current points
     xtiltAngles.append(tilt[0])
     ytiltAngles.append(tilt[1])
     x1 = x2 #Set the current point to the past point
-df = df.assign(EllipseXTilt = xtiltAngles) #Add the tilt angles as a df column
-df = df.assign(EllipseYTilt = ytiltAngles)
+df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
+df = df.dropna(subset=['dx', 'dy', 'dz'])
 
-# copula = np.zeros((128,1))
-# for row in range(1,129):
-#     data_sorted = sort(df,row)
-#     copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
-# print(copula)
+copula_lst = [0 for _ in range(129)]
+# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
+for row_n in range(1,129):
+    data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
+    copula_lst[row_n-1] = bivariate_copula(data_filtered,len(data_filtered))
+print(copula_lst)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_k = plot_k(df_clustered_k)
+# make a plot of the sse to evaluate the accuracy of the method
 sse_k = sse_plot_k(fiber_sum)
 sse_k.show()
 
