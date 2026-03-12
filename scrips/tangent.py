@@ -19,7 +19,7 @@ def tangent_angles(df_cleaned):
     df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
     
     # Return the dataframe with the new tilt columns, removing NaN: the first points
-    df.dropna(subset=['dx', 'dy', 'dz'])
+    df = df.dropna(subset=['dx', 'dy', 'dz'])
 
     return df
 
