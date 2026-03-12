@@ -29,6 +29,7 @@ for row_n in range(1,129):
 
     if row_n == 67:
         cop.plot()
+        print(f'Showing density plot for copula at z = {row_n}')
 
 print(copula_lst)
 
