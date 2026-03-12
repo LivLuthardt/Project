@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
 
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
@@ -55,6 +56,10 @@ def plot_k(df_clustered):
     fig.show()
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
+def perform_DBSCAN_clustering(df):
+    return 1
+
+    
 
 
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
