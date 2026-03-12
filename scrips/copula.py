@@ -22,10 +22,10 @@ def sort(data,n):
 
 def bivariate_copula(data,n): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
-    pv.pairs_copula_data(u, scatter_size=0.5)
+    #pv.pairs_copula_data(u, scatter_size=0.5)
     cop = pv.Bicop.from_data(data=u)
-    print(cop)
-    cop.plot()
+    #+print(cop)
+    #cop.plot()
 
     n_sim = n
     u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
