@@ -4,7 +4,8 @@ from tangent import*
 from copula import*
 from clustering import*
 
-data_clean = data_cleaned()
+df = pd.read_csv('raw_data.csv')
+data_clean = data_cleaned(df)
 
 df = tangent_angles(data_clean)
 fiber_sum = fiber_summary(df)

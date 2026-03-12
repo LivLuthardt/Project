@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 
-def data_cleaned():
+def data_cleaned(df):
     #PART 1: CLEANING NAN
     #Data Import
-    df = pd.read_csv('raw_data.csv')
     #Data Cleanup
     df_clean = df.dropna()
 
