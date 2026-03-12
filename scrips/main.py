@@ -33,6 +33,7 @@ fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_k = plot_k(df_clustered_k)
+# make a plot of the sse to evaluate the accuracy of the method
 sse_k = sse_plot_k(fiber_sum)
 sse_k.show()
 
