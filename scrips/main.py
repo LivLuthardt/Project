@@ -38,7 +38,6 @@ df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_k = plot_k(df_clustered_k)
 # make a plot of the sse to evaluate the accuracy of the method
 sse_k = sse_plot_k(fiber_sum)
-sse_k.show()
 
 # Use GMM clustering instead of KMeans
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum)
