@@ -26,9 +26,10 @@ df = df.assign(EllipseYTilt = ytiltAngles)
 df = df.dropna(subset=['dx', 'dy', 'dz'])
 
 copula_lst = [0 for _ in range(129)]
-for row_n in range(1,129+1):
-    data_sorted = sort(df,row_n)
-    copula_lst[row_n-1] = bivariate_copula(data_sorted,len(data_sorted))
+# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
+for row_n in range(1,129):
+    data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
+    copula_lst[row_n-1] = bivariate_copula(data_filtered,len(data_filtered))
 print(copula_lst)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
