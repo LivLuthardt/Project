@@ -28,10 +28,12 @@ for row_n in range(1,129+1):
     copula_lst[row_n-1] = bivariate_copula(data_sorted,len(data_sorted))
 print(copula_lst)
 
-fiber_summary_k = perform_kmeans_clustering(fiber_sum)
+fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_k = plot_k(df_clustered_k)
+sse_k = sse_plot_k(fiber_sum)
+sse_k.show()
 
 # Use GMM clustering instead of KMeans
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum)
