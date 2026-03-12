@@ -28,7 +28,7 @@ for row_n in range(1,129):
     copula_lst[row_n-1],cop = bivariate_copula(data_filtered,len(data_filtered))
 
     if row_n == 67:
-        cop.show()
+        cop.plot()
 
 print(copula_lst)
 
