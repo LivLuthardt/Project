@@ -24,7 +24,7 @@ df = df.dropna(subset=['dx', 'dy', 'dz'])
 
 
 copula_lst = [0 for _ in range(129)]
-for row_n in range(1,129+1):
+for row_n in range(1,129):
     data_sorted = sort(df,row_n)
     copula_lst[row_n-1] = bivariate_copula(data_sorted,len(data_sorted))
 print(copula_lst)
