@@ -5,7 +5,7 @@ def eTiltAngles(x1, x2):
     a, b = getEllipse(x1, x2)
     alpha, beta = tiltAngles(a, b, theta)
     #Angle from horizontal instead of vertical
-    return 90 - alpha, 90 - beta
+    return alpha, beta
 
 def getEllipse(x1, x2, r = 7): 
     #Define coordinates as arrays
@@ -60,6 +60,6 @@ def tiltAngles(a, b, theta):
     return alpha, beta"""
 
 if __name__ == "__main__":
-    print(eTiltAngles([0, 0, 0], [1.48, 0.77, 1]))
+    print(eTiltAngles([0, 0, 0], [1, 0, 1]))
 
 #End
