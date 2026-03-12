@@ -6,6 +6,7 @@ def data_cleaned():
     #PART 1: CLEANING NAN
     #Data Import
     df = pd.read_csv('raw_data.csv')
+    # df = pd.read_csv('.\\project\\raw_data.csv')
     #Data Cleanup
     df_clean = df.dropna()
 

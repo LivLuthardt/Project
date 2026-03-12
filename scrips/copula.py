@@ -12,13 +12,12 @@ import matplotlib as plt
 # x = np.random.multivariate_normal(mean, cov, n)
 
 def sort(data,n):
-    for z in range(max(data['z'])+1):
-        # Filter out rows which do not match our z value
-        df_z = data[data['z'] == n]
-        # take out dx and dy rows  
-        df_z = df_z[['angle_x_deg','angle_y_deg']]
-        x = df_z.to_numpy()
-    print(x)
+    # Filter out rows which do not match our z value
+    df_z = data[data['z'] == n]
+    # take out dx and dy rows  
+    df_z = df_z[['angle_x_deg','angle_y_deg']]
+    x = df_z.to_numpy()
+    # print(x)
     return x
 
 def bivariate_copula(data,n): #n is number of fibers in a layer

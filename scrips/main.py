@@ -10,12 +10,12 @@ df = tangent_angles(data_clean)
 fiber_sum = fiber_summary(df)
 
 #ellipse 
+copula_lst = [i for i in range(129)]
 
-# copula = np.zeros((128,1))
-# for row in range(1,129):
-#     data_sorted = sort(df,row)
-#     copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
-# print(copula)
+for row_n in range(1,129+1):
+    data_sorted = sort(df,row_n)
+    copula_lst[row_n-1] = bivariate_copula(data_sorted,len(data_sorted))
+print(copula_lst)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum)
 # 2. Merge cluster IDs back to the original points for 3D plotting
