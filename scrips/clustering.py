@@ -1,10 +1,10 @@
 # OVERVIEW OF DIFFERENT METHODS: https://scikit-learn.org/stable/modules/clustering.html
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
 
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
@@ -22,13 +22,14 @@ def perform_kmeans_clustering(df, n_clusters):
 
 def sse_plot_k(df):
     sse = []
-    for k in range(1, 11):
+    n_clusters = range(1,11)
+    for k in n_clusters:
         df , inertia = perform_kmeans_clustering(df,n_clusters=k)
         sse.append(inertia)
 
     # Create a DataFrame for plotting
     plot_df = pd.DataFrame({
-        'Number of Clusters': range(1, 11),
+        'Number of Clusters': n_clusters,
         'SSE': sse
     })
 
@@ -44,7 +45,7 @@ def sse_plot_k(df):
     fig.show()
 
 def plot_k(df_clustered):
-    # 3. Plotting (Now df_clustered has x, y, z AND cluster_id)
+    # 3. Plotting (Now Fdf_clustered has x, y, z AND cluster_id)
     fig = px.line_3d(
         df_clustered, 
         x='x', y='y', z='z', 
@@ -55,6 +56,10 @@ def plot_k(df_clustered):
     fig.show()
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
+def perform_DBSCAN_clustering(df):
+    return 1
+
+    
 
 
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
@@ -65,7 +70,7 @@ def plot_k(df_clustered):
 
 from sklearn.mixture import GaussianMixture
 
-def perform_gmm_clustering(df,n_clusters=5):
+def perform_gmm_clustering(df,n_clusters):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     
@@ -79,9 +84,36 @@ def perform_gmm_clustering(df,n_clusters=5):
     
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labels
-    
-    return df
 
+    return df,gmm.aic(scaled_data),gmm.bic(scaled_data)
+
+def aic_bic_plot_gmm(df):
+    aic_vals = []
+    bic_vals = []
+    n_clusters = range(1,11)
+    for k in n_clusters:
+        df , aic , bic = perform_gmm_clustering(df,n_clusters=k)
+        aic_vals.append(aic)
+        bic_vals.append(bic)
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': list(n_clusters) * 2,
+        'Criterion': ['AIC'] * len(n_clusters) + ['BIC'] * len(n_clusters),
+        'Value': aic_vals + bic_vals
+    })
+
+    fig = px.line(
+        plot_df, 
+        x='Number of Clusters', 
+        y='Value', 
+        color='Criterion',
+        markers=True,
+        title="AIC and BIC vs Number of Clusters",
+        labels={'Value': 'Criterion Value'}
+    )
+
+    fig.show()
 
 # Plot clusters
 def plot_gmm(df_clustered):
@@ -139,10 +171,3 @@ def plot_agg(clustered):
         title="AGGL"
     )
     fig_3d.show()
-
-
-
-
-
-
-

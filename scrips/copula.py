@@ -1,7 +1,7 @@
 import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # np.random.seed(0)  # seed for the random generator
 # n = 1000  # number of observations
