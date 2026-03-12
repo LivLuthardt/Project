@@ -1,12 +1,28 @@
 import numpy as np 
-def emTiltAngles(x1, x2):
+def eTiltAngles(x1, x2):
     #Input two points (x1, y1, x1), (x2, y2, z2), get planar tilts alpha and beta
-    theta = getTheta(x1, x2)
-    a, b = getEllipseAxes(x1, x2)
-    alpha, beta = getTiltAngles(a, b, theta)
-    return alpha, beta
+    theta = ellipseAngle(x1, x2)
+    a, b = getEllipse(x1, x2)
+    alpha, beta = tiltAngles(a, b, theta)
+    #Angle from horizontal instead of vertical
+    return 90 - alpha, 90 - beta
 
-def getEllipseAxes(x1, x2): 
+def getEllipse(x1, x2, r = 7): 
+    #Define coordinates as arrays
+    x1, x2 = np.array(x1), np.array(x2)
+    #Unit vectors for normal vector N and ellipse vector W
+    N = np.array([0.0, 0.0, 1.0])
+    N = N / np.linalg.norm(N)
+    W = x2 - x1
+    W = W / np.linalg.norm(W)
+    #Determine major/minor axes of ellipse intersection
+    b = r                     #Scaling factor is 1/cos(angle below)
+    a = r / abs(np.dot(N, W)) #a=r/cos(angle fiber-normal) ->cos(angle)=|N dot W|
+    return a, b 
+    #We dont actually need ellipse axis directional matrices,
+    #the ellipse intersection is built into direct calculation of a=r/abs(...) 
+
+    """
     x1, x2 = np.array(x1), np.array(x2)
     N = np.array([0, 0, 1]) #Normal vector of intersection plane
     W = x2 - x1 #Axis vector of cylinder
@@ -17,9 +33,9 @@ def getEllipseAxes(x1, x2):
     A *= scaling_factor
     B *= scaling_factor
     a, b = np.linalg.norm(A), np.linalg.norm(B)
-    return a, b
+    return a, b"""
 
-def getTheta(x1, x2):
+def ellipseAngle(x1, x2):
     #Determines the ellipse angle theta as the angle of vector u projected on the xy plane
     u = np.array(x2) - np.array(x1)
     ux = u[0]
@@ -27,15 +43,23 @@ def getTheta(x1, x2):
     theta = np.arctan2(uy, ux)
     return theta
 
-def getTiltAngles(a, b, theta):
+def tiltAngles(a, b, theta):
     #Checks if major axis is larger than minor axis
     axes =np.array([a, b])
     a, b = axes.max(), axes.min()
-    gamma = np.arccos(b/a)
+    gamma = np.arccos(b / a)
+    #Redefine alpha and beta as angle decompositions, not vector 
+    alpha = np.arctan(np.tan(gamma) * np.cos(theta))
+    beta = np.arctan(np.tan(gamma) * np.sin(theta))
+    return alpha * 180 / np.pi, beta * 180 / np.pi #Convert to degrees
+
+    """
+    gamma = np.arccos(b/a) * (180/np.pi) #Convert to degrees
     alpha = gamma * np.cos(theta)
     beta = gamma * np.sin(theta)
-    return alpha, beta
+    return alpha, beta"""
 
 if __name__ == "__main__":
-    print(emTiltAngles([0, 0, 0], [0, 2, 1]))
+    print(eTiltAngles([0, 0, 0], [1.48, 0.77, 1]))
 
+#End
