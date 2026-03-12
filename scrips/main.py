@@ -11,11 +11,11 @@ fiber_sum = fiber_summary(df)
 
 #ellipse 
 
-copula = np.zeros((128,1))
-for row in range(1,129):
-    data_sorted = sort(df,row)
-    copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
-print(copula)
+#copula = np.zeros((128,1))
+#for row in range(1,129):
+    #data_sorted = sort(df,row)
+    #copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
+#print(copula)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum)
 # 2. Merge cluster IDs back to the original points for 3D plotting
