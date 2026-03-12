@@ -23,19 +23,11 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles) #Add the tilt angles as a df column
 df = df.assign(EllipseYTilt = ytiltAngles)
 
-<<<<<<< HEAD
-#copula = np.zeros((128,1))
-#for row in range(1,129):
-    #data_sorted = sort(df,row)
-    #copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
-#print(copula)
-=======
 # copula = np.zeros((128,1))
 # for row in range(1,129):
 #     data_sorted = sort(df,row)
 #     copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
 # print(copula)
->>>>>>> 9c06a42521e54b3ee8ae6306e2070d719812ada1
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
