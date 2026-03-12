@@ -1,7 +1,7 @@
 import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # np.random.seed(0)  # seed for the random generator
 # n = 1000  # number of observations
@@ -22,10 +22,11 @@ def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
 
 def bivariate_copula(data,n): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
-    #pv.pairs_copula_data(u, scatter_size=0.5)
+    print(u)
+    pv.pairs_copula_data(u, scatter_size=0.5)
     cop = pv.Bicop.from_data(data=u)
-    #+print(cop)
-    #cop.plot()
+    print(cop)
+    cop.plot()
 
     n_sim = n
     u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
