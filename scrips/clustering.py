@@ -100,7 +100,7 @@ def plot_gmm(df_clustered):
 from sklearn.cluster import AgglomerativeClustering
 from scipy.cluster.hierarchy import dendrogram, linkage
 
-def perform_agglomerative_clustering(df, n_clusters=5):
+def perform_agglomerative_clustering(df, n_clusters=8):
     df_sorted = df.sort_values(['fibre_id', 'z']).copy()
     features = ['x', 'y', 'tilt_angle_deg']
 
