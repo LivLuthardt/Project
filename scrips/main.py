@@ -4,18 +4,38 @@ from tangent import*
 from copula import*
 from clustering import*
 
-data_clean = data_cleaned()
-
+df = pd.read_csv('raw_data.csv')
+data_clean = data_cleaned(df)
 df = tangent_angles(data_clean)
 fiber_sum = fiber_summary(df)
 
 #ellipse 
+xtiltAngles, ytiltAngles = [], [] #Init empty lists
+for r in df.itertuples(index=True):
+    x2 = (r[3], r[4], r[2]) #Current fiber point
+    if r[0] == 0: 
+        tilt = (0, 0) #Can't compute tilt from a single point
+    else:  
+        tilt = eTiltAngles(x1, x2) #Pass the past and current points
+    xtiltAngles.append(tilt[0])
+    ytiltAngles.append(tilt[1])
+    x1 = x2 #Set the current point to the past point
+df = df.assign(EllipseXTilt = xtiltAngles) #Add the tilt angles as a df column
+df = df.assign(EllipseYTilt = ytiltAngles)
 
+<<<<<<< HEAD
 #copula = np.zeros((128,1))
 #for row in range(1,129):
     #data_sorted = sort(df,row)
     #copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
 #print(copula)
+=======
+# copula = np.zeros((128,1))
+# for row in range(1,129):
+#     data_sorted = sort(df,row)
+#     copula[(row-1)] = bivariate_copula(data_sorted,len(data_sorted))
+# print(copula)
+>>>>>>> 9c06a42521e54b3ee8ae6306e2070d719812ada1
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum)
 # 2. Merge cluster IDs back to the original points for 3D plotting
