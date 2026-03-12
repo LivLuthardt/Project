@@ -2,25 +2,24 @@ import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
 import matplotlib as plt
-from tangent import df_final
 
-np.random.seed(0)  # seed for the random generator
-n = 1000  # number of observations
-d = 3  # the dimension
-mean = 1 + np.random.normal(size=d)  # mean vector
-cov = np.random.normal(size=(d, d))  # covariance matrix
-cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
-x = np.random.multivariate_normal(mean, cov, n)
+# np.random.seed(0)  # seed for the random generator
+# n = 1000  # number of observations
+# d = 3  # the dimension
+# mean = 1 + np.random.normal(size=d)  # mean vector
+# cov = np.random.normal(size=(d, d))  # covariance matrix
+# cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
+# x = np.random.multivariate_normal(mean, cov, n)
 
-print(df_final)
-for z in range(max(df_final['z'])+1):
-    # Filter out rows which do not match our z value
-    df_z = df_final[df_final['z'] == z]
-
-    # take out dx and dy rows  
-    df_z = df_z[['angle_x_deg','angle_y_deg','dx','dy']]
-
-    x = df_z.to_numpy()
+def sort(data,n):
+    for z in range(max(data['z'])+1):
+        # Filter out rows which do not match our z value
+        df_z = data[data['z'] == n]
+        # take out dx and dy rows  
+        df_z = df_z[['angle_x_deg','angle_y_deg']]
+        x = df_z.to_numpy()
+    print(x)
+    return x
 
 def bivariate_copula(data,n): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
@@ -47,11 +46,6 @@ def vine_copula(data,n): #n is number of fibers in a layer
     data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, d)])
     data_sim = np.transpose(data_sim)
     return data_sim
-
-#data_sim = bivariate_copula(x,1000)
-data_sim = vine_copula(x,1000)
-print(np.mean(x), np.std(x))
-print(np.mean(data_sim), np.std(data_sim))
 
 
 def coordinates(layer, data_sim, deltaz):
