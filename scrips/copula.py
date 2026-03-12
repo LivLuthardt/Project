@@ -11,22 +11,21 @@ import matplotlib as plt
 # cov = np.dot(cov.transpose(), cov)  # make it non-negative definite
 # x = np.random.multivariate_normal(mean, cov, n)
 
-def sort(data,n):
-    for z in range(max(data['z'])+1):
-        # Filter out rows which do not match our z value
-        df_z = data[data['z'] == n]
-        # take out dx and dy rows  
-        df_z = df_z[['angle_x_deg','angle_y_deg']]
-        x = df_z.to_numpy()
-    print(x)
+def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
+    # Filter out rows which do not match our z value
+    df_z = data[data['z'] == n]
+    # take out dx and dy rows  
+    df_z = df_z[[x1,x2]]
+    x = df_z.to_numpy()
+    # print(x)
     return x
 
 def bivariate_copula(data,n): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
-    pv.pairs_copula_data(u, scatter_size=0.5)
+    #pv.pairs_copula_data(u, scatter_size=0.5)
     cop = pv.Bicop.from_data(data=u)
-    print(cop)
-    cop.plot()
+    #+print(cop)
+    #cop.plot()
 
     n_sim = n
     u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
@@ -41,8 +40,7 @@ def vine_copula(data,n): #n is number of fibers in a layer
     print(cop)
     #cop.plot()
 
-    n_sim = n
-    u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
+    u_sim = cop.simulate(n, seeds=[1, 2, 3, 4])
     data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim
