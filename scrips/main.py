@@ -24,12 +24,18 @@ df = df.dropna(subset=['dx', 'dy', 'dz'])
 copula_lst = [0 for _ in range(129)]
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 for row_n in range(1,129):
+    # print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
     copula_lst[row_n-1],cop = bivariate_copula(data_filtered,len(data_filtered))
 
-    if row_n == 67:
-        cop.plot()
+    if row_n == 60:
         print(f'Showing density plot for copula at z = {row_n}')
+        cop.plot('surface')
+        # Scatter synthetic oberservation points
+        plt.scatter(copula_lst[row_n-1][:,0],copula_lst[row_n-1][:,1])
+        plt.title(f'Synthetic observations at z = {row_n}')
+        plt.show()
+    
 
 print(copula_lst)
 
