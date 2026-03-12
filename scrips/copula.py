@@ -33,15 +33,22 @@ def bivariate_copula(data,n): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
     return data_sim,cop
 
-def vine_copula(data,n): #n is number of fibers in a layer
-    u = pv.to_pseudo_obs(data)
-    pv.pairs_copula_data(u, scatter_size=0.5)
-    cop = pv.Vinecop.from_data(data=u)
-    print(cop)
-    #cop.plot()
+def vine_copula(x,n): #n is number of fibers in a layer
+    # Do PIT
+    u = pv.to_pseudo_obs(x)
 
+    # automatically fit best copula model
+    cop = pv.Vinecop.from_data(data=u)
+
+    # What does this do??
+    pv.pairs_copula_data(u, scatter_size=0.5)
+
+
+    
     u_sim = cop.simulate(n, seeds=[1, 2, 3, 4])
-    data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
+
+    # Reverse pit to get actual values
+    data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim
 

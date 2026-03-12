@@ -7,7 +7,7 @@ from clustering import*
 df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
 df = tangent_angles(data_clean)
-fiber_sum = fiber_summary(df)
+fiber_sum,n_fibers = fiber_summary(df)
 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
@@ -24,21 +24,35 @@ print(df)
 
 
 
-"""
-copula_lst = [0 for _ in range(129)]
-# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
-for row_n in range(1,129):
-    # print(f'Iterating over z = {row_n}')
-    data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
-    copula_lst[row_n-1],cop = bivariate_copula(data_filtered,len(data_filtered))
 
-    if row_n == 60:
+# 129 is the amount of z values
+# n_fibers is the amount of unique fibers
+# 2 is the amount of parameters we can put in our copula
+data_sim_lst = np.empty((129,n_fibers,2))
+
+# list to contain copulas 
+# TODO remove the 0 inside here once we have 129 istead of 128 datapoints
+cop_lst = [0]
+
+# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
+# TODO once the dataframe is changed to account for z = 0 we can do range(129)
+for row_n in range(1,129):
+    print(f'Iterating over z = {row_n}')
+    data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
+    data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered))
+
+    cop_lst.append(cop)
+
+    if row_n % 5 == 0:
+        break
         print(f'Showing density plot for copula at z = {row_n}')
-        cop.plot('surface')
+        cop_lst[row_n].plot('surface')
         # Scatter synthetic oberservation points
-        plt.scatter(copula_lst[row_n-1][:,0],copula_lst[row_n-1][:,1])
+        plt.scatter(data_sim_lst[row_n,:,0],data_sim_lst[row_n,:,1])
         plt.title(f'Synthetic observations at z = {row_n}')
         plt.show()
+
+
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
@@ -46,7 +60,7 @@ df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_k = plot_k(df_clustered_k)
 # make a plot of the error
 fig_k_error = sse_plot_k(fiber_sum)
-"""
+
 
 n = 5
 
