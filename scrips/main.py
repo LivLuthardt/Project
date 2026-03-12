@@ -18,10 +18,8 @@ for r in df.itertuples(index=True):
     xtiltAngles.append(tilt[0])
     ytiltAngles.append(tilt[1])
     x1 = x2 #Set the current point to the past point
-df = df.assign(EllipseXTilt = xtiltAngles) #Add the tilt angles as a df column
-df = df.assign(EllipseYTilt = ytiltAngles)
+df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
-
 
 copula_lst = [0 for _ in range(129)]
 for row_n in range(1,129+1):
