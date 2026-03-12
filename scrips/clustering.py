@@ -100,21 +100,35 @@ def plot_gmm(df_clustered):
 from sklearn.cluster import AgglomerativeClustering
 from scipy.cluster.hierarchy import dendrogram, linkage
 
-def perform_agglomerative_clustering(X, n_clusters=5):
+def perform_agglomerative_clustering(df, n_clusters=5):
+    df_sorted = df.sort_values(['fibre_id', 'z']).copy()
     features = ['x', 'y', 'tilt_angle_deg']
-    
+
+    fiber_vectors = (
+        df_sorted
+        .groupby('fibre_id')[features]
+        .apply(lambda g: g.to_numpy().flatten())
+    )
+
+    X = np.vstack(fiber_vectors.values)
+    fiber_ids = fiber_vectors.index
+
     scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(X[features])
-    
+    X_scaled = scaler.fit_transform(X)
+
     model = AgglomerativeClustering(
         n_clusters=n_clusters,
         linkage='ward'
     )
-    
-    X = X.copy()
-    X['cluster_id'] = model.fit_predict(scaled_data)
-    
-    return X, model
+
+    labels = model.fit_predict(X_scaled)
+
+    fibre_to_cluster = dict(zip(fiber_ids, labels))
+
+    df_clustered = df.copy()
+    df_clustered['cluster_id'] = df_clustered['fibre_id'].map(fibre_to_cluster)
+
+    return df_clustered, model
 
 def plot_agg(clustered):
     fig_3d = px.line_3d(

@@ -30,7 +30,7 @@ def bivariate_copula(data,n): #n is number of fibers in a layer
 
     n_sim = n
     u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
-    data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, d)])
+    data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim
 
@@ -43,7 +43,7 @@ def vine_copula(data,n): #n is number of fibers in a layer
 
     n_sim = n
     u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
-    data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, d)])
+    data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim
 
