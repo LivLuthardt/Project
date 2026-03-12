@@ -23,6 +23,8 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles) #Add the tilt angles as a df column
 df = df.assign(EllipseYTilt = ytiltAngles)
 
+df = df.dropna(subset=['dx', 'dy', 'dz'])
+
 copula_lst = [0 for _ in range(129)]
 for row_n in range(1,129+1):
     data_sorted = sort(df,row_n)
