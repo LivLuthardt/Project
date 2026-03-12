@@ -21,6 +21,9 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
 print(df)
+
+
+
 """
 copula_lst = [0 for _ in range(129)]
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
@@ -36,9 +39,6 @@ for row_n in range(1,129):
         plt.scatter(copula_lst[row_n-1][:,0],copula_lst[row_n-1][:,1])
         plt.title(f'Synthetic observations at z = {row_n}')
         plt.show()
-    
-
-print(copula_lst)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
@@ -47,6 +47,9 @@ fig_k = plot_k(df_clustered_k)
 # make a plot of the error
 fig_k_error = sse_plot_k(fiber_sum)
 """
+
+n = 5
+
 # Use GMM clustering instead of KMeans
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
 df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
