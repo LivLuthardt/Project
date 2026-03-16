@@ -78,3 +78,33 @@ def coordinates(layer, data_sim, deltaz):
 
     return newlayer
 
+def plot_cop_parameters(cop_lst):
+    zz = np.arange(len(cop_lst))
+    if cop_lst[1].family in pv.one_par:
+        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label='Covariance')
+
+        plt.title('Gaussian covariance of Copula models')
+        plt.xlabel('Z (micrometer)')
+        plt.ylabel('Covariance')
+        plt.grid()
+        plt.xlim(0,128)
+      
+    if cop_lst[1].family in pv.two_par:
+        # First subplot
+        plt.subplot(1,2,1)
+        plt.plot(zz,[cop.parameters[0] for cop in cop_lst])
+        plt.title('Parameter 1')
+        plt.xlabel('Z (micrometer)')
+        plt.grid()
+        plt.xlim(0,128)
+        # Second subplot
+        plt.subplot(1,2,2)
+        plt.plot(zz,[cop.parameters[1] for cop in cop_lst])
+        plt.xlabel('Z (micrometer)')
+        plt.title('Parameter 2')
+        plt.grid()
+        plt.xlim(0,128)
+   
+    plt.show()
+
+    return

@@ -8,7 +8,7 @@ df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
 df = tangent_angles(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
-
+""" 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 for r in df.itertuples(index=True):
@@ -21,7 +21,7 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
 # print(df)
-
+ """
 
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
@@ -37,7 +37,7 @@ cop_lst = [0]
 for row_n in range(1,129):
     # print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
-    data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.gaussian)
+    data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
     cop_lst.append(cop)
 
@@ -50,18 +50,11 @@ for row_n in range(1,129):
         plt.title(f'Synthetic observations at z = {row_n}')
         plt.show()
 
-# Plot covariance of Gaussian copulas
-""" 
-for z in range(1,len(cop_lst)):
-    plt.scatter(z,cop_lst[z].parameters[0][0],color='b')
+    # TODO this is not correct but should remain until z = 0 is accounted for
+    cop_lst[0] = cop_lst[1]
 
-plt.title('Gaussian covariance of Copula models')
-plt.xlabel('Z (micrometer)')
-plt.ylabel('Covariance')
-plt.grid()
-plt.xlim(0,129)
-plt.show()
- """
+# Plot covariance of Gaussian copulas
+plot_cop_parameters(cop_lst)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
