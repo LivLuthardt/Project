@@ -20,11 +20,21 @@ def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     # print(x)
     return x
 
-def bivariate_copula(data,n): #n is number of fibers in a layer
+def bivariate_copula(data,n,family=False): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
     # pv.pairs_copula_data(u, scatter_size=0.5)
-    cop = pv.Bicop.from_data(data=u)
-    #+print(cop)
+
+    # If no family is specified, this means that cop.select will run to choose a family
+    # You should avoid running without specifying a family because it takes ages to run
+    if family:
+        cop = pv.Bicop(family)
+    else:
+        cop = pv.Bicop()
+        cop.select(data=u)
+
+    cop.fit(data=u)
+
+    #print(cop)
     # cop.plot()
 
     n_sim = n
