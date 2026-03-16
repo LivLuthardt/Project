@@ -8,7 +8,7 @@ df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
 df = tangent_angles(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
-""" 
+
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 for r in df.itertuples(index=True):
@@ -21,7 +21,7 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
 # print(df)
- """
+
 
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
@@ -54,7 +54,7 @@ for row_n in range(1,129):
     cop_lst[0] = cop_lst[1]
 
 # Plot covariance of Gaussian copulas
-plot_cop_parameters(cop_lst)
+# plot_cop_parameters(cop_lst)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
