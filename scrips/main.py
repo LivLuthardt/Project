@@ -83,32 +83,60 @@ plt.plot
 
 plt.show()
 
-# Number of pre-defined clusters
+# Number of pre-defined clusters and range for silhouette plots
 n = 5
+n_clusters = range(2,16)
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
 # 2. Merge cluster IDs back to the original points for 3D plotting
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_k = plot_k(df_clustered_k)
-# make a plot of the error
-fig_k_error = sse_plot_k(fiber_sum)
+# Make a plot of the error
+#fig_k_error = sse_plot_k(fiber_sum)
 
 # DBSCAN clustering
 fiber_summary_dbscan = perform_DBSCAN_clustering(fiber_sum)
 df_clustered_dbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_DBSCAN(df_clustered_dbscan)
 
 # HDBSCAN clustering
 fiber_summary_hdbscan = perform_HDBSCAN_clustering(fiber_sum)
 df_clustered_hdbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_HDBSCAN(df_clustered_hdbscan)
 
 # GMM clustering
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
 df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_gmm(df_clustered_gmm)
 # Make a plot of the error
-fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
+#fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
-clustered, model = perform_agglomerative_clustering(df)
-fig_agg = plot_agg(clustered)
+#df_clustered_agg, model, score = perform_agglomerative_clustering(fiber_sum,n)
+
+# Make 3D plots with clusters
+plot_fibers(df_clustered_k, 'K-means')
+plot_fibers(df_clustered_dbscan, 'DBSCAN')
+plot_fibers(df_clustered_hdbscan, 'HDBSCAN')
+plot_fibers(df_clustered_gmm, 'GMM')
+#plot_fibers(df_clustered_agg, 'agglomerative')
+
+# Make silhouette plot for all pre-defined cluster methods
+score_k = []
+score_gmm = []
+score_agg = []
+
+
+for n in n_clusters:
+    fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
+    df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+
+    fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
+    df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+
+    #df_clustered_agg, model = perform_agglomerative_clustering(fiber_sum,n)
+
+    score_k.append(fiber_summary_k[2])
+    score_gmm.append(fiber_summary_gmm[3])
+    #score_agg.append(df_clustered_agg[2])
+
+plot_silhouette(score_k, n_clusters, 'K-means')
+plot_silhouette(score_k, n_clusters, 'GMM')
+plot_silhouette(score_k, n_clusters, 'Agglomerative')
+
+#I will try to fix this next shesh

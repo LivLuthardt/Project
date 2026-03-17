@@ -21,14 +21,14 @@ def perform_kmeans_clustering(df, n_clusters):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
     df['cluster_id'] = cluster_labels
-    score = silhouette_score(scaled_df.values, cluster_labels)
+    score = silhouette_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
 
 def sse_plot_k(df):
     sse = []
     n_clusters = range(1,11)
     for k in n_clusters:
-        df , inertia = perform_kmeans_clustering(df,n_clusters=k)
+        df , inertia, score = perform_kmeans_clustering(df,n_clusters=k)
         sse.append(inertia)
 
     # Create a DataFrame for plotting
@@ -112,7 +112,7 @@ def aic_bic_plot_gmm(df):
     bic_vals = []
     n_clusters = range(1,11)
     for k in n_clusters:
-        df , aic , bic = perform_gmm_clustering(df,n_clusters=k)
+        df , aic , bic, score = perform_gmm_clustering(df,n_clusters=k)
         aic_vals.append(aic)
         bic_vals.append(bic)
 
@@ -180,12 +180,7 @@ def plot_fibers(clustered,title):
     )
     fig_3d.show()
 
-def plot_silhouette(score, n_clusters):
-    sse = []
-    n_clusters = range(1,11)
-    for k in n_clusters:
-        df , inertia = perform_kmeans_clustering(df,n_clusters=k)
-        sse.append(inertia)
+def plot_silhouette(score, n_clusters, title):
 
     # Create a DataFrame for plotting
     plot_df = pd.DataFrame({
@@ -199,7 +194,7 @@ def plot_silhouette(score, n_clusters):
         x='Number of Clusters', 
         y='SSE', 
         markers=True,
-        title="Silhouette vs Number of Clusters"
+        title=f"Silhouette vs Number of Clusters for {title}"
     )
 
     fig.show()
