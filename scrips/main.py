@@ -32,8 +32,20 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+plt.savefig(fname="XTiltHist.png")
 ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+<<<<<<< HEAD
 plt.show()
+=======
+plt.savefig(fname="YTiltHist.png")
+ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+plt.savefig(fname="EllipseTiltHex.png")
+ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+plt.savefig(fname="FiniteTiltHex.png")
+print(df)
+
+copula_lst = [0 for _ in range(129)]
+>>>>>>> 76ed7ef9dfdb37f86bf0fdc4c863b441e4afdc80
 # print(df)
 
 
