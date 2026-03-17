@@ -33,7 +33,9 @@ def fiber_summary(df):
         'tilt_angle_deg': 'mean'
     }).reset_index()
 
+    n_fibers = int(len(df) / df['z'].nunique())
+
     # Rename the columns to reflect they are means
     fiber_summary.columns = ['fibre_id', 'x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'tilt_angle_mean']
-    return fiber_summary
+    return fiber_summary,n_fibers
 
