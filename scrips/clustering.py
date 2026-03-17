@@ -63,11 +63,11 @@ def perform_dbscan_clustering(df):
 
     # Scale features
     scaler = StandardScaler()
-    scaled_date = scaler.fit_transform(df[features])
+    scaled_data = scaler.fit_transform(df[features])
 
     # Fit HDSCAN
     DBS = DBSCAN()
-    cluster_labes = DBS.fit_predict(scaled_date)
+    cluster_labes = DBS.fit_predict(scaled_data)
 
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labes
@@ -92,11 +92,11 @@ def perform_hdbscan_clustering(df):
 
     # Scale features
     scaler = StandardScaler()
-    scaled_date = scaler.fit_transform(df[features])
+    scaled_data = scaler.fit_transform(df[features])
 
     # Fit HDSCAN
     HDBS = HDBSCAN()
-    cluster_labes = HDBS.fit_predict(scaled_date)
+    cluster_labes = HDBS.fit_predict(scaled_data)
 
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labes
