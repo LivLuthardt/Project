@@ -21,10 +21,8 @@ def perform_kmeans_clustering(df, n_clusters):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
     df['cluster_id'] = cluster_labels
-    if n_clusters > 1:
-        score = silhouette_score(scaled_df.values, cluster_labels)
-        print(f"Silhouette Score k-means: {score:.3f}")
-    return df, kmeans.inertia_
+    score = silhouette_score(scaled_df.values, cluster_labels)
+    return df, kmeans.inertia_, score
 
 def sse_plot_k(df):
     sse = []
@@ -49,18 +47,6 @@ def sse_plot_k(df):
     )
 
     fig.show()
-
-def plot_k(df_clustered):
-    # 3. Plotting (Now Fdf_clustered has x, y, z AND cluster_id)
-    fig = px.line_3d(
-        df_clustered, 
-        x='x', y='y', z='z', 
-        color='cluster_id',
-        line_group='fibre_id',
-        title="K-means "
-    )
-    fig.show()
-
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
     # Features to use for clustering
@@ -79,19 +65,7 @@ def perform_DBSCAN_clustering(df):
 
     # Calculate silhouette score
     score = silhouette_score(scaled_data, cluster_labels)
-    print(f"Silhouette Score DBSCAN: {score:.3f}")
     return df
-
-# Plot clusters
-def plot_DBSCAN(df_clustered):
-    fig = px.line_3d(
-        df_clustered, 
-        x='x', y='y', z='z', 
-        color='cluster_id',
-        line_group='fibre_id',
-        title="DBSCAN"
-    )
-    fig.show()
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
 def perform_HDBSCAN_clustering(df):
@@ -111,19 +85,7 @@ def perform_HDBSCAN_clustering(df):
 
     # Calculate silhouette score
     score = silhouette_score(scaled_data, cluster_labels)
-    print(f"Silhouette Score HDBSCAN: {score:.3f}")
     return df
-
-# Plot clusters
-def plot_HDBSCAN(df_clustered):
-    fig = px.line_3d(
-        df_clustered, 
-        x='x', y='y', z='z', 
-        color='cluster_id',
-        line_group='fibre_id',
-        title="HDBSCAN"
-    )
-    fig.show()
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 def perform_gmm_clustering(df,n_clusters):
@@ -142,10 +104,8 @@ def perform_gmm_clustering(df,n_clusters):
     df['cluster_id'] = cluster_labels
 
     # Calculate silhouette score
-    if n_clusters > 1:
-        score = silhouette_score(scaled_data, cluster_labels)
-        print(f"Silhouette Score GMM: {score:.3f}")
-    return df,gmm.aic(scaled_data),gmm.bic(scaled_data)
+    score = silhouette_score(scaled_data, cluster_labels)
+    return df,gmm.aic(scaled_data),gmm.bic(scaled_data),score
 
 def aic_bic_plot_gmm(df):
     aic_vals = []
@@ -175,20 +135,8 @@ def aic_bic_plot_gmm(df):
 
     fig.show()
 
-# Plot clusters
-def plot_gmm(df_clustered):
-    fig = px.line_3d(
-        df_clustered, 
-        x='x', y='y', z='z', 
-        color='cluster_id',
-        line_group='fibre_id',
-        title="GMM"
-    )
-    fig.show()
-
-
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
-def perform_agglomerative_clustering(df, n_clusters=8):
+def perform_agglomerative_clustering(df, n_clusters):
     df_sorted = df.sort_values(['fibre_id', 'z']).copy()
     features = ['x', 'y', 'tilt_angle_deg']
 
@@ -218,15 +166,40 @@ def perform_agglomerative_clustering(df, n_clusters=8):
 
     # Calculate silhouette score
     score = silhouette_score(X_scaled, labels)
-    print(f"Silhouette Score Agglomerative: {score:.3f}")
-    return df_clustered, model
+    return df_clustered, model, score
 
-def plot_agg(clustered):
+# ------------------------------------Plots----------------------------------------------------------------------
+
+def plot_fibers(clustered,title):
     fig_3d = px.line_3d(
         clustered, 
         x='x', y='y', z='z', 
         color='cluster_id',
         line_group='fibre_id',
-        title="AGGL"
+        title=title
     )
     fig_3d.show()
+
+def plot_silhouette(score, n_clusters):
+    sse = []
+    n_clusters = range(1,11)
+    for k in n_clusters:
+        df , inertia = perform_kmeans_clustering(df,n_clusters=k)
+        sse.append(inertia)
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': n_clusters,
+        'Silhouette': score
+    })
+
+    # Create 2D line plot with Plotly Express
+    fig = px.line(
+        plot_df, 
+        x='Number of Clusters', 
+        y='SSE', 
+        markers=True,
+        title="Silhouette vs Number of Clusters"
+    )
+
+    fig.show()
