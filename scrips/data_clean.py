@@ -66,7 +66,7 @@ def data_cleaned(df):
     df['tilt_angle_rad'] = np.arctan2(df['lateral_dist'], df['dz'])
 
     # find maximum kink for every fiber
-    max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
+    max_tilts = df.groupby('fibre_id')['tilt_angle_rad'].max()
     Q1 = max_tilts.quantile(0.25)
     Q3 = max_tilts.quantile(0.75)
     IQR = Q3 - Q1
@@ -74,7 +74,7 @@ def data_cleaned(df):
     upper_bound = Q3 + 1.5 * IQR
 
 # Separate IDs based on the IQR bounds
-    kinked_ids = max_tilts[(max_tilts > upper_bound) | (max_tilts < lower_bound)].index
+    kinked_ids = max_tilts[(max_tilts > upper_bound) & (max_tilts < lower_bound)].index
     clean_ids = max_tilts[(max_tilts <= upper_bound) & (max_tilts >= lower_bound)].index
 
 # Filter the original dataframe by ID
@@ -85,18 +85,3 @@ def data_cleaned(df):
     print(f" - {len(kinked_ids)} fibres removed")
 
     return df_cleaned
-
-    # print(f"Analysis complete:")
-    # print(f" - {len(kinked_ids)} fibres removed (Max tilt > {threshold}°)")
-    # print(f" - {len(clean_ids)} fibres kept.")
-
-    #plot it
-    '''
-    fig_clean = px.line_3d(df_clean, x="x", y="y", z="z", color="fibre_id", title="Cleaned")
-    fig_clean.update_layout(scene=dict(aspectratio=dict(x=15, y=7.5, z=1)))
-    fig_clean.show()
-
-    fig_kink = px.line_3d(df_kinked, x="x", y="y", z="z", color="fibre_id", title="Removed Kinks")
-    fig_kink.update_layout(scene=dict(aspectratio=dict(x=15, y=7.5, z=1)))
-    fig_kink.show()
-    '''
