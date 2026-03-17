@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
@@ -18,7 +19,11 @@ def perform_kmeans_clustering(df, n_clusters):
     scaled_df['x_mean'] *= 1.5
     scaled_df['y_mean'] *= 1.5
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    df['cluster_id'] = kmeans.fit_predict(scaled_data)
+    cluster_labels = kmeans.fit_predict(scaled_df.values)
+    df['cluster_id'] = cluster_labels
+    if n_clusters > 1:
+        score = silhouette_score(scaled_df.values, cluster_labels)
+        print(f"Silhouette Score k-means: {score:.3f}")
     return df, kmeans.inertia_
 
 def sse_plot_k(df):
@@ -57,7 +62,7 @@ def plot_k(df_clustered):
     fig.show()
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
-def perform_dbscan_clustering(df):
+def perform_DBSCAN_clustering(df):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
@@ -67,11 +72,14 @@ def perform_dbscan_clustering(df):
 
     # Fit HDSCAN
     DBS = DBSCAN()
-    cluster_labes = DBS.fit_predict(scaled_data)
+    cluster_labels = DBS.fit_predict(scaled_data)
 
     # Add cluster labels to DataFrame
-    df['cluster_id'] = cluster_labes
+    df['cluster_id'] = cluster_labels
 
+    # Calculate silhouette score
+    score = silhouette_score(scaled_data, cluster_labels)
+    print(f"Silhouette Score DBSCAN: {score:.3f}")
     return df
 
 # Plot clusters
@@ -86,7 +94,7 @@ def plot_DBSCAN(df_clustered):
     fig.show()
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
-def perform_hdbscan_clustering(df):
+def perform_HDBSCAN_clustering(df):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
@@ -96,11 +104,14 @@ def perform_hdbscan_clustering(df):
 
     # Fit HDSCAN
     HDBS = HDBSCAN()
-    cluster_labes = HDBS.fit_predict(scaled_data)
+    cluster_labels = HDBS.fit_predict(scaled_data)
 
     # Add cluster labels to DataFrame
-    df['cluster_id'] = cluster_labes
+    df['cluster_id'] = cluster_labels
 
+    # Calculate silhouette score
+    score = silhouette_score(scaled_data, cluster_labels)
+    print(f"Silhouette Score HDBSCAN: {score:.3f}")
     return df
 
 # Plot clusters
@@ -130,6 +141,10 @@ def perform_gmm_clustering(df,n_clusters):
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labels
 
+    # Calculate silhouette score
+    if n_clusters > 1:
+        score = silhouette_score(scaled_data, cluster_labels)
+        print(f"Silhouette Score GMM: {score:.3f}")
     return df,gmm.aic(scaled_data),gmm.bic(scaled_data)
 
 def aic_bic_plot_gmm(df):
@@ -201,6 +216,9 @@ def perform_agglomerative_clustering(df, n_clusters=8):
     df_clustered = df.copy()
     df_clustered['cluster_id'] = df_clustered['fibre_id'].map(fibre_to_cluster)
 
+    # Calculate silhouette score
+    score = silhouette_score(X_scaled, labels)
+    print(f"Silhouette Score Agglomerative: {score:.3f}")
     return df_clustered, model
 
 def plot_agg(clustered):

@@ -96,14 +96,14 @@ fig_k = plot_k(df_clustered_k)
 fig_k_error = sse_plot_k(fiber_sum)
 
 # DBSCAN clustering
-fiber_summary_dbscan = perform_dbscan_clustering(fiber_sum)
+fiber_summary_dbscan = perform_DBSCAN_clustering(fiber_sum)
 df_clustered_dbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_gmm(df_clustered_dbscan)
+fig_gmm = plot_DBSCAN(df_clustered_dbscan)
 
 # HDBSCAN clustering
-fiber_summary_hdbscan = perform_hdbscan_clustering(fiber_sum)
+fiber_summary_hdbscan = perform_HDBSCAN_clustering(fiber_sum)
 df_clustered_hdbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_gmm(df_clustered_hdbscan)
+fig_gmm = plot_HDBSCAN(df_clustered_hdbscan)
 
 # GMM clustering
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
