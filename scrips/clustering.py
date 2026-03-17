@@ -2,10 +2,10 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import DBSCAN
-
+from sklearn.cluster import KMeans, DBSCAN, HDBSCAN, AgglomerativeClustering
+from sklearn.mixture import GaussianMixture
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
      
@@ -57,19 +57,44 @@ def plot_k(df_clustered):
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
-    return 1
+    # Features to use for clustering
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
+    # Scale features
+    scaler = StandardScaler()
+    scaled_date = scaler.fit_transform(df[features])
+
+    # Fit HDSCAN
+    DBS = DBSCAN()
+    cluster_labes = DBS.fit_predict(scaled_date)
+
+    # Add cluster labels to DataFrame
+    df['cluster_id'] = cluster_labes
+
+    return df
 
     
 
 
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
+def perform_HDBSCAN_clustering(df):
+    # Features to use for clustering
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
+    # Scale features
+    scaler = StandardScaler()
+    scaled_date = scaler.fit_transform(df[features])
 
+    # Fit HDSCAN
+    HDBS = HDBSCAN()
+    cluster_labes = HDBS.fit_predict(scaled_date)
+
+    # Add cluster labels to DataFrame
+    df['cluster_id'] = cluster_labes
+
+    return df
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
-
-from sklearn.mixture import GaussianMixture
-
 def perform_gmm_clustering(df,n_clusters):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
@@ -128,10 +153,6 @@ def plot_gmm(df_clustered):
 
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
-
-from sklearn.cluster import AgglomerativeClustering
-from scipy.cluster.hierarchy import dendrogram, linkage
-
 def perform_agglomerative_clustering(df, n_clusters=8):
     df_sorted = df.sort_values(['fibre_id', 'z']).copy()
     features = ['x', 'y', 'tilt_angle_deg']
