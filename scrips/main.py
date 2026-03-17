@@ -20,6 +20,8 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
+print(df)
+
 """
 copula_lst = [0 for _ in range(129)]
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
