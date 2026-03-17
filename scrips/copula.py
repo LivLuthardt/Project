@@ -20,7 +20,7 @@ def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     # print(x)
     return x
 
-def bivariate_copula(data,n,family=False): #n is number of fibers in a layer
+def bivariate_copula(data,n,family=None): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
     # pv.pairs_copula_data(u, scatter_size=0.5)
 
@@ -28,17 +28,13 @@ def bivariate_copula(data,n,family=False): #n is number of fibers in a layer
     # You should avoid running without specifying a family because it takes ages to run
     if family:
         cop = pv.Bicop(family)
+        cop.fit(data=u)
     else:
         cop = pv.Bicop()
         cop.select(data=u)
 
-    cop.fit(data=u)
 
-    #print(cop)
-    # cop.plot()
-
-    n_sim = n
-    u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
+    u_sim = cop.simulate(n)
     data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim,cop
@@ -77,6 +73,10 @@ def coordinates(layer, data_sim, deltaz):
         newlayer.append([x,y])
 
     return newlayer
+
+def gen_copula(df,x1,x2):
+    pass
+    return data_sim,cop
 
 def plot_cop_parameters(cop_lst):
     zz = np.arange(len(cop_lst))
