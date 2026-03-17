@@ -22,7 +22,6 @@ df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the 
 df = df.dropna(subset=['dx', 'dy', 'dz'])
 print(df)
 
-"""
 copula_lst = [0 for _ in range(129)]
 # print(df)
 
