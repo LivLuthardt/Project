@@ -64,7 +64,6 @@ cop_lst = [0]
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
 for row_n in range(1,128):
-    print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
     data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
