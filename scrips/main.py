@@ -9,14 +9,6 @@ data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-''' 
-df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
-max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
-# Dynamically set threshold to the 99th percentile (keeps 99%, drops top 1%)
-fig_pdf = px.histogram(max_tilts, nbins=100, histnorm='probability density')
-fig_pdf.show()
-'''
-
 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
