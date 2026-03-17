@@ -6,7 +6,7 @@ from clustering import*
 
 df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
-df = tangent_angles(data_clean)
+df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
 #ellipse 
@@ -20,12 +20,9 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
-<<<<<<< HEAD
-=======
 print(df)
 
 copula_lst = [0 for _ in range(129)]
->>>>>>> 7c9a1057ef98da4452ca7b28704b43ce832e634d
 # print(df)
 
 
