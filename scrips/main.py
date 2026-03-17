@@ -6,7 +6,7 @@ from clustering import*
 
 df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
-df = tangent_angles(data_clean)
+df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
 # Plot original data
@@ -41,6 +41,9 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
+print(df)
+
+copula_lst = [0 for _ in range(129)]
 # print(df)
 
 
@@ -118,3 +121,10 @@ fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
 clustered, model = perform_agglomerative_clustering(df)
 fig_agg = plot_agg(clustered)
+
+df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
+max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
+# Dynamically set threshold to the 99th percentile (keeps 99%, drops top 1%)
+threshold = max_tilts.quantile(0.99)
+fig_pdf = px.histogram(max_tilts, nbins=100, histnorm='probability density')
+fig_pdf.show()

@@ -66,9 +66,18 @@ def data_cleaned(df):
     df['tilt_angle_rad'] = np.arctan2(df['lateral_dist'], df['dz'])
 
     # find maximum kink for every fiber
-    threshold = 45
+    '''    threshold = 45
+    df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
+    max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max() '''
+
+
     df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
     max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
+    # Dynamically set threshold to the 99th percentile (keeps 99%, drops top 1%)
+    threshold = max_tilts.quantile(0.99)
+ 
+    fig_pdf = px.histogram(max_tilts, nbins=100, histnorm='probability density')
+
 
     kinked_ids = max_tilts[max_tilts > threshold].index
     clean_ids = max_tilts[max_tilts <= threshold].index
