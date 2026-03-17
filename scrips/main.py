@@ -59,21 +59,31 @@ for row_n in range(1,129):
 # Plot covariance of Gaussian copulas
 # plot_cop_parameters(cop_lst)
 
-fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
+# Number of pre-defined clusters
+n = 5
+
+fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
 # 2. Merge cluster IDs back to the original points for 3D plotting
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_k = plot_k(df_clustered_k)
 # make a plot of the error
 fig_k_error = sse_plot_k(fiber_sum)
 
+# DBSCAN clustering
+fiber_summary_dbscan = perform_dbscan_clustering(fiber_sum)
+df_clustered_dbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+fig_gmm = plot_gmm(df_clustered_dbscan)
 
-n = 5
+# HDBSCAN clustering
+fiber_summary_hdbscan = perform_hdbscan_clustering(fiber_sum)
+df_clustered_hdbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+fig_gmm = plot_gmm(df_clustered_hdbscan)
 
-# Use GMM clustering instead of KMeans
+# GMM clustering
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
 df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 fig_gmm = plot_gmm(df_clustered_gmm)
-# make a plot of the error
+# Make a plot of the error
 fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
 clustered, model = perform_agglomerative_clustering(df)
