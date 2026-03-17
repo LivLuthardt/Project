@@ -12,7 +12,7 @@ fiber_sum,n_fibers = fiber_summary(df)
 # Plot original data
 
 mean_arr = np.zeros((129,2))
-for z in range(1,129):
+for z in range(1,128):
     df_sort = sort(df,z)
     x1 = df_sort[:,0]
     x2 = df_sort[:,1]
@@ -58,8 +58,8 @@ cop_lst = [0]
 
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
-for row_n in range(1,129):
-    # print(f'Iterating over z = {row_n}')
+for row_n in range(1,128):
+    print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
     data_sim_arr[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
