@@ -43,7 +43,11 @@ plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
 # print(df)
-
+fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
+estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
+with open("Output.txt", "w") as text_file:
+    text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
+    text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
