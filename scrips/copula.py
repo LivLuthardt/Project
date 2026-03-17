@@ -1,7 +1,7 @@
 import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # np.random.seed(0)  # seed for the random generator
 # n = 1000  # number of observations
@@ -20,28 +20,45 @@ def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     # print(x)
     return x
 
-def bivariate_copula(data,n): #n is number of fibers in a layer
+def bivariate_copula(data,n,family=False): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
-    #pv.pairs_copula_data(u, scatter_size=0.5)
-    cop = pv.Bicop.from_data(data=u)
-    #+print(cop)
-    #cop.plot()
+    # pv.pairs_copula_data(u, scatter_size=0.5)
+
+    # If no family is specified, this means that cop.select will run to choose a family
+    # You should avoid running without specifying a family because it takes ages to run
+    if family:
+        cop = pv.Bicop(family)
+    else:
+        cop = pv.Bicop()
+        cop.select(data=u)
+
+    cop.fit(data=u)
+
+    #print(cop)
+    # cop.plot()
 
     n_sim = n
     u_sim = cop.simulate(n_sim, seeds=[1, 2, 3, 4])
     data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
-    return data_sim
+    return data_sim,cop
 
-def vine_copula(data,n): #n is number of fibers in a layer
-    u = pv.to_pseudo_obs(data)
-    pv.pairs_copula_data(u, scatter_size=0.5)
+def vine_copula(x,n): #n is number of fibers in a layer
+    # Do PIT
+    u = pv.to_pseudo_obs(x)
+
+    # automatically fit best copula model
     cop = pv.Vinecop.from_data(data=u)
-    print(cop)
-    #cop.plot()
 
+    # What does this do??
+    pv.pairs_copula_data(u, scatter_size=0.5)
+
+
+    
     u_sim = cop.simulate(n, seeds=[1, 2, 3, 4])
-    data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
+
+    # Reverse pit to get actual values
+    data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim
 
@@ -61,3 +78,33 @@ def coordinates(layer, data_sim, deltaz):
 
     return newlayer
 
+def plot_cop_parameters(cop_lst):
+    zz = np.arange(len(cop_lst))
+    if cop_lst[1].family in pv.one_par:
+        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label='Covariance')
+
+        plt.title('Gaussian covariance of Copula models')
+        plt.xlabel('Z (micrometer)')
+        plt.ylabel('Covariance')
+        plt.grid()
+        plt.xlim(0,128)
+      
+    if cop_lst[1].family in pv.two_par:
+        # First subplot
+        plt.subplot(1,2,1)
+        plt.plot(zz,[cop.parameters[0] for cop in cop_lst])
+        plt.title('Parameter 1')
+        plt.xlabel('Z (micrometer)')
+        plt.grid()
+        plt.xlim(0,128)
+        # Second subplot
+        plt.subplot(1,2,2)
+        plt.plot(zz,[cop.parameters[1] for cop in cop_lst])
+        plt.xlabel('Z (micrometer)')
+        plt.title('Parameter 2')
+        plt.grid()
+        plt.xlim(0,128)
+   
+    plt.show()
+
+    return
