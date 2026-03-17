@@ -20,12 +20,6 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
-<<<<<<< HEAD
-print(df)
-
-"""
-copula_lst = [0 for _ in range(129)]
-=======
 # print(df)
 
 
@@ -38,7 +32,6 @@ data_sim_lst = np.empty((129,n_fibers,2))
 # TODO remove the 0 inside here once we have 129 istead of 128 datapoints
 cop_lst = [0]
 
->>>>>>> b779837d6b872460555e69e607ac8cac4817e713
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
 for row_n in range(1,129):
