@@ -20,25 +20,10 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
-<<<<<<< HEAD
 print(df)
 
 """
 copula_lst = [0 for _ in range(129)]
-=======
-# print(df)
-
-
-# 129 is the amount of z values
-# n_fibers is the amount of unique fibers
-# 2 is the amount of parameters we can put in our copula
-data_sim_lst = np.empty((129,n_fibers,2))
-
-# list to contain copulas 
-# TODO remove the 0 inside here once we have 129 istead of 128 datapoints
-cop_lst = [0]
-
->>>>>>> e329db4361217879b9e85b5264ae9f91fdf9ea19
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
 for row_n in range(1,129):
