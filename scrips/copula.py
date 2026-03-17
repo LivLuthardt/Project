@@ -58,22 +58,6 @@ def vine_copula(x,n): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
     return data_sim
 
-
-def coordinates(layer, data_sim, deltaz):
-    # newlayer = np.empty(len(data_sim),2)
-    newlayer = []
-
-    for i in range(len(data_sim)):
-        x = layer[i][0] + deltaz / np.tan(data_sim[i][0])
-        y = layer[i][1] + deltaz / np.tan(data_sim[i][1])
-        
-        # newlayer[i,0] = x
-        # newlayer[i,1] = y
-        
-        newlayer.append([x,y])
-
-    return newlayer
-
 def gen_copula(df,x1,x2):
     pass
     return data_sim,cop
@@ -101,5 +85,33 @@ def plot_cop_parameters(cop_lst):
         plt.xlabel('Z (micrometer)')
         plt.grid()
         plt.xlim(0,128)
+<<<<<<< HEAD
         plt.legend()
     return
+=======
+   
+    plt.show()
+
+    return
+
+def get_L_and_phi(df_cleaned):
+    df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
+    df['L'] = np.sqrt(df['dx']**2 + df['dy']**2 + df['dz']**2)
+    df['phi'] = np.arctan2(df['dy'], df['dx'])
+    return df
+
+def coordinates(layer, data_sim, deltaz):
+    # newlayer = np.empty(len(data_sim),2)
+    newlayer = []
+
+    for i in range(len(data_sim)):
+        x = layer[i][0] + deltaz / np.tan(data_sim[i][0])
+        y = layer[i][1] + deltaz / np.tan(data_sim[i][1])
+        
+        # newlayer[i,0] = x
+        # newlayer[i,1] = y
+        
+        newlayer.append([x,y])
+
+    return newlayer
+>>>>>>> 30facb2fefa2cdcf78075a596ec2ecd064674631
