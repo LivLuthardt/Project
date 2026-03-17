@@ -88,10 +88,6 @@ fig_gmm = plot_gmm(df_clustered_gmm)
 fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
 clustered, model = perform_agglomerative_clustering(df)
-<<<<<<< HEAD
-fig_agg = plot_agg(clustered)
-=======
 fig_agg = plot_agg(clustered)
 
 
->>>>>>> f43d89913dfab00b28732946b6ab5d24ea73b80a
