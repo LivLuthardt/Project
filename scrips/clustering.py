@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans, DBSCAN, HDBSCAN, AgglomerativeClustering
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
+from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
 from scipy.cluster.hierarchy import dendrogram, linkage
 
@@ -56,7 +57,7 @@ def plot_k(df_clustered):
     fig.show()
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
-def perform_DBSCAN_clustering(df):
+def perform_dbscan_clustering(df):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
@@ -73,11 +74,19 @@ def perform_DBSCAN_clustering(df):
 
     return df
 
+# Plot clusters
+def plot_DBSCAN(df_clustered):
+    fig = px.line_3d(
+        df_clustered, 
+        x='x', y='y', z='z', 
+        color='cluster_id',
+        line_group='fibre_id',
+        title="DBSCAN"
+    )
+    fig.show()
     
-
-
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
-def perform_HDBSCAN_clustering(df):
+def perform_hdbscan_clustering(df):
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
@@ -93,6 +102,17 @@ def perform_HDBSCAN_clustering(df):
     df['cluster_id'] = cluster_labes
 
     return df
+
+# Plot clusters
+def plot_HDBSCAN(df_clustered):
+    fig = px.line_3d(
+        df_clustered, 
+        x='x', y='y', z='z', 
+        color='cluster_id',
+        line_group='fibre_id',
+        title="HDBSCAN"
+    )
+    fig.show()
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 def perform_gmm_clustering(df,n_clusters):
