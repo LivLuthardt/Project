@@ -108,3 +108,9 @@ def plot_cop_parameters(cop_lst):
     plt.show()
 
     return
+
+def get_L_and_phi(df_cleaned):
+    df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
+    df['L'] = np.sqrt(df['dx']**2 + df['dy']**2 + df['dz']**2)
+    df['phi'] = np.arctan2(df['dy'], df['dx'])
+    return df
