@@ -50,7 +50,7 @@ copula_lst = [0 for _ in range(129)]
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
-data_sim_arr = np.empty((129,n_fibers,2))
+data_sim_lst = np.empty((129,n_fibers,2))
 
 # list to contain copulas 
 # TODO remove the 0 inside here once we have 129 istead of 128 datapoints
@@ -61,7 +61,7 @@ cop_lst = [0]
 for row_n in range(1,128):
     print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
-    data_sim_arr[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
+    data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
     cop_lst.append(cop)
 
@@ -70,7 +70,7 @@ for row_n in range(1,128):
         print(f'Showing density plot for copula at z = {row_n}')
         cop_lst[row_n].plot('surface')
         # Scatter synthetic oberservation points
-        plt.scatter(data_sim_arr[row_n,:,0],data_sim_arr[row_n,:,1])
+        plt.scatter(data_sim_lst[row_n,:,0],data_sim_lst[row_n,:,1])
         plt.title(f'Synthetic observations at z = {row_n}')
         plt.show()
 
@@ -79,28 +79,6 @@ for row_n in range(1,128):
 
 # Plot covariance of Gaussian copulas
 # plot_cop_parameters(cop_lst)
-
-# Plot means of actual and synthetic data
-zz = np.arange(129)
-sim_mean_arr = np.mean(data_sim_arr,axis=1)
-print(sim_mean_arr)
-
-for i in range(2):
-    plt.subplot(1,2,i+1)
-    plt.plot(zz,mean_arr[:,i],label='Real data')
-    plt.plot(zz,sim_mean_arr[:,i],label='Simulated data')
-    plt.xlabel('z')
-    plt.grid()
-    plt.legend()
-
-plt.subplot(1,2,1)
-plt.title('X1')
-plt.subplot(1,2,2)
-plt.title('X2')
-
-plt.show()
-
-
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
@@ -122,9 +100,4 @@ fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 clustered, model = perform_agglomerative_clustering(df)
 fig_agg = plot_agg(clustered)
 
-df['tilt_angle_deg'] = np.degrees(df['tilt_angle_rad'])
-max_tilts = df.groupby('fibre_id')['tilt_angle_deg'].max()
-# Dynamically set threshold to the 99th percentile (keeps 99%, drops top 1%)
-threshold = max_tilts.quantile(0.99)
-fig_pdf = px.histogram(max_tilts, nbins=100, histnorm='probability density')
-fig_pdf.show()
+
