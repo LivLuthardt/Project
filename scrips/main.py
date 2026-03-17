@@ -75,3 +75,4 @@ fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
 clustered, model = perform_agglomerative_clustering(df)
 fig_agg = plot_agg(clustered)
+print(df)
