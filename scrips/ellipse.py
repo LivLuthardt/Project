@@ -7,7 +7,7 @@ def eTiltAngles(x1, x2):
     #Angle from horizontal instead of vertical
     return alpha, beta
 
-def getEllipse(x1, x2, r = 7): 
+def getEllipse(x1, x2, r = 3.5): 
     #Define coordinates as arrays
     x1, x2 = np.array(x1), np.array(x2)
     #Unit vectors for normal vector N and ellipse vector W

@@ -32,15 +32,20 @@ plt.show()
 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
+first = True
 for r in df.itertuples(index=True):
     x2 = (r[3], r[4], r[2]) #Current fiber point
-    if r[0] == 0: tilt = (0, 0) #Can't compute tilt from a single point
+    if first: tilt = (0, 0) #Can't compute tilt from a single point
     else:  tilt = eTiltAngles(x1, x2) #Pass the past and current points
     xtiltAngles.append(tilt[0])
     ytiltAngles.append(tilt[1])
     x1 = x2 #Set the current point to the past point
+    first = False
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz'])
+ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+plt.show()
 print(df)
 
 copula_lst = [0 for _ in range(129)]
@@ -108,10 +113,4 @@ fig_gmm = plot_gmm(df_clustered_gmm)
 fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
 clustered, model = perform_agglomerative_clustering(df)
-<<<<<<< HEAD
 fig_agg = plot_agg(clustered)
-=======
-fig_agg = plot_agg(clustered)
-
-
->>>>>>> f43d89913dfab00b28732946b6ab5d24ea73b80a
