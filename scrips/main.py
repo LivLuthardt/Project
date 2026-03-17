@@ -9,6 +9,27 @@ data_clean = data_cleaned(df)
 df = tangent_angles(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
+# Plot original data
+
+mean_arr = np.zeros((129,2))
+for z in range(1,129):
+    df_sort = sort(df,z)
+    x1 = df_sort[:,0]
+    x2 = df_sort[:,1]
+    mean_arr[z,0] = x1.mean()
+    mean_arr[z,1] = x2.mean()
+    plt.subplot(1,3,1)
+    plt.scatter(x1,x2)
+    plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
+    plt.subplot(1,3,2)
+    plt.hist(x1)
+    plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
+    plt.subplot(1,3,3)
+    plt.hist(x2)
+    plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
+plt.show()
+
+
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 for r in df.itertuples(index=True):
@@ -26,7 +47,7 @@ df = df.dropna(subset=['dx', 'dy', 'dz'])
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
-data_sim_lst = np.empty((129,n_fibers,2))
+data_sim_arr = np.empty((129,n_fibers,2))
 
 # list to contain copulas 
 # TODO remove the 0 inside here once we have 129 istead of 128 datapoints
@@ -37,7 +58,7 @@ cop_lst = [0]
 for row_n in range(1,129):
     # print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
-    data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
+    data_sim_arr[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
     cop_lst.append(cop)
 
@@ -46,7 +67,7 @@ for row_n in range(1,129):
         print(f'Showing density plot for copula at z = {row_n}')
         cop_lst[row_n].plot('surface')
         # Scatter synthetic oberservation points
-        plt.scatter(data_sim_lst[row_n,:,0],data_sim_lst[row_n,:,1])
+        plt.scatter(data_sim_arr[row_n,:,0],data_sim_arr[row_n,:,1])
         plt.title(f'Synthetic observations at z = {row_n}')
         plt.show()
 
@@ -55,6 +76,28 @@ for row_n in range(1,129):
 
 # Plot covariance of Gaussian copulas
 # plot_cop_parameters(cop_lst)
+
+# Plot means of actual and synthetic data
+zz = np.arange(129)
+sim_mean_arr = np.mean(data_sim_arr,axis=1)
+print(sim_mean_arr)
+
+for i in range(2):
+    plt.subplot(1,2,i+1)
+    plt.plot(zz,mean_arr[:,i],label='Real data')
+    plt.plot(zz,sim_mean_arr[:,i],label='Simulated data')
+    plt.xlabel('z')
+    plt.grid()
+    plt.legend()
+
+plt.subplot(1,2,1)
+plt.title('X1')
+plt.subplot(1,2,2)
+plt.title('X2')
+
+plt.show()
+
+
 
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,5)
 # 2. Merge cluster IDs back to the original points for 3D plotting
