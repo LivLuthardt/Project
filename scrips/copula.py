@@ -85,10 +85,8 @@ def plot_cop_parameters(cop_lst):
         plt.xlabel('Z (micrometer)')
         plt.grid()
         plt.xlim(0,128)
-<<<<<<< HEAD
         plt.legend()
     return
-=======
    
     plt.show()
 
@@ -114,4 +112,3 @@ def coordinates(layer, data_sim, deltaz):
         newlayer.append([x,y])
 
     return newlayer
->>>>>>> 30facb2fefa2cdcf78075a596ec2ecd064674631
