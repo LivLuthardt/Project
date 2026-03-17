@@ -10,13 +10,16 @@ data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
+zz = range(1,128)
+
 ### Choose parameters to plot and predict with copula
 par_1,par_2 = 'angle_x_deg','angle_y_deg'
 mean_df = df.groupby('z').mean()
 mean_arr = mean_df[[par_1,par_2]].to_numpy()
+cop_models = [pv.gaussian,pv.student,pv.frank]
 
 ### Plot original data
-plot_og_data(par_1,par_2,mean_arr,df,[67])
+# plot_og_data(par_1,par_2,mean_arr,df,[67])
 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
@@ -39,39 +42,42 @@ ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="vir
 plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
-print(df)
+# print(df)
 
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
-data_sim_lst = np.empty((129,n_fibers,2))
+data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 
 # list to contain copulas 
 # TODO remove the 0 inside here once we have 129 istead of 128 datapoints
-cop_lst = [0]
+cop_lst = [[] for i in range(len(cop_models))]
 
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
-for row_n in range(1,128):
-    data_filtered = sort(df,row_n,par_1,par_2)
-    data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
+for z in zz:
+    df_z = sort(df,z,par_1,par_2)
+    for i,family in enumerate(cop_models):
+        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,family=family)
+        cop_lst[i].append(cop)
 
-    cop_lst.append(cop)
-
-    if row_n % 5 == 0:
+    if z % 5 == 0:
         continue
-        print(f'Showing density plot for copula at z = {row_n}')
-        cop_lst[row_n].plot('surface')
+        print(f'Showing density plot for copula at z = {z}')
+        cop_lst[z].plot('surface')
         # Scatter synthetic oberservation points
-        plt.scatter(data_sim_lst[row_n,:,0],data_sim_lst[row_n,:,1])
-        plt.title(f'Synthetic observations at z = {row_n}')
+        plt.scatter(data_sim_arr[z,:,0],data_sim_arr[z,:,1])
+        plt.title(f'Synthetic observations at z = {z}')
         plt.show()
 
-    # TODO this is not correct but should remain until z = 0 is accounted for
-    cop_lst[0] = cop_lst[1]
+plt.show()
 
 ### Plot covariance of Gaussian copulas
-# plot_cop_parameters(cop_lst)
+for cops in cop_lst:
+    plot_cop_parameters(cops)
+plt.plot
+
+plt.show()
 
 # Number of pre-defined clusters
 n = 5

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-def plot_og_data(x1,x2,mean_arr,df,z_lst=range(1,128)):
-    for z in z_lst:
+def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
+    for z in z_values:
         df_z = df[df['z'] == z]
         x1_df = df_z[[x1]]
         x2_df = df_z[[x2]]
