@@ -9,6 +9,26 @@ data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
+# Plot original data
+
+mean_arr = np.zeros((129,2))
+for z in range(1,128):
+    df_sort = sort(df,z)
+    x1 = df_sort[:,0]
+    x2 = df_sort[:,1]
+    mean_arr[z,0] = x1.mean()
+    mean_arr[z,1] = x2.mean()
+    plt.subplot(1,3,1)
+    plt.scatter(x1,x2)
+    plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
+    plt.subplot(1,3,2)
+    plt.hist(x1)
+    plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
+    plt.subplot(1,3,3)
+    plt.hist(x2)
+    plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
+plt.show()
+
 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
@@ -38,8 +58,8 @@ cop_lst = [0]
 
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
-for row_n in range(1,129):
-    # print(f'Iterating over z = {row_n}')
+for row_n in range(1,128):
+    print(f'Iterating over z = {row_n}')
     data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
     data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
