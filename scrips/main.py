@@ -14,9 +14,15 @@ zz = range(1,128)
 
 ### Choose parameters to plot and predict with copula
 par_1,par_2 = 'angle_x_deg','angle_y_deg'
-mean_df = df.groupby('z').mean()
-mean_arr = mean_df[[par_1,par_2]].to_numpy()
-cop_models = [pv.gaussian,pv.student,pv.frank]
+df_grouped = df.groupby('z')
+
+mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
+
+### Magic
+cov_series = df_grouped.apply(lambda group: group[par_1].corr(group[par_2]))
+cov_arr = cov_series.reindex(zz).to_numpy()
+
+cop_models = [pv.gaussian,pv.student,pv.clayton]
 
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
@@ -57,8 +63,8 @@ cop_lst = [[] for i in range(len(cop_models))]
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
-    for i,family in enumerate(cop_models):
-        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,family=family)
+    for i,model in enumerate(cop_models):
+        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
 
     if z % 5 == 0:
@@ -70,15 +76,16 @@ for z in zz:
         plt.title(f'Synthetic observations at z = {z}')
         plt.show()
 
-plt.show()
-
 ### Plot covariance of Gaussian copulas
+""" 
 for cops in cop_lst:
     plot_cop_parameters(cops)
-plt.plot
+plt.subplot(1,2,1)
+plt.plot(zz,cov_arr,label='Actual covariance')
+plt.legend()
 
 plt.show()
-
+ """
 # Number of pre-defined clusters
 n = 5
 

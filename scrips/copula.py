@@ -20,14 +20,14 @@ def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     # print(x)
     return x
 
-def bivariate_copula(data,n,family=None): #n is number of fibers in a layer
+def bivariate_copula(data,n,model=None): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
     # pv.pairs_copula_data(u, scatter_size=0.5)
 
     # If no family is specified, this means that cop.select will run to choose a family
     # You should avoid running without specifying a family because it takes ages to run
-    if family:
-        cop = pv.Bicop(family)
+    if model:
+        cop = pv.Bicop(model)
         cop.fit(data=u)
     else:
         cop = pv.Bicop()
@@ -67,28 +67,25 @@ def plot_cop_parameters(cop_lst):
     if (fam := cop_lst[0].family) in pv.one_par:
         plt.subplot(1,2,1)
         plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=fam)
-        plt.xlabel('Z (micrometer)')
-        plt.grid()
-        plt.xlim(0,128)
-      
+
+    fam = cop_lst[0].family
+    
     if (fam := cop_lst[0].family) in pv.two_par:
         # First subplot
         plt.subplot(1,2,1)
         plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=fam)
-        plt.xlabel('Z (micrometer)')
-        plt.grid()
-        plt.xlim(0,128)
-        plt.legend()
+
         # Second subplot
         plt.subplot(1,2,2)
         plt.plot(zz,[cop.parameters[1] for cop in cop_lst],label=fam)
+
+    for i in (1,2):
+        plt.subplot(1,2,i)
         plt.xlabel('Z (micrometer)')
         plt.grid()
         plt.xlim(0,128)
         plt.legend()
-    return
-   
-    plt.show()
+        plt.title(f'Parameter {i}')
 
     return
 
