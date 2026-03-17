@@ -3,32 +3,20 @@ from ellipse import*
 from tangent import*
 from copula import*
 from clustering import*
+from plot import *
 
 df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-# Plot original data
+### Choose parameters to plot and predict with copula
+par_1,par_2 = 'angle_x_deg','angle_y_deg'
+mean_df = df.groupby('z').mean()
+mean_arr = mean_df[[par_1,par_2]].to_numpy()
 
-mean_arr = np.zeros((129,2))
-for z in range(1,128):
-    df_sort = sort(df,z)
-    x1 = df_sort[:,0]
-    x2 = df_sort[:,1]
-    mean_arr[z,0] = x1.mean()
-    mean_arr[z,1] = x2.mean()
-    plt.subplot(1,3,1)
-    plt.scatter(x1,x2)
-    plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
-    plt.subplot(1,3,2)
-    plt.hist(x1)
-    plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
-    plt.subplot(1,3,3)
-    plt.hist(x2)
-    plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
-plt.show()
-
+### Plot original data
+plot_og_data(par_1,par_2,mean_arr,df,[67])
 
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
@@ -53,10 +41,6 @@ ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="virid
 plt.savefig(fname="FiniteTiltHex.png")
 print(df)
 
-copula_lst = [0 for _ in range(129)]
-# print(df)
-
-
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
@@ -69,7 +53,7 @@ cop_lst = [0]
 # Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
 # TODO once the dataframe is changed to account for z = 0 we can do range(129)
 for row_n in range(1,128):
-    data_filtered = sort(df,row_n,'angle_x_deg','angle_y_deg')
+    data_filtered = sort(df,row_n,par_1,par_2)
     data_sim_lst[row_n], cop = bivariate_copula(data_filtered,len(data_filtered),family=pv.student)
 
     cop_lst.append(cop)
@@ -86,7 +70,7 @@ for row_n in range(1,128):
     # TODO this is not correct but should remain until z = 0 is accounted for
     cop_lst[0] = cop_lst[1]
 
-# Plot covariance of Gaussian copulas
+### Plot covariance of Gaussian copulas
 # plot_cop_parameters(cop_lst)
 
 # Number of pre-defined clusters
