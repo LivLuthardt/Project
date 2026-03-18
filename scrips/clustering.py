@@ -8,6 +8,8 @@ from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
 from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
      
@@ -47,6 +49,38 @@ def sse_plot_k(df):
     )
 
     fig.show()
+
+# ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------
+def PCA_determination(df):
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
+    scale = StandardScaler()
+    data_scaled = scale.fit_transform(df[features])
+
+    pca = PCA(n_components=data_scaled.shape[1])
+    data_transformed = pca.fit_transform(data_scaled)
+
+    coverage_lst = np.cumsum(pca.explained_variance_ratio_) * 100
+
+    plt.figure()
+    plt.plot(
+        np.arange(1, data_transformed.shape[1] + 1),
+        coverage_lst,
+        marker='o',
+        label='Cumulative explained variance'
+    )
+    plt.xlabel('Number of Principal Components')
+    plt.ylabel('Coverage (%)')
+    plt.title('PCA Coverage vs Number of Principal Components')
+    plt.xlim(1, data_transformed.shape[1])
+    plt.ylim(0, 100)
+    plt.grid(True)
+    plt.legend()
+    plt.savefig("PCA_coverage.png")
+    plt.close()
+    print("PCA plot saved")
+
+    return pca, data_transformed, coverage_lst
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
     # Features to use for clustering
