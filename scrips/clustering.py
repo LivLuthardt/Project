@@ -51,6 +51,7 @@ def sse_plot_k(df):
     fig.show()
 
 # ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------
+
 def PCA_determination(df):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
@@ -76,11 +77,58 @@ def PCA_determination(df):
     plt.ylim(0, 100)
     plt.grid(True)
     plt.legend()
-    plt.savefig("PCA_coverage.png")
+    #plt.savefig("PCA_coverage.png")
     plt.close()
     print("PCA plot saved")
 
     return pca, data_transformed, coverage_lst
+
+def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(df[features])
+
+    pca = PCA(n_components=n_components)
+    pca_data = pca.fit_transform(scaled_data)
+
+    kmeans_pca = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    cluster_labels = kmeans_pca.fit_predict(pca_data)
+
+    df_pca_clustered = df.copy()
+    df_pca_clustered['cluster_id'] = cluster_labels
+
+    score_pca = silhouette_score(pca_data, cluster_labels)
+
+    return df_pca_clustered, kmeans_pca.inertia_, score_pca, pca.explained_variance_ratio_
+
+def sse_plot_kmeans_pca(df, n_components=3):
+    sse_pca = []
+    n_clusters_range = range(1, 11)
+
+    for k in n_clusters_range:
+        _, inertia_pca, _, _ = perform_kmeans_clustering_with_pca(
+            df,
+            n_clusters=k,
+            n_components=n_components
+        )
+        sse_pca.append(inertia_pca)
+
+    plot_df_pca = pd.DataFrame({
+        'Number of Clusters': n_clusters_range,
+        'SSE': sse_pca
+    })
+
+    fig = px.line(
+        plot_df_pca,
+        x='Number of Clusters',
+        y='SSE',
+        markers=True,
+        title=f"SSE vs Number of Clusters (K-means with PCA, {n_components} PCs)"
+    )
+
+    fig.show()
+
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
     # Features to use for clustering
