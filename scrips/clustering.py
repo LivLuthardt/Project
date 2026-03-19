@@ -10,12 +10,13 @@ from sklearn.mixture import GaussianMixture
 from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-
+from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import MinMaxScaler
 # ---------------------------------------METHOD 1: k means------------------------------------------
-     
+
 def perform_kmeans_clustering(df, n_clusters):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
     scaled_data = scaler.fit_transform(df[features])
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
     scaled_df['x_mean'] *= 1.5
@@ -51,6 +52,7 @@ def sse_plot_k(df, n_clusters):
 
 # ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------
 
+#x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
 def PCA_determination(df):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
