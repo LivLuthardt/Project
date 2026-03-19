@@ -159,15 +159,3 @@ def data_cleaned(df):
 
     return df_cleaned
 
-# Separate IDs based on the IQR bounds
-    kinked_ids = max_tilts[(max_tilts > upper_bound) & (max_tilts < lower_bound)].index
-    clean_ids = max_tilts[(max_tilts <= upper_bound) & (max_tilts >= lower_bound)].index
-
-# Filter the original dataframe by ID
-    df_kinked = df[df['fibre_id'].isin(kinked_ids)]
-    df_cleaned = df[df['fibre_id'].isin(clean_ids)]
-
-    print(f" - {len(clean_ids)} fibres kept.")
-    print(f" - {len(kinked_ids)} fibres removed")
-
-    return df_cleaned
