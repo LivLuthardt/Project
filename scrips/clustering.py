@@ -41,7 +41,7 @@ def PCA_determination(df):
     plt.ylim(0, 100)
     plt.grid(True)
     plt.legend()
-    plt.savefig("PCA_10_coverage.png")
+    #plt.savefig("PCA_10_coverage.png")
     plt.close()
     print("PCA plot saved")
 
