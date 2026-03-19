@@ -26,9 +26,8 @@ def perform_kmeans_clustering(df, n_clusters):
     score = silhouette_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
 
-def sse_plot_k(df):
+def sse_plot_k(df, n_clusters):
     sse = []
-    n_clusters = range(1,11)
     for k in n_clusters:
         df , inertia, score = perform_kmeans_clustering(df,n_clusters=k)
         sse.append(inertia)
@@ -190,10 +189,9 @@ def perform_gmm_clustering(df,n_clusters):
     score = silhouette_score(scaled_data, cluster_labels)
     return df,gmm.aic(scaled_data),gmm.bic(scaled_data),score
 
-def aic_bic_plot_gmm(df):
+def aic_bic_plot_gmm(df, n_clusters):
     aic_vals = []
     bic_vals = []
-    n_clusters = range(1,11)
     for k in n_clusters:
         df , aic , bic, score = perform_gmm_clustering(df,n_clusters=k)
         aic_vals.append(aic)
@@ -274,8 +272,8 @@ def plot_silhouette(score, n_clusters, title):
     # Create 2D line plot with Plotly Express
     fig = px.line(
         plot_df, 
-        x='Number of Clusters', 
-        y='SSE', 
+        x=n_clusters, 
+        y=score, 
         markers=True,
         title=f"Silhouette vs Number of Clusters for {title}"
     )
