@@ -34,6 +34,7 @@ def fiber_summary(df):
         # Original/Non-mean versions (taking the first occurrence per fiber)
         x=('x', 'first'),
         y=('y', 'first'),
+        z=('z', 'first'),
         angle_x_deg=('angle_x_deg', 'first'),
         angle_y_deg=('angle_y_deg', 'first'),
         tilt_angle_deg=('tilt_angle_deg', 'first')
