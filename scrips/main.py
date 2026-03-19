@@ -39,16 +39,18 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
     first = False
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
-df = df.dropna(subset=['dx', 'dy', 'dz'])
+df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
+#Save 1D histograms
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="XTiltHist.png")
 ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="YTiltHist.png")
+#Save 2D hex plots
 ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
-# print(df)
+# Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
@@ -89,7 +91,15 @@ plt.plot(zz,cov_arr,label='Actual covariance')
 plt.legend()
 
 plt.show()
-"""
+ """
+# plt.show()
+# Plot og and synthetic data
+# plot_og_data(par_1,par_2,mean_arr,df,[67])
+# plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
+
+# Number of pre-defined clusters
+n = 5
+
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
@@ -103,7 +113,6 @@ fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 # Make a plot of the error
 #fig_k_error = sse_plot_k(fiber_sum)
-
 
 # K-means clustering with PCA
 fiber_summary_k_pca, inertia_k_pca, score_k_pca, explained_var_pca = perform_kmeans_clustering_with_pca(
@@ -128,20 +137,17 @@ df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id'
 
 
 # Make 3D plots with clusters
-#plot_fibers(df_clustered_k, 'K-means')
-#plot_fibers(df_clustered_k_pca, 'K-means with PCA')
-#plot_fibers(df_clustered_dbscan, 'DBSCAN')
-#plot_fibers(df_clustered_hdbscan, 'HDBSCAN')
-#plot_fibers(df_clustered_gmm, 'GMM')
-#plot_fibers(df_clustered_agg, 'agglomerative')
-
-"""
+plot_fibers(fiber_summary_k, 'K-means')
+plot_fibers(fiber_summary_k_pca, 'K-means with PCA')
+plot_fibers(fiber_summary_dbscan, 'DBSCAN')
+plot_fibers(fiber_summary_hdbscan, 'HDBSCAN')
+plot_fibers(fiber_summary_gmm, 'GMM')
+plot_fibers(fiber_summary_agg, 'agglomerative')
 
 # Make silhouette plot for all pre-defined cluster methods
 score_k = []
 score_gmm = []
 score_agg = []
-
 
 for n in n_clusters:
     fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
@@ -159,10 +165,3 @@ for n in n_clusters:
 plot_silhouette(score_k, n_clusters, 'K-means')
 plot_silhouette(score_k, n_clusters, 'GMM')
 plot_silhouette(score_k, n_clusters, 'Agglomerative')
-
-#I will try to fix this next shesh
-
-"""
-
-
-

@@ -23,7 +23,7 @@ def tangent_angles(df_cleaned):
 
 def fiber_summary(df):
     # Use named aggregation to define names and functions simultaneously
-    means = df.groupby('fibre_id').agg(
+    means = df.groupby('fibre_id', 'z').agg(
         x_mean=('x', 'mean'),
         y_mean=('y', 'mean'),
         angle_x_mean=('angle_x_deg', 'mean'),
@@ -33,7 +33,7 @@ def fiber_summary(df):
 
     summary_df = df.merge(means, on='fibre_id', how='left')
 
-    n_fibers = int(len(df) / df['z'].nunique())
+    n_fibers = df['fibre_id'].nunique()
     
     return fiber_summary, n_fibers
 
