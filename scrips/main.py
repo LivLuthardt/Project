@@ -140,7 +140,7 @@ plot_fibers(fiber_summary_k_pca, 'K-means with PCA')
 plot_fibers(fiber_summary_dbscan, 'DBSCAN')
 plot_fibers(fiber_summary_hdbscan, 'HDBSCAN')
 plot_fibers(fiber_summary_gmm, 'GMM')
-plot_fibers(fiber_summary_agg, 'agglomerative')
+#plot_fibers(fiber_summary_agg, 'agglomerative')
 
 # Make silhouette plot for all pre-defined cluster methods
 score_k = []
