@@ -154,3 +154,10 @@ plot_silhouette(score_k, n_clusters, 'GMM')
 plot_silhouette(score_k, n_clusters, 'Agglomerative')
 
 #I will try to fix this next shesh
+
+
+
+
+
+#print(fiber_sum.columns)
+#I will try to fix this next shesh
