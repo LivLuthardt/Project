@@ -8,6 +8,7 @@ from plot import *
 df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
+
 fiber_sum,n_fibers = fiber_summary(df)
 
 zz = range(1,128)

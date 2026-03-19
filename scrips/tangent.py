@@ -14,7 +14,7 @@ def tangent_angles(df_cleaned):
     df['angle_x_deg'] = np.degrees(np.arctan2(df['dx'], df['dz']))
     df['angle_y_deg'] = np.degrees(np.arctan2(df['dy'], df['dz']))
     
-    # tilit angle 
+    # tilt angle 
     lateral_dist = np.sqrt(df['dx']**2 + df['dy']**2)
     df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
     
