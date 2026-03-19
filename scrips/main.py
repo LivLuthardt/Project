@@ -77,15 +77,6 @@ for z in zz:
 
 sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
-    if z % 5 == 0:
-        continue
-        print(f'Showing density plot for copula at z = {z}')
-        cop_lst[z].plot('surface')
-        # Scatter synthetic oberservation points
-        plt.scatter(data_sim_arr[z,:,0],data_sim_arr[z,:,1])
-        plt.title(f'Synthetic observations at z = {z}')
-        plt.show()
-
 ### Plot covariance of Gaussian copulas
 """ 
 for cops in cop_lst:
