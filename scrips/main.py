@@ -24,9 +24,6 @@ cov_arr = cov_series.reindex(zz).to_numpy()
 
 cop_models = [pv.gaussian,pv.student,pv.clayton]
 
-### Plot original data
-# plot_og_data(par_1,par_2,mean_arr,df,[67])
-
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 first = True
@@ -57,28 +54,16 @@ with open("Output.txt", "w") as text_file:
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
-data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
+data_sim_arr = np.empty((len(cop_models),len(zz)+1,n_fibers,2))
 
-# list to contain copulas 
-# TODO remove the 0 inside here once we have 129 istead of 128 datapoints
 cop_lst = [[] for i in range(len(cop_models))]
 
-# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
-# TODO once the dataframe is changed to account for z = 0 we can do range(129)
+### Generate copulas for each z 
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
     for i,model in enumerate(cop_models):
         data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
-
-    if z % 5 == 0:
-        continue
-        print(f'Showing density plot for copula at z = {z}')
-        cop_lst[z].plot('surface')
-        # Scatter synthetic oberservation points
-        plt.scatter(data_sim_arr[z,:,0],data_sim_arr[z,:,1])
-        plt.title(f'Synthetic observations at z = {z}')
-        plt.show()
 
 ### Plot covariance of Gaussian copulas
 """ 
@@ -90,6 +75,13 @@ plt.legend()
 
 plt.show()
  """
+plt.show()
+# Plot og and synthetic data
+# plot_og_data(par_1,par_2,mean_arr,df,[67])
+plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[67])
+
+
+
 # Number of pre-defined clusters
 n = 5
 
