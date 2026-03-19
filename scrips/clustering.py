@@ -10,8 +10,46 @@ from sklearn.mixture import GaussianMixture
 from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+<<<<<<< Updated upstream
 from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import MinMaxScaler
+=======
+
+# ---------------------------------PCA Calculation for 10 Features-----------------------------
+
+#x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
+def PCA_determination(df):
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'x', 'y', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg', 'tilt_angle_mean']
+
+    scale = StandardScaler()
+    data_scaled = scale.fit_transform(df[features])
+
+    pca = PCA(n_components=data_scaled.shape[1])
+    data_transformed = pca.fit_transform(data_scaled)
+
+    coverage_lst = np.cumsum(pca.explained_variance_ratio_) * 100
+
+    plt.figure()
+    plt.plot(
+        np.arange(1, data_transformed.shape[1] + 1),
+        coverage_lst,
+        marker='o',
+        label='Cumulative explained variance'
+    )
+    plt.xlabel('Number of Principal Components')
+    plt.ylabel('Coverage (%)')
+    plt.title('PCA Coverage vs Number of Principal Components')
+    plt.xlim(1, data_transformed.shape[1])
+    plt.ylim(0, 100)
+    plt.grid(True)
+    plt.legend()
+    plt.savefig("PCA_10_coverage.png")
+    plt.close()
+    print("PCA plot saved")
+
+    return pca, data_transformed, coverage_lst
+
+>>>>>>> Stashed changes
 # ---------------------------------------METHOD 1: k means------------------------------------------
 
 def perform_kmeans_clustering(df, n_clusters):
@@ -50,39 +88,7 @@ def sse_plot_k(df, n_clusters):
 
     fig.show()
 
-# ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------
-
-#x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
-def PCA_determination(df):
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
-
-    scale = StandardScaler()
-    data_scaled = scale.fit_transform(df[features])
-
-    pca = PCA(n_components=data_scaled.shape[1])
-    data_transformed = pca.fit_transform(data_scaled)
-
-    coverage_lst = np.cumsum(pca.explained_variance_ratio_) * 100
-
-    plt.figure()
-    plt.plot(
-        np.arange(1, data_transformed.shape[1] + 1),
-        coverage_lst,
-        marker='o',
-        label='Cumulative explained variance'
-    )
-    plt.xlabel('Number of Principal Components')
-    plt.ylabel('Coverage (%)')
-    plt.title('PCA Coverage vs Number of Principal Components')
-    plt.xlim(1, data_transformed.shape[1])
-    plt.ylim(0, 100)
-    plt.grid(True)
-    plt.legend()
-    #plt.savefig("PCA_coverage.png")
-    plt.close()
-    print("PCA plot saved")
-
-    return pca, data_transformed, coverage_lst
+# ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------------
 
 def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
