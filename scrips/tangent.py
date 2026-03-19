@@ -18,9 +18,7 @@ def tangent_angles(df_cleaned):
     lateral_dist = np.sqrt(df['dx']**2 + df['dy']**2)
     df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
     
-    # Return the dataframe with the new tilt columns, removing NaN: the first points
-    
-
+    # Return the dataframe with the new tilt columns
     return df
 
 def fiber_summary(df):
