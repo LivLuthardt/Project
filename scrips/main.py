@@ -27,12 +27,12 @@ cop_models = [pv.gaussian,pv.student,pv.clayton]
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 
-#ellipse 
+#ellipse iteration
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 first = True
 for r in df.itertuples(index=True):
     x2 = (r[3], r[4], r[2]) #Current fiber point
-    if first: tilt = (0, 0) #Can't compute tilt from a single point
+    if first: tilt = (None, None) #Use backward difference
     else:  tilt = eTiltAngles(x1, x2) #Pass the past and current points
     xtiltAngles.append(tilt[0])
     ytiltAngles.append(tilt[1])
@@ -90,6 +90,7 @@ plt.legend()
 
 plt.show()
 """
+
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
@@ -126,6 +127,7 @@ df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id'
 
 #df_clustered_agg, model, score = perform_agglomerative_clustering(fiber_sum,n)
 
+'''
 # Make 3D plots with clusters
 plot_fibers(df_clustered_k, 'K-means')
 plot_fibers(df_clustered_k_pca, 'K-means with PCA')
@@ -133,9 +135,10 @@ plot_fibers(df_clustered_dbscan, 'DBSCAN')
 plot_fibers(df_clustered_hdbscan, 'HDBSCAN')
 plot_fibers(df_clustered_gmm, 'GMM')
 #plot_fibers(df_clustered_agg, 'agglomerative')
-
+'''
 """
 
+"""
 # Make silhouette plot for all pre-defined cluster methods
 score_k = []
 score_gmm = []
@@ -161,7 +164,7 @@ plot_silhouette(score_k, n_clusters, 'Agglomerative')
 
 #I will try to fix this next shesh
 
-"""
+
 
 
 
