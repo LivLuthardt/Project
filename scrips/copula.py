@@ -12,13 +12,8 @@ import matplotlib.pyplot as plt
 # x = np.random.multivariate_normal(mean, cov, n)
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
-    # Filter out rows which do not match our z value
-    df_z = data[data['z'] == n]
-    # take out dx and dy rows  
-    df_z = df_z[[x1,x2]]
-    x = df_z.to_numpy()
-    # print(x)
-    return x
+    # Return tilt angles for a given z-value, first indexing by layer and then by tilt outputs
+    return data[data['z'] == n][[x1,x2]].to_numpy()
 
 def bivariate_copula(data,n,model=None): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
@@ -64,20 +59,23 @@ def gen_copula(df,x1,x2):
 
 def plot_cop_parameters(cop_lst):
     zz = np.arange(len(cop_lst))
-    if (fam := cop_lst[0].family) in pv.one_par:
-        plt.subplot(1,2,1)
-        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=fam)
+    model_lst = [cop.family for cop in cop_lst]
+    model_set = set(model_lst)
 
-    fam = cop_lst[0].family
+    assert len(model_set) > 1, "Can't plot if more than 1 unique family"
+
+    if model_set[0] in pv.one_par:
+        plt.subplot(1,2,1)
+        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_set[0])
     
-    if (fam := cop_lst[0].family) in pv.two_par:
+    if model_set[0] in pv.two_par:
         # First subplot
         plt.subplot(1,2,1)
-        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=fam)
+        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_set[0])
 
         # Second subplot
         plt.subplot(1,2,2)
-        plt.plot(zz,[cop.parameters[1] for cop in cop_lst],label=fam)
+        plt.plot(zz,[cop.parameters[1] for cop in cop_lst],label=model_set[0])
 
     for i in (1,2):
         plt.subplot(1,2,i)
