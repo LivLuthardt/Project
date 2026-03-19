@@ -39,16 +39,18 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
     first = False
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
-df = df.dropna(subset=['dx', 'dy', 'dz'])
+df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
+#Generate and save 1D histograms
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="XTiltHist.png")
 ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="YTiltHist.png")
+#Plot and save 2D histograms
 ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
-# print(df)
+#Save and write standard deviations of two methods
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
