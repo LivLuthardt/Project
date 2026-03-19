@@ -154,7 +154,7 @@ def perform_DBSCAN_clustering(df):
 
     # Calculate silhouette score
     score = silhouette_score(scaled_data, cluster_labels)
-    return df
+    return df,score
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
 def perform_HDBSCAN_clustering(df):
@@ -174,7 +174,7 @@ def perform_HDBSCAN_clustering(df):
 
     # Calculate silhouette score
     score = silhouette_score(scaled_data, cluster_labels)
-    return df
+    return df,score
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 def perform_gmm_clustering(df,n_clusters):
