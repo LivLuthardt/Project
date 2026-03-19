@@ -1,43 +1,8 @@
-
 import pandas as pd 
 import numpy as np
 
-def tangent_angles(df_cleaned):
-    #consecutive point comparison
-    df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
-
-    df['dx'] = df.groupby('fibre_id')['x'].diff()
-    df['dy'] = df.groupby('fibre_id')['y'].diff()
-    df['dz'] = df.groupby('fibre_id')['z'].diff()
-
-    # zx and zy planar tilt
-    df['angle_x_deg'] = np.degrees(np.arctan2(df['dx'], df['dz']))
-    df['angle_y_deg'] = np.degrees(np.arctan2(df['dy'], df['dz']))
-    
-    # tilit angle 
-    lateral_dist = np.sqrt(df['dx']**2 + df['dy']**2)
-    df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
-    
-    # Return the dataframe with the new tilt columns
-    return df
-
-def fiber_summary(df):
-    # Use named aggregation to define names and functions simultaneously
-    means = df.groupby('fibre_id', 'z').agg(
-        x_mean=('x', 'mean'),
-        y_mean=('y', 'mean'),
-        angle_x_mean=('angle_x_deg', 'mean'),
-        angle_y_mean=('angle_y_deg', 'mean'),
-        tilt_angle_mean=('tilt_angle_deg', 'mean'),
-    ).reset_index()
-
-    summary_df = df.merge(means, on='fibre_id', how='left')
-
-    n_fibers = df['fibre_id'].nunique()
-    
-    return fiber_summary, n_fibers
-
 def tangent_angles_central(df_cleaned):
+    # Using central difference method: (next - prev)
     df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
 
     x_prev = df.groupby('fibre_id')['x'].shift(1)
@@ -59,4 +24,28 @@ def tangent_angles_central(df_cleaned):
     lateral_dist = np.sqrt(df['dx']**2 + df['dy']**2)
     df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
 
+    cols_to_fill = ['angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']
+    df[cols_to_fill] = df.groupby('fibre_id')[cols_to_fill].bfill().ffill()
+
     return df
+
+def fiber_summary(df):
+    # Apply central difference calculation
+    df_angles = tangent_angles_central(df)
+    
+    # Calculate means per fiber
+    # Note: Removed 'z' from groupby so we get one row per fiber_id
+    means = df_angles.groupby('fibre_id').agg(
+        x_mean=('x', 'mean'),
+        y_mean=('y', 'mean'),
+        angle_x_mean=('angle_x_deg', 'mean'),
+        angle_y_mean=('angle_y_deg', 'mean'),
+        tilt_angle_mean=('tilt_angle_deg', 'mean'),
+    ).reset_index()
+
+    # Merge means back to the original dataframe to keep all columns (including z)
+    summary_df = df_angles.merge(means, on='fibre_id', how='left')
+
+    n_fibers = df['fibre_id'].nunique()
+    
+    return summary_df, n_fibers
