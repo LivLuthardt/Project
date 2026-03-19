@@ -73,15 +73,10 @@ for z in zz:
     for i,model in enumerate(cop_models):
         data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
+    for i in range(len(cop_models)):
+        data_sim_arr[i,0] = data_sim_arr[i,1]
 
-    if z % 5 == 0:
-        continue
-        print(f'Showing density plot for copula at z = {z}')
-        cop_lst[z].plot('surface')
-        # Scatter synthetic oberservation points
-        plt.scatter(data_sim_arr[z,:,0],data_sim_arr[z,:,1])
-        plt.title(f'Synthetic observations at z = {z}')
-        plt.show()
+sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 ### Plot covariance of Gaussian copulas
 """ 
