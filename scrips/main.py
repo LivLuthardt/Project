@@ -19,19 +19,17 @@ df_grouped = df.groupby('z')
 mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
 
 ### Magic
-cov_series = df_grouped.apply(lambda group: group[par_1].corr(group[par_2]))
+cov_series = df_grouped.apply(
+    lambda group: group[par_1].corr(group[par_2]),
+    include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
 cop_models = [pv.gaussian,pv.student,pv.clayton]
 
-<<<<<<< HEAD
-#ellipse 
-=======
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 
 #ellipse iteration
->>>>>>> 437fe6fe73f2c12ea7d9350785efc8fe2f3f7d58
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 first = True
 for r in df.itertuples(index=True):
@@ -81,20 +79,16 @@ plt.plot(zz,cov_arr,label='Actual covariance')
 plt.legend()
 
 plt.show()
-<<<<<<< HEAD
  """
 plt.show()
 # Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[67])
+plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
 
 
 # Number of pre-defined clusters
 n = 5
-=======
-"""
->>>>>>> 437fe6fe73f2c12ea7d9350785efc8fe2f3f7d58
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
