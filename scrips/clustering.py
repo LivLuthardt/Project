@@ -8,9 +8,11 @@ from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
 from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
-     
+
 def perform_kmeans_clustering(df, n_clusters):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
@@ -21,14 +23,13 @@ def perform_kmeans_clustering(df, n_clusters):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
     df['cluster_id'] = cluster_labels
-    score = silhouette_score(scaled_df.values, cluster_labels)
+    score = silhouette_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
 
-def sse_plot_k(df):
+def sse_plot_k(df, n_clusters):
     sse = []
-    n_clusters = range(1,11)
     for k in n_clusters:
-        df , inertia = perform_kmeans_clustering(df,n_clusters=k)
+        df , inertia, score = perform_kmeans_clustering(df,n_clusters=k)
         sse.append(inertia)
 
     # Create a DataFrame for plotting
@@ -47,6 +48,87 @@ def sse_plot_k(df):
     )
 
     fig.show()
+
+# ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------
+
+#x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
+def PCA_determination(df):
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
+    scale = StandardScaler()
+    data_scaled = scale.fit_transform(df[features])
+
+    pca = PCA(n_components=data_scaled.shape[1])
+    data_transformed = pca.fit_transform(data_scaled)
+
+    coverage_lst = np.cumsum(pca.explained_variance_ratio_) * 100
+
+    plt.figure()
+    plt.plot(
+        np.arange(1, data_transformed.shape[1] + 1),
+        coverage_lst,
+        marker='o',
+        label='Cumulative explained variance'
+    )
+    plt.xlabel('Number of Principal Components')
+    plt.ylabel('Coverage (%)')
+    plt.title('PCA Coverage vs Number of Principal Components')
+    plt.xlim(1, data_transformed.shape[1])
+    plt.ylim(0, 100)
+    plt.grid(True)
+    plt.legend()
+    #plt.savefig("PCA_coverage.png")
+    plt.close()
+    print("PCA plot saved")
+
+    return pca, data_transformed, coverage_lst
+
+def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
+    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(df[features])
+
+    pca = PCA(n_components=n_components)
+    pca_data = pca.fit_transform(scaled_data)
+
+    kmeans_pca = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    cluster_labels = kmeans_pca.fit_predict(pca_data)
+
+    df_pca_clustered = df.copy()
+    df_pca_clustered['cluster_id'] = cluster_labels
+
+    score_pca = silhouette_score(pca_data, cluster_labels)
+
+    return df_pca_clustered, kmeans_pca.inertia_, score_pca, pca.explained_variance_ratio_
+
+def sse_plot_kmeans_pca(df, n_components=3):
+    sse_pca = []
+    n_clusters_range = range(1, 11)
+
+    for k in n_clusters_range:
+        _, inertia_pca, _, _ = perform_kmeans_clustering_with_pca(
+            df,
+            n_clusters=k,
+            n_components=n_components
+        )
+        sse_pca.append(inertia_pca)
+
+    plot_df_pca = pd.DataFrame({
+        'Number of Clusters': n_clusters_range,
+        'SSE': sse_pca
+    })
+
+    fig = px.line(
+        plot_df_pca,
+        x='Number of Clusters',
+        y='SSE',
+        markers=True,
+        title=f"SSE vs Number of Clusters (K-means with PCA, {n_components} PCs)"
+    )
+
+    fig.show()
+
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
     # Features to use for clustering
@@ -107,12 +189,11 @@ def perform_gmm_clustering(df,n_clusters):
     score = silhouette_score(scaled_data, cluster_labels)
     return df,gmm.aic(scaled_data),gmm.bic(scaled_data),score
 
-def aic_bic_plot_gmm(df):
+def aic_bic_plot_gmm(df, n_clusters):
     aic_vals = []
     bic_vals = []
-    n_clusters = range(1,11)
     for k in n_clusters:
-        df , aic , bic = perform_gmm_clustering(df,n_clusters=k)
+        df , aic , bic, score = perform_gmm_clustering(df,n_clusters=k)
         aic_vals.append(aic)
         bic_vals.append(bic)
 
@@ -180,12 +261,7 @@ def plot_fibers(clustered,title):
     )
     fig_3d.show()
 
-def plot_silhouette(score, n_clusters):
-    sse = []
-    n_clusters = range(1,11)
-    for k in n_clusters:
-        df , inertia = perform_kmeans_clustering(df,n_clusters=k)
-        sse.append(inertia)
+def plot_silhouette(score, n_clusters, title):
 
     # Create a DataFrame for plotting
     plot_df = pd.DataFrame({
@@ -196,10 +272,10 @@ def plot_silhouette(score, n_clusters):
     # Create 2D line plot with Plotly Express
     fig = px.line(
         plot_df, 
-        x='Number of Clusters', 
-        y='SSE', 
+        x=n_clusters, 
+        y=score, 
         markers=True,
-        title="Silhouette vs Number of Clusters"
+        title=f"Silhouette vs Number of Clusters for {title}"
     )
 
     fig.show()

@@ -24,12 +24,19 @@ cov_arr = cov_series.reindex(zz).to_numpy()
 
 cop_models = [pv.gaussian,pv.student,pv.clayton]
 
+<<<<<<< HEAD
 #ellipse 
+=======
+### Plot original data
+# plot_og_data(par_1,par_2,mean_arr,df,[67])
+
+#ellipse iteration
+>>>>>>> 437fe6fe73f2c12ea7d9350785efc8fe2f3f7d58
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 first = True
 for r in df.itertuples(index=True):
     x2 = (r[3], r[4], r[2]) #Current fiber point
-    if first: tilt = (0, 0) #Can't compute tilt from a single point
+    if first: tilt = (None, None) #Use backward difference
     else:  tilt = eTiltAngles(x1, x2) #Pass the past and current points
     xtiltAngles.append(tilt[0])
     ytiltAngles.append(tilt[1])
@@ -74,6 +81,7 @@ plt.plot(zz,cov_arr,label='Actual covariance')
 plt.legend()
 
 plt.show()
+<<<<<<< HEAD
  """
 plt.show()
 # Plot og and synthetic data
@@ -84,30 +92,84 @@ plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[67])
 
 # Number of pre-defined clusters
 n = 5
+=======
+"""
+>>>>>>> 437fe6fe73f2c12ea7d9350785efc8fe2f3f7d58
 
+#PCA method figure
+pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
+
+# Number of pre-defined clusters and range for silhouette plots
+n = 5
+n_clusters = range(2,16)
+
+#K-means clustering
 fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
 # 2. Merge cluster IDs back to the original points for 3D plotting
 df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_k = plot_k(df_clustered_k)
-# make a plot of the error
-fig_k_error = sse_plot_k(fiber_sum)
+# Make a plot of the error
+#fig_k_error = sse_plot_k(fiber_sum)
+
+
+# K-means clustering with PCA
+fiber_summary_k_pca, inertia_k_pca, score_k_pca, explained_var_pca = perform_kmeans_clustering_with_pca(
+    fiber_sum, n_clusters=n, n_components=3)
+df_clustered_k_pca = df.merge(fiber_summary_k_pca[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # DBSCAN clustering
 fiber_summary_dbscan = perform_DBSCAN_clustering(fiber_sum)
 df_clustered_dbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_DBSCAN(df_clustered_dbscan)
 
 # HDBSCAN clustering
 fiber_summary_hdbscan = perform_HDBSCAN_clustering(fiber_sum)
 df_clustered_hdbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_HDBSCAN(df_clustered_hdbscan)
 
 # GMM clustering
 fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
 df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-fig_gmm = plot_gmm(df_clustered_gmm)
 # Make a plot of the error
-fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
+#fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
 
-clustered, model = perform_agglomerative_clustering(df)
-fig_agg = plot_agg(clustered)
+#df_clustered_agg, model, score = perform_agglomerative_clustering(fiber_sum,n)
+
+'''
+# Make 3D plots with clusters
+plot_fibers(df_clustered_k, 'K-means')
+plot_fibers(df_clustered_k_pca, 'K-means with PCA')
+plot_fibers(df_clustered_dbscan, 'DBSCAN')
+plot_fibers(df_clustered_hdbscan, 'HDBSCAN')
+plot_fibers(df_clustered_gmm, 'GMM')
+#plot_fibers(df_clustered_agg, 'agglomerative')
+'''
+"""
+
+"""
+# Make silhouette plot for all pre-defined cluster methods
+score_k = []
+score_gmm = []
+score_agg = []
+
+
+for n in n_clusters:
+    fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
+    df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+
+    fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
+    df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+
+    #df_clustered_agg, model = perform_agglomerative_clustering(fiber_sum,n)
+
+    score_k.append(fiber_summary_k[2])
+    score_gmm.append(fiber_summary_gmm[3])
+    #score_agg.append(df_clustered_agg[2])
+
+plot_silhouette(score_k, n_clusters, 'K-means')
+plot_silhouette(score_k, n_clusters, 'GMM')
+plot_silhouette(score_k, n_clusters, 'Agglomerative')
+
+#I will try to fix this next shesh
+
+
+
+
+
