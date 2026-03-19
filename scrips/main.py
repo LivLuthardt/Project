@@ -80,10 +80,10 @@ plt.legend()
 
 plt.show()
  """
-plt.show()
+# plt.show()
 # Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
+# plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
 
 
