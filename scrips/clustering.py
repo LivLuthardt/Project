@@ -10,10 +10,8 @@ from sklearn.mixture import GaussianMixture
 from scipy.cluster.hierarchy import dendrogram, linkage
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-<<<<<<< Updated upstream
 from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import MinMaxScaler
-=======
 
 # ---------------------------------PCA Calculation for 10 Features-----------------------------
 
@@ -49,7 +47,6 @@ def PCA_determination(df):
 
     return pca, data_transformed, coverage_lst
 
->>>>>>> Stashed changes
 # ---------------------------------------METHOD 1: k means------------------------------------------
 
 def perform_kmeans_clustering(df, n_clusters):
