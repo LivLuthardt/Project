@@ -90,6 +90,7 @@ plt.legend()
 
 plt.show()
 """
+
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
@@ -134,8 +135,8 @@ plot_fibers(df_clustered_hdbscan, 'HDBSCAN')
 plot_fibers(df_clustered_gmm, 'GMM')
 #plot_fibers(df_clustered_agg, 'agglomerative')
 
-"""
 
+"""
 # Make silhouette plot for all pre-defined cluster methods
 score_k = []
 score_gmm = []

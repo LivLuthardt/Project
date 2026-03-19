@@ -12,7 +12,7 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
 # ---------------------------------------METHOD 1: k means------------------------------------------
-     
+
 def perform_kmeans_clustering(df, n_clusters):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     scaler = StandardScaler()
@@ -52,6 +52,7 @@ def sse_plot_k(df):
 
 # ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------
 
+#x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
 def PCA_determination(df):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
