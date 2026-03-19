@@ -8,7 +8,6 @@ from plot import *
 df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
-
 fiber_sum,n_fibers = fiber_summary(df)
 
 zz = range(1,128)
@@ -20,7 +19,9 @@ df_grouped = df.groupby('z')
 mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
 
 ### Magic
-cov_series = df_grouped.apply(lambda group: group[par_1].corr(group[par_2]))
+cov_series = df_grouped.apply(
+    lambda group: group[par_1].corr(group[par_2]),
+    include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
 cop_models = [pv.gaussian,pv.student,pv.clayton]
@@ -57,17 +58,16 @@ estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
+
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
 data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 
 # list to contain copulas 
-# TODO remove the 0 inside here once we have 129 istead of 128 datapoints
+# Generate a list with lists inside it
 cop_lst = [[] for i in range(len(cop_models))]
 
-# Iterate [1,128] because for z = 0 certain parameters like dx and dy are undefined
-# TODO once the dataframe is changed to account for z = 0 we can do range(129)
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
     for i,model in enumerate(cop_models):
@@ -78,20 +78,22 @@ for z in zz:
 
 sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
-### Plot covariance of Gaussian copulas
-""" 
-for cops in cop_lst:
-    plot_cop_parameters(cops)
-plt.subplot(1,2,1)
-plt.plot(zz,cov_arr,label='Actual covariance')
-plt.legend()
+### Plot copulas parameters
+cop_fig, (ax5,ax6) = plt.subplots(1,2)
 
-plt.show()
- """
-# plt.show()
-# Plot og and synthetic data
+for cops in cop_lst:
+    plot_cop_parameters(cops,ax5,ax6)
+
+ax5.plot(zz,cov_arr,label='Actual correlation')
+
+cop_fig.tight_layout()
+cop_fig.savefig(fname='Copula_correlation',dpi=200)
+print(f'Copula Correlation plot saved')
+plt.close('all')
+
+### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-# plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
+plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
 # Number of pre-defined clusters
 n = 5

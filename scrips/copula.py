@@ -57,33 +57,24 @@ def gen_copula(df,x1,x2):
     pass
     return data_sim,cop
 
-def plot_cop_parameters(cop_lst):
+def plot_cop_parameters(cop_lst,ax1,ax2):
     zz = np.arange(len(cop_lst))
     model_lst = [cop.family for cop in cop_lst]
     model_set = set(model_lst)
 
     assert len(model_set) == 1, "Can't plot if more than 1 unique family"
-
-    if model_lst[0] in pv.one_par:
-        plt.subplot(1,2,1)
-        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_lst[0])
     
-    if model_lst[0] in pv.two_par:
-        # First subplot
-        plt.subplot(1,2,1)
-        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_lst[0])
+    ax1.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_lst[0])
 
-        # Second subplot
-        plt.subplot(1,2,2)
-        plt.plot(zz,[cop.parameters[1] for cop in cop_lst],label=model_lst[0])
+    if model_lst[0] in pv.two_par: 
+        ax2.plot(zz,[cop.parameters[1] for cop in cop_lst],label=model_lst[0])
 
-    for i in (1,2):
-        plt.subplot(1,2,i)
-        plt.xlabel('Z (micrometer)')
-        plt.grid()
-        plt.xlim(0,128)
-        plt.legend()
-        plt.title(f'Parameter {i}')
+    for i,ax in enumerate((ax1,ax2)):
+        ax.set_xlabel('Z (micrometer)')
+        ax.grid()
+        ax.set_xlim(zz[0],zz[-1])
+        ax.legend()
+        ax.set_title(f'Parameter {i}')
 
     return
 
