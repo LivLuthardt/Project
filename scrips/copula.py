@@ -12,13 +12,8 @@ import matplotlib.pyplot as plt
 # x = np.random.multivariate_normal(mean, cov, n)
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
-    # Filter out rows which do not match our z value
-    df_z = data[data['z'] == n]
-    # take out dx and dy rows  
-    df_z = df_z[[x1,x2]]
-    x = df_z.to_numpy()
-    # print(x)
-    return x
+    # Return tilt angles for a given z-value, first indexing by layer and then by tilt outputs
+    return data[data['z'] == n][[x1,x2]].to_numpy()
 
 def bivariate_copula(data,n,model=None): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
