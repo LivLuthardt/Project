@@ -95,17 +95,12 @@ def get_L_and_phi(df_cleaned):
     df['phi'] = np.arctan2(df['dy'], df['dx'])
     return df
 
-def coordinates(layer, data_sim, deltaz):
-    # newlayer = np.empty(len(data_sim),2)
-    newlayer = []
+def coordinates(arr, df_clean):
+    dz = 1
+    df_synthetic = pd.DataFrame(arr, columns=['angle_x_deg', 'angle_y_deg'])
+    df_synthetic[['x', 'y', 'z']] = df_clean.loc[[0], ['x', 'y', 'z']]
+    for i in range(1,129):
+        df_synthetic['z'] = df_synthetic[[i]]['z'] + dz
+    df_synthetic[]
 
-    for i in range(len(data_sim)):
-        x = layer[i][0] + deltaz / np.tan(data_sim[i][0])
-        y = layer[i][1] + deltaz / np.tan(data_sim[i][1])
-        
-        # newlayer[i,0] = x
-        # newlayer[i,1] = y
-        
-        newlayer.append([x,y])
-
-    return newlayer
+    return df_synthetic
