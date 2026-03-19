@@ -2,7 +2,7 @@ import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+"""
 # np.random.seed(0)  # seed for the random generator
 # n = 1000  # number of observations
 # d = 3  # the dimension
@@ -103,3 +103,4 @@ def coordinates(arr):
 
 
     return df_synthetic
+"""

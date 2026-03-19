@@ -62,7 +62,7 @@ with open("Output.txt", "w") as text_file:
 data_sim_arr = np.empty((len(cop_models),len(zz)+1,n_fibers,2))
 
 cop_lst = [[] for i in range(len(cop_models))]
-
+"""
 ### Generate copulas for each z 
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
@@ -71,7 +71,7 @@ for z in zz:
         cop_lst[i].append(cop)
 
 ### Plot covariance of Gaussian copulas
-""" 
+
 for cops in cop_lst:
     plot_cop_parameters(cops)
 plt.subplot(1,2,1)
@@ -84,11 +84,6 @@ plt.show()
 # Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 # plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
-
-
-
-# Number of pre-defined clusters
-n = 5
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -133,9 +128,9 @@ plot_fibers(fiber_summary_agg, 'agglomerative')
 
 """
 # Make silhouette plot for all pre-defined cluster methods
-score_k = []
-score_gmm = []
-score_agg = []
+score_k_list = []
+score_gmm_list = []
+score_agg_list = []
 
 
 for n in n_clusters:
@@ -145,9 +140,9 @@ for n in n_clusters:
 
     fiber_summary_agg, model_agg,score_agg = perform_agglomerative_clustering(fiber_sum,n)
 
-    score_k.append(score_k)
-    score_gmm.append(score_gmm)
-    score_agg.append(score_agg)
+    score_k_list.append(score_k)
+    score_gmm_list.append(score_gmm)
+    score_agg_list.append(score_agg)
 
 plot_silhouette(score_k, n_clusters, 'K-means')
 plot_silhouette(score_k, n_clusters, 'GMM')
