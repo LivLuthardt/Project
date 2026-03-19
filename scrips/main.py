@@ -69,6 +69,10 @@ for z in zz:
     for i,model in enumerate(cop_models):
         data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
+    for i in range(len(cop_models)):
+        data_sim_arr[i,0] = data_sim_arr[i,1]
+
+sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 ### Plot covariance of Gaussian copulas
 """ 
