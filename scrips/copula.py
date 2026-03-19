@@ -2,7 +2,7 @@ import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-"""
+
 # np.random.seed(0)  # seed for the random generator
 # n = 1000  # number of observations
 # d = 3  # the dimension
@@ -93,6 +93,7 @@ def get_L_and_phi(df_cleaned):
     df['phi'] = np.arctan2(df['dy'], df['dx'])
     return df
 
+'''
 def coordinates(arr):
     df_synthetic = pd.DataFrame(columns=['fibre_id', 'angle_x_deg', 'angle_y_deg'])
     for i in range(len(arr[0])):
@@ -103,4 +104,4 @@ def coordinates(arr):
 
 
     return df_synthetic
-"""
+'''
