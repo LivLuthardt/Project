@@ -41,16 +41,18 @@ for r in df.itertuples(index=True):
     x1 = x2 #Set the current point to the past point
     first = False
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
-df = df.dropna(subset=['dx', 'dy', 'dz'])
+df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
+#Save 1D histograms
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="XTiltHist.png")
 ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="YTiltHist.png")
+#Save 2D hex plots
 ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
-# print(df)
+# Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
@@ -85,6 +87,9 @@ plt.show()
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 # plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
+# Number of pre-defined clusters
+n = 5
+
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
@@ -96,7 +101,6 @@ print(fiber_sum)
 fiber_summary_k,inertia_k,score_k = perform_kmeans_clustering(fiber_sum,n)
 # Make a plot of the sse error
 fig_k_error = sse_plot_k(fiber_summary_k,n_clusters)
-
 
 # K-means clustering with PCA
 fiber_summary_k_pca, inertia_k_pca, score_k_pca, explained_var_pca = perform_kmeans_clustering_with_pca(
@@ -123,15 +127,10 @@ plot_fibers(fiber_summary_hdbscan, 'HDBSCAN')
 plot_fibers(fiber_summary_gmm, 'GMM')
 plot_fibers(fiber_summary_agg, 'agglomerative')
 
-
-"""
-
-"""
 # Make silhouette plot for all pre-defined cluster methods
 score_k_list = []
 score_gmm_list = []
 score_agg_list = []
-
 
 for n in n_clusters:
     fiber_summary_k,inertia_k,score_k = perform_kmeans_clustering(fiber_sum,n)
@@ -147,12 +146,3 @@ for n in n_clusters:
 plot_silhouette(score_k, n_clusters, 'K-means')
 plot_silhouette(score_k, n_clusters, 'GMM')
 plot_silhouette(score_k, n_clusters, 'Agglomerative')
-
-#I will try to fix this next shesh
-
-
-
-
-
-#print(fiber_sum.columns)
-#I will try to fix this next shesh
