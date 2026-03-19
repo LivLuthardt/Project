@@ -95,12 +95,13 @@ def get_L_and_phi(df_cleaned):
     df['phi'] = np.arctan2(df['dy'], df['dx'])
     return df
 
-def coordinates(arr, df_clean):
-    dz = 1
-    df_synthetic = pd.DataFrame(arr, columns=['angle_x_deg', 'angle_y_deg'])
-    df_synthetic[['x', 'y', 'z']] = df_clean.loc[[0], ['x', 'y', 'z']]
-    for i in range(1,129):
-        df_synthetic['z'] = df_synthetic[[i]]['z'] + dz
-    df_synthetic[]
+def coordinates(arr):
+    df_synthetic = pd.DataFrame(columns=['fibre_id', 'angle_x_deg', 'angle_y_deg'])
+    for i in range(len(arr[0])):
+        df_synthetic[index=[i*129, (i+1)*128], columns=['fibre_id']] = i+1
+        for j in range(1,129):
+            df_synthetic[index= i*129+j, columns=['angle_x_deg']] = arr[j][i][0]
+            df_synthetic[index= i*129+j, columns=['angle_y_deg']] = arr[j][i][1]
+
 
     return df_synthetic
