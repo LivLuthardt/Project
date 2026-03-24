@@ -139,24 +139,22 @@ plot_fibers(fiber_summary_gmm, 'GMM')
 plot_fibers(fiber_summary_agg, 'agglomerative')
 
 # Make score plot for all pre-defined cluster methods
-score_k = []
-score_gmm = []
-score_agg = []
+score_k_list = []
+score_gmm_list = []
+score_agg_list = []
 
 for n in n_clusters:
     print(f'iteration {n}')
 
-    fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
-    df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+    fiber_summary_k, inertia_k, score_k = perform_kmeans_clustering(fiber_sum,n)
 
-    fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
-    df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+    fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_sum,n)
 
-    #df_clustered_agg, model = perform_agglomerative_clustering(fiber_sum,n)
+    fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
     
-    score_k.append(fiber_summary_k[2])
-    score_gmm.append(fiber_summary_gmm[3])
-    score_agg.append(fiber_summary_agg[2])
+    score_k_list.append(score_k)
+    score_gmm_list.append(score_gmm)
+    score_agg_list.append(score_agg)
 
 plot_score(score_k, n_clusters, 'K-means')
 plot_score(score_k, n_clusters, 'GMM')
