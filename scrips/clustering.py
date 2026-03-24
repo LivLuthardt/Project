@@ -58,7 +58,7 @@ def PCA_determination(df):
     data_scaled = scale.fit_transform(df[features])
 
     corr_matrix = pd.DataFrame(data_scaled, columns=features).corr()
-    print("\nCorrelation matrix:\n", corr_matrix)
+    print("\nCorrelation matrix:\n", corr_matrix.to_string())
 
     pca = PCA(n_components=data_scaled.shape[1])
     data_transformed = pca.fit_transform(data_scaled)
@@ -67,7 +67,7 @@ def PCA_determination(df):
         columns=[f'PC{i+1}' for i in range(pca.n_components_)],
         index=features)
 
-    print("\nPCA Loadings:\n", loadings)
+    print("\nPCA Loadings:\n", loadings.to_string())
 
     analyze_redundancy(corr_matrix, loadings)
 

@@ -125,11 +125,11 @@ plt.close('all')
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
-"""
+
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
-
+"""
 # Number of pre-defined clusters and range for score plots
 n = 5
 n_clusters = range(2,16)
@@ -191,4 +191,4 @@ for n in n_clusters:
 
 plot_score(score_k_list, n_clusters, 'K-means')
 plot_score(score_gmm_list, n_clusters, 'GMM')
-plot_score(score_agg_list, n_clusters, 'Agglomerative')
+plot_score(score_agg_list, n_clusters, 'Agglomerative')"""
