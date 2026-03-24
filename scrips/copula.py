@@ -34,17 +34,35 @@ def bivariate_copula(data,n,model=None): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
     return data_sim,cop
 
-def vine_copula(x,n): #n is number of fibers in a layer
+def vine_copula(x_p, x, n,cop0,family="student"): 
+    '''
+    x_p is a variable of previous planar tilts: x(i-1), y(i-1)
+    x is a variable of the planar tilts on the current layer: x(i), y(i)
+    n is number of fibers in a layer
+    cop0 is the bivariate copula constructed between x and y planar tilts
+    family is the desired copula type for the higher-level trees
+    '''
+    
     # Do PIT
-    u = pv.to_pseudo_obs(x)
+    print(f"x_0: {x_p[0]}, x: {x[0]}")
+    x_p, y_p = np.hsplit(x_p, 2)
+    x, y = np.hsplit(x, 2)
+    data = np.concatenate((x_p, x, y, y_p), axis=1)
+    print(data[0])
+    #print(data)
+    u = pv.to_pseudo_obs(data)
+    #print(u)
+    structure = pv.RVineStructure.from_dimension(4)
+    cop = pv.Vinecop.from_data(u, structure)
+    u_sim = cop.simulate(n)
+    #print(u_sim[0])
+    data_sim = np.asarray([np.quantile(data[:, i], u_sim[:, i]) for i in range(0, 2)])
+    data_sim = np.transpose(data_sim)
+    #print(data_sim)
 
-    # automatically fit best copula model
-    cop = pv.Vinecop.from_data(data=u)
+    return cop
 
-    # What does this do??
-    pv.pairs_copula_data(u, scatter_size=0.5)
-
-
+    '''
     
     u_sim = cop.simulate(n, seeds=[1, 2, 3, 4])
 
@@ -52,6 +70,7 @@ def vine_copula(x,n): #n is number of fibers in a layer
     data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, 2)])
     data_sim = np.transpose(data_sim)
     return data_sim
+    '''
 
 def gen_copula(df,x1,x2):
     pass

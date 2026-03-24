@@ -66,8 +66,9 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 
 # list to contain copulas 
 # Generate a list with lists inside it
-cop_lst = [[] for i in range(len(cop_models))]
+cop_lst = [[] for i in range(len(cop_models)+1)]
 
+first = True
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
     for i,model in enumerate(cop_models):
@@ -75,6 +76,13 @@ for z in zz:
         cop_lst[i].append(cop)
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
+    if first:
+        first = False
+        df_z_prev = df_z
+        continue
+    qcop = vine_copula(df_z_prev, df_z, n_fibers, cop) #Uses the most recent bicop from the loop
+    cop_lst[-1].append(cop)
+    df_z_prev = df_z
 
 sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
