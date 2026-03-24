@@ -156,6 +156,6 @@ for n in n_clusters:
     score_gmm_list.append(score_gmm)
     score_agg_list.append(score_agg)
 
-plot_score(score_k, n_clusters, 'K-means')
-plot_score(score_k, n_clusters, 'GMM')
-plot_score(score_k, n_clusters, 'Agglomerative')
+plot_score(score_k_list, n_clusters, 'K-means')
+plot_score(score_gmm_list, n_clusters, 'GMM')
+plot_score(score_agg_list, n_clusters, 'Agglomerative')
