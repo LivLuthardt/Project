@@ -10,7 +10,8 @@ data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-zz = range(1,128)
+zz = np.arange(1,128)
+zz_complete = np.arange(129)
 
 ### Choose parameters to plot and predict with copula
 par_1,par_2 = 'angle_x_deg','angle_y_deg'
@@ -24,7 +25,7 @@ cov_series = df_grouped.apply(
     include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
-cop_models = [pv.gaussian,pv.student,pv.clayton]
+cop_models = [pv.gaussian,pv.student,pv.frank]
 
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
@@ -78,6 +79,35 @@ for z in zz:
 
 sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
+df_columns = ['fibre_id','z','x','y']
+
+sim_fibers_df = pd.DataFrame(columns=df_columns)
+
+
+for fibre_id in range(n_fibers):
+    new_rows = np.empty((129,4))
+
+    new_rows[:,-2:] = sim_fibers[:,fibre_id,:]
+    new_rows[:,0] = fibre_id
+    new_rows[:,1] = zz_complete
+
+    new_df = pd.DataFrame(new_rows, columns=df_columns)
+
+    sim_fibers_df = pd.concat([sim_fibers_df, new_df],ignore_index=True)
+
+# Plot synthetic fibers
+""" 
+fig = px.line_3d(sim_fibers_df,
+                x="x", y="y", z="z",
+                color="fibre_id",
+                title='Synthetic Fibers')
+fig.update_layout(
+    scene=dict(aspectmode="manual",
+            aspectratio=dict(x=15, y=7.5, z=1))
+)
+fig.show()
+ """
+
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
 
@@ -95,43 +125,39 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
-# Number of pre-defined clusters
-n = 5
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
-# Number of pre-defined clusters and range for silhouette plots
+# Number of pre-defined clusters and range for score plots
 n = 5
 n_clusters = range(2,16)
 
 #K-means clustering
-fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
-# 2. Merge cluster IDs back to the original points for 3D plotting
-df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+fiber_summary_k, inertia_k, score_k = perform_kmeans_clustering(fiber_sum.copy(),n)
 # Make a plot of the error
 #fig_k_error = sse_plot_k(fiber_sum)
 
 # K-means clustering with PCA
 fiber_summary_k_pca, inertia_k_pca, score_k_pca, explained_var_pca = perform_kmeans_clustering_with_pca(
     fiber_sum, n_clusters=n, n_components=3)
-df_clustered_k_pca = df.merge(fiber_summary_k_pca[['fibre_id', 'cluster_id']], on='fibre_id')
+
 
 # DBSCAN clustering
-fiber_summary_dbscan = perform_DBSCAN_clustering(fiber_sum)
-df_clustered_dbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+fiber_summary_dbscan, score_dbscan = perform_DBSCAN_clustering(fiber_sum.copy())
+
 
 # HDBSCAN clustering
-fiber_summary_hdbscan = perform_HDBSCAN_clustering(fiber_sum)
-df_clustered_hdbscan = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+fiber_summary_hdbscan, score_hdbscan = perform_HDBSCAN_clustering(fiber_sum.copy())
+
 
 # GMM clustering
-fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
-df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
-# Make a plot of the error
-#fig_gmm_error = aic_bic_plot_gmm(fiber_sum)
+fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_sum.copy(),n)
 
-#df_clustered_agg, model, score = perform_agglomerative_clustering(fiber_sum,n)
+# Make a plot of the error
+#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
+
+fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
 
 
 # Make 3D plots with clusters
@@ -140,26 +166,26 @@ plot_fibers(fiber_summary_k_pca, 'K-means with PCA')
 plot_fibers(fiber_summary_dbscan, 'DBSCAN')
 plot_fibers(fiber_summary_hdbscan, 'HDBSCAN')
 plot_fibers(fiber_summary_gmm, 'GMM')
-#plot_fibers(fiber_summary_agg, 'agglomerative')
+plot_fibers(fiber_summary_agg, 'agglomerative')
 
-# Make silhouette plot for all pre-defined cluster methods
-score_k = []
-score_gmm = []
-score_agg = []
+# Make score plot for all pre-defined cluster methods
+score_k_list = []
+score_gmm_list = []
+score_agg_list = []
 
 for n in n_clusters:
-    fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
-    df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+    print(f'iteration {n}')
 
-    fiber_summary_gmm = perform_gmm_clustering(fiber_sum,n)
-    df_clustered_gmm = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
+    fiber_summary_k, inertia_k, score_k = perform_kmeans_clustering(fiber_sum,n)
 
-    #df_clustered_agg, model = perform_agglomerative_clustering(fiber_sum,n)
+    fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_sum,n)
 
-    score_k.append(fiber_summary_k[2])
-    score_gmm.append(fiber_summary_gmm[3])
-    #score_agg.append(df_clustered_agg[2])
+    fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
+    
+    score_k_list.append(score_k)
+    score_gmm_list.append(score_gmm)
+    score_agg_list.append(score_agg)
 
-plot_silhouette(score_k, n_clusters, 'K-means')
-plot_silhouette(score_k, n_clusters, 'GMM')
-plot_silhouette(score_k, n_clusters, 'Agglomerative')
+plot_score(score_k_list, n_clusters, 'K-means')
+plot_score(score_gmm_list, n_clusters, 'GMM')
+plot_score(score_agg_list, n_clusters, 'Agglomerative')
