@@ -97,7 +97,7 @@ for fibre_id in range(n_fibers):
     sim_fibers_df = pd.concat([sim_fibers_df, new_df],ignore_index=True)
 
 # Plot synthetic fibers
-""" 
+
 fig = px.line_3d(sim_fibers_df,
                 x="x", y="y", z="z",
                 color="fibre_id",
@@ -107,7 +107,7 @@ fig.update_layout(
             aspectratio=dict(x=15, y=7.5, z=1))
 )
 fig.show()
- """
+
 
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
@@ -125,7 +125,7 @@ plt.close('all')
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
-
+"""
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -136,38 +136,40 @@ n_clusters = range(2,16)
 
 #K-means clustering
 fiber_summary_k, inertia_k, score_k = perform_kmeans_clustering(fiber_sum.copy(),n)
+df_k = df.merge(fiber_summary_k[['fibre_id', 'cluster_id']], on='fibre_id')
 # Make a plot of the error
 #fig_k_error = sse_plot_k(fiber_sum)
 
 # K-means clustering with PCA
 fiber_summary_k_pca, inertia_k_pca, score_k_pca, explained_var_pca = perform_kmeans_clustering_with_pca(
     fiber_sum, n_clusters=n, n_components=3)
-
+df_k_pca = df.merge(fiber_summary_k_pca[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # DBSCAN clustering
 fiber_summary_dbscan, score_dbscan = perform_DBSCAN_clustering(fiber_sum.copy())
-
+df_dbscan = df.merge(fiber_summary_dbscan[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # HDBSCAN clustering
 fiber_summary_hdbscan, score_hdbscan = perform_HDBSCAN_clustering(fiber_sum.copy())
-
+df_hdbscan = df.merge(fiber_summary_hdbscan[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # GMM clustering
 fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_sum.copy(),n)
+df_gmm = df.merge(fiber_summary_gmm[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make a plot of the error
 #fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
 
 fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
-
+df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
-plot_fibers(fiber_summary_k, 'K-means')
-plot_fibers(fiber_summary_k_pca, 'K-means with PCA')
-plot_fibers(fiber_summary_dbscan, 'DBSCAN')
-plot_fibers(fiber_summary_hdbscan, 'HDBSCAN')
-plot_fibers(fiber_summary_gmm, 'GMM')
-plot_fibers(fiber_summary_agg, 'agglomerative')
+plot_fibers(df_k, 'K-means')
+plot_fibers(df_k_pca, 'K-means with PCA')
+plot_fibers(df_dbscan, 'DBSCAN')
+plot_fibers(df_hdbscan, 'HDBSCAN')
+plot_fibers(df_gmm, 'GMM')
+plot_fibers(df_agg, 'agglomerative')
 
 # Make score plot for all pre-defined cluster methods
 score_k_list = []
