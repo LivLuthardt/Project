@@ -127,7 +127,7 @@ fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_su
 # Make a plot of the error
 #fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
 
-df_clustered_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
+fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
 
 
 # Make 3D plots with clusters
@@ -145,7 +145,7 @@ score_agg = []
 
 for n in n_clusters:
     print(f'iteration {n}')
-    
+
     fiber_summary_k = perform_kmeans_clustering(fiber_sum,n)
     df_clustered_k = df.merge(fiber_sum[['fibre_id', 'cluster_id']], on='fibre_id')
 
@@ -156,7 +156,7 @@ for n in n_clusters:
     
     score_k.append(fiber_summary_k[2])
     score_gmm.append(fiber_summary_gmm[3])
-    score_agg.append(df_clustered_agg[2])
+    score_agg.append(fiber_summary_agg[2])
 
 plot_score(score_k, n_clusters, 'K-means')
 plot_score(score_k, n_clusters, 'GMM')
