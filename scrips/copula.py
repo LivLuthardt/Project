@@ -57,33 +57,24 @@ def gen_copula(df,x1,x2):
     pass
     return data_sim,cop
 
-def plot_cop_parameters(cop_lst):
+def plot_cop_parameters(cop_lst,ax1,ax2):
     zz = np.arange(len(cop_lst))
     model_lst = [cop.family for cop in cop_lst]
     model_set = set(model_lst)
 
-    assert len(model_set) > 1, "Can't plot if more than 1 unique family"
-
-    if model_set[0] in pv.one_par:
-        plt.subplot(1,2,1)
-        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_set[0])
+    assert len(model_set) == 1, "Can't plot if more than 1 unique family"
     
-    if model_set[0] in pv.two_par:
-        # First subplot
-        plt.subplot(1,2,1)
-        plt.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_set[0])
+    ax1.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_lst[0])
 
-        # Second subplot
-        plt.subplot(1,2,2)
-        plt.plot(zz,[cop.parameters[1] for cop in cop_lst],label=model_set[0])
+    if model_lst[0] in pv.two_par: 
+        ax2.plot(zz,[cop.parameters[1] for cop in cop_lst],label=model_lst[0])
 
-    for i in (1,2):
-        plt.subplot(1,2,i)
-        plt.xlabel('Z (micrometer)')
-        plt.grid()
-        plt.xlim(0,128)
-        plt.legend()
-        plt.title(f'Parameter {i}')
+    for i,ax in enumerate((ax1,ax2)):
+        ax.set_xlabel('Z (micrometer)')
+        ax.grid()
+        ax.set_xlim(zz[0],zz[-1])
+        ax.legend()
+        ax.set_title(f'Parameter {i}')
 
     return
 
@@ -93,15 +84,24 @@ def get_L_and_phi(df_cleaned):
     df['phi'] = np.arctan2(df['dy'], df['dx'])
     return df
 
-'''
-def coordinates(arr):
-    df_synthetic = pd.DataFrame(columns=['fibre_id', 'angle_x_deg', 'angle_y_deg'])
-    for i in range(len(arr[0])):
-        df_synthetic[index=[i*129, (i+1)*128], columns=['fibre_id']] = i+1
-        for j in range(1,129):
-            df_synthetic[index= i*129+j, columns=['angle_x_deg']] = arr[j][i][0]
-            df_synthetic[index= i*129+j, columns=['angle_y_deg']] = arr[j][i][1]
-
+def coordinates(arr, df_clean):
+    dz = 1
+    df_synthetic = pd.DataFrame(arr, columns=['angle_x_deg', 'angle_y_deg'])
+    df_synthetic[['x', 'y', 'z']] = df_clean.loc[[0], ['x', 'y', 'z']]
+    for i in range(1,129):
+        df_synthetic['z'] = df_synthetic[[i]]['z'] + dz
+    # df_synthetic[]
 
     return df_synthetic
-'''
+
+def reconstruct(df_clean,df_sim,zz,n_fibers):
+    sim_fibers = np.zeros((len(zz),n_fibers,2))
+
+    df_0 = sort(df_clean,0,'x','y')
+
+    sim_fibers[:,:,:] += df_0
+
+    for i in range(len(zz)):
+        sim_fibers[i:,:,:] += np.arctan(np.degrees(df_sim[i,:,:]))
+
+    return sim_fibers
