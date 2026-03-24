@@ -104,8 +104,8 @@ def perform_kmeans_clustering(df, n_clusters):
     
 
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
-    scaled_df['x'] *= 1
-    scaled_df['y'] *= 1
+    scaled_df['x_mean'] *= 1
+    scaled_df['y_mean'] *= 1
 
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
