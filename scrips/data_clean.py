@@ -139,6 +139,7 @@ def data_cleaned(df):
     df['tilt_angle_rad'] = np.arctan2(df['lateral_dist'], df['dz'])
 
     # find maximum kink for every fiber
+    # magnitude and not idrection so removes both negative and positive 
     max_tilts = df.groupby('fibre_id')['tilt_angle_rad'].max()
     Q1 = max_tilts.quantile(0.25)
     Q3 = max_tilts.quantile(0.75)
