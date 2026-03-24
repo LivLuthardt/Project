@@ -89,6 +89,8 @@ def data_cleaned(df):
     fig.show()
     '''
     #PART 2: CLEANING SHORT ONES
+
+
     # remove ones that dont reach the full z length 
     # global end‑points
     zmin = df_clean['z'].min()
@@ -105,6 +107,14 @@ def data_cleaned(df):
     # make two dataframes
     df_full = df_clean[df_clean['fibre_id'].isin(full_ids)]
     df_partial = df_clean[df_clean['fibre_id'].isin(partial_ids)]
+
+    expected_points = df_full.groupby('fibre_id')['z'].count().max()
+
+# 2. Filter out fibers that have fewer points than the maximum
+    counts = df_full.groupby('fibre_id')['z'].count()
+    continuous_ids = counts[counts == expected_points].index
+
+    df_full = df_full[df_full['fibre_id'].isin(continuous_ids)]
 
     # print(f"{len(full_ids)} fibres span [{zmin},{zmax}]; "
     #     f"{len(partial_ids)} do not.")

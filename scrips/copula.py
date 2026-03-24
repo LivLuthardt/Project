@@ -87,12 +87,23 @@ def get_L_and_phi(df_cleaned):
     return df
 
 def coordinates(arr, df_clean):
-    dz = 1
-    df_synthetic = pd.DataFrame(arr, columns=['angle_x_deg', 'angle_y_deg'])
-    df_synthetic[['x', 'y', 'z']] = df_clean.loc[[0], ['x', 'y', 'z']]
-    for i in range(1,129):
-        df_synthetic['z'] = df_synthetic[[i]]['z'] + dz
-    # df_synthetic[]
+    df_synthetic = pd.DataFrame(columns=['fibre_id', 'angle_x_deg', 'angle_y_deg', 'x', 'y', 'z'])
+    for i in range(len(arr[0])):
+        for j in range(0,128):
+            if j == 0:
+                df_synthetic.iloc[i*128,3] = df_clean.iloc[i*128,3]
+                df_synthetic.iloc[i*128,4] = df_clean.iloc[i*128,4]
+            df_synthetic.iloc[i*128+j, 0] = i
+            df_synthetic.iloc[i*128+j, 5] = j
+            df_synthetic.iloc[i*128+j, 1] = arr[j][i][0]
+            df_synthetic.iloc[i*128+j, 2] = arr[j][i][1]
+    x_prev = df.groupby('fibre_id')['x'].shift(1)
+    y_prev = df.groupby('fibre_id')['y'].shift(1)
+    df_synthetic['x'] = x_prev + np.tan(np.radians(df_synthetic['angle_x_deg']))
+    df_synthetic['y'] = y_prev + np.tan(np.radians(df_synthetic['angle_y_deg']))
+
+
+
 
     return df_synthetic
 

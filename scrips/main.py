@@ -99,19 +99,18 @@ sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
 
-sim_fibers_df = pd.DataFrame(columns=df_columns)
-
+sim_df = pd.DataFrame(columns=df_columns)
 
 for fibre_id in range(n_fibers):
-    new_rows = np.empty((129,4))
+    new_rows = np.empty((129,4),dtype=object)
 
-    new_rows[:,-2:] = sim_fibers[:,fibre_id,:]
+    new_rows[:,-2:] = np.round(sim_arr[:,fibre_id,:],4)
     new_rows[:,0] = fibre_id
     new_rows[:,1] = zz_complete
 
     new_df = pd.DataFrame(new_rows, columns=df_columns)
 
-    sim_fibers_df = pd.concat([sim_fibers_df, new_df],ignore_index=True)
+    sim_df = pd.concat([sim_df, new_df],ignore_index=True)
 
 # Plot synthetic fibers
 
@@ -146,7 +145,7 @@ for fibre_id in range(n_fibers):
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
-
+"""
 # Number of pre-defined clusters and range for score plots
 n = 5
 n_clusters = range(2,16)
@@ -208,5 +207,9 @@ for n in n_clusters:
 
 plot_score(score_k_list, n_clusters, 'K-means')
 plot_score(score_gmm_list, n_clusters, 'GMM')
-plot_score(score_agg_list, n_clusters, 'Agglomerative')
-"""
+plot_score(score_agg_list, n_clusters, 'Agglomerative')"""
+
+ks_x_list, ks_y_list = ks_by_z_lists(df)
+
+print("KS X:", ks_x_list)
+print("KS Y:", ks_y_list)

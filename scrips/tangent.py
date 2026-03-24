@@ -49,3 +49,55 @@ def fiber_summary(df):
     n_fibers = df['fibre_id'].nunique()
     
     return summary_df, n_fibers
+
+from scipy.stats import ks_2samp
+
+
+def ks_by_z_lists(df):
+    """
+    Build 2D lists of x/y tilt angles grouped by z for:
+      - finite difference method
+      - ellipse plane method
+
+    Then compare corresponding sublists with the KS test.
+
+    Returns
+    -------
+    ks_x_list : list
+        KS statistics for x tilt at each z value
+    ks_y_list : list
+        KS statistics for y tilt at each z value
+    """
+
+    z_values = sorted(df["z"].dropna().unique())
+
+    x_finite_2d = []
+    x_ellipse_2d = []
+    y_finite_2d = []
+    y_ellipse_2d = []
+
+    for z in z_values:
+        group = df[df["z"] == z]
+
+        x_finite_2d.append(group["angle_x_deg"].dropna().tolist())
+        x_ellipse_2d.append(group["EllipseXTilt"].dropna().tolist())
+        y_finite_2d.append(group["angle_y_deg"].dropna().tolist())
+        y_ellipse_2d.append(group["EllipseYTilt"].dropna().tolist())
+
+    ks_x_list = []
+    ks_y_list = []
+
+    for i in range(len(z_values)):
+        if len(x_finite_2d[i]) > 0 and len(x_ellipse_2d[i]) > 0:
+            ks_x = ks_2samp(x_finite_2d[i], x_ellipse_2d[i])
+            ks_x_list.append(ks_x.statistic)
+        else:
+            ks_x_list.append(float("nan"))
+
+        if len(y_finite_2d[i]) > 0 and len(y_ellipse_2d[i]) > 0:
+            ks_y = ks_2samp(y_finite_2d[i], y_ellipse_2d[i])
+            ks_y_list.append(ks_y.statistic)
+        else:
+            ks_y_list.append(float("nan"))
+
+    return ks_x_list, ks_y_list

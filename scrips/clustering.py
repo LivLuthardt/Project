@@ -58,7 +58,7 @@ def PCA_determination(df):
     data_scaled = scale.fit_transform(df[features])
 
     corr_matrix = pd.DataFrame(data_scaled, columns=features).corr()
-    print("\nCorrelation matrix:\n", corr_matrix)
+    print("\nCorrelation matrix:\n", corr_matrix.to_string())
 
     pca = PCA(n_components=data_scaled.shape[1])
     data_transformed = pca.fit_transform(data_scaled)
@@ -67,7 +67,7 @@ def PCA_determination(df):
         columns=[f'PC{i+1}' for i in range(pca.n_components_)],
         index=features)
 
-    print("\nPCA Loadings:\n", loadings)
+    print("\nPCA Loadings:\n", loadings.to_string())
 
     analyze_redundancy(corr_matrix, loadings)
 
@@ -97,15 +97,15 @@ def PCA_determination(df):
 
 def perform_kmeans_clustering(df, n_clusters):
     df = df.drop_duplicates(subset=['fibre_id'])
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean', 'tilt_angle_mean']
 
     scaler = MinMaxScaler()
     scaled_data = scaler.fit_transform(df[features])
     
 
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
-    scaled_df['x_mean'] *= 1
-    scaled_df['y_mean'] *= 1
+    scaled_df['x'] *= 1
+    scaled_df['y'] *= 1
 
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
@@ -142,7 +142,7 @@ def sse_plot_k(df, n_clusters):
 
 def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
     df = df.drop_duplicates(subset=['fibre_id'])
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean', 'tilt_angle_mean']
     
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
@@ -191,7 +191,7 @@ def sse_plot_kmeans_pca(df, n_components=3):
 def perform_DBSCAN_clustering(df):
     df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean', 'tilt_angle_mean']
 
     # Scale features
     scaler = StandardScaler()
@@ -212,7 +212,7 @@ def perform_DBSCAN_clustering(df):
 def perform_HDBSCAN_clustering(df):
     df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean']
+    features = ['x_mean', 'y_mean', 'tilt_angle_mean']
 
     # Scale features
     scaler = StandardScaler()
@@ -233,7 +233,7 @@ def perform_HDBSCAN_clustering(df):
 def perform_gmm_clustering(df,n_clusters):
     df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean']
+    features = ['x_mean', 'y_mean', 'tilt_angle_mean']
     
     # Scale features
     scaler = StandardScaler()
