@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import calinski_harabasz_score,davies_bouldin_score
+from sklearn.metrics import silhouette_score,calinski_harabasz_score,davies_bouldin_score
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
@@ -96,15 +96,22 @@ def PCA_determination(df):
 # ---------------------------------------METHOD 1: k means------------------------------------------
 
 def perform_kmeans_clustering(df, n_clusters):
+    df = df.drop_duplicates(subset=['fibre_id'])
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
     scaler = MinMaxScaler()
     scaled_data = scaler.fit_transform(df[features])
+    
+
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
-    scaled_df['x_mean'] *= 1.5
-    scaled_df['y_mean'] *= 1.5
+    scaled_df['x_mean'] *= 1
+    scaled_df['y_mean'] *= 1
+
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
+
     df['cluster_id'] = cluster_labels
+
     score = calinski_harabasz_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
 
@@ -134,11 +141,12 @@ def sse_plot_k(df, n_clusters):
 # ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------------
 
 def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
+    df = df.drop_duplicates(subset=['fibre_id'])
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
-
+    
     pca = PCA(n_components=n_components)
     pca_data = pca.fit_transform(scaled_data)
 
@@ -181,13 +189,14 @@ def sse_plot_kmeans_pca(df, n_components=3):
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
+    df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
     # Scale features
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
-
+    
     # Fit HDSCAN
     DBS = DBSCAN()
     cluster_labels = DBS.fit_predict(scaled_data)
@@ -201,8 +210,9 @@ def perform_DBSCAN_clustering(df):
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
 def perform_HDBSCAN_clustering(df):
+    df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean']
 
     # Scale features
     scaler = StandardScaler()
@@ -221,8 +231,9 @@ def perform_HDBSCAN_clustering(df):
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 def perform_gmm_clustering(df,n_clusters):
+    df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean']
     
     # Scale features
     scaler = StandardScaler()
@@ -268,6 +279,7 @@ def aic_bic_plot_gmm(df, n_clusters):
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 def perform_agglomerative_clustering(df, n_clusters):
+    df = df.drop_duplicates(subset=['fibre_id'])
     df_sorted = df.sort_values(['fibre_id', 'z']).copy()
     features = ['x', 'y', 'tilt_angle_deg']
 
