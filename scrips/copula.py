@@ -88,10 +88,18 @@ def coordinates(arr):
     df_synthetic = pd.DataFrame(columns=['fibre_id', 'angle_x_deg', 'angle_y_deg', 'x', 'y', 'z'])
     for i in range(len(arr[0])):
         for j in range(0,128):
-            df_synthetic['fibre_id'] = i
-            df_synthetic['z'] = j
-            df_synthetic['angle_x_deg'] = arr[j][i][0]
-            df_synthetic['angle_y_deg'] = arr[j][i][1]
+            if j == 0:
+                df_synthetic.iloc[i*128,3] = 0
+                df_synthetic.iloc[i*128,4] = 0
+            df_synthetic.iloc[i*128+j, 0] = i
+            df_synthetic.iloc[i*128+j, 5] = j
+            df_synthetic.iloc[i*128+j, 1] = arr[j][i][0]
+            df_synthetic.iloc[i*128+j, 2] = arr[j][i][1]
+    x_prev = df.groupby('fibre_id')['x'].shift(1)
+    y_prev = df.groupby('fibre_id')['y'].shift(1)
+    df_synthetic['x'] = x_prev + np.tan(np.radians(df_synthetic['angle_x_deg']))
+    df_synthetic['y'] = y_prev + np.tan(np.radians(df_synthetic['angle_y_deg']))
+
 
 
 
