@@ -16,14 +16,60 @@ from sklearn.preprocessing import MinMaxScaler
 # ---------------------------------PCA Calculation for 10 Features-----------------------------
 
 #x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
+def analyze_redundancy(corr_matrix, loadings, corr_threshold=0.9, loading_diff_threshold=0.15):
+    print("\n--- Highly Correlated Feature Pairs ---")
+    correlated_pairs = []
+
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i + 1, len(corr_matrix.columns)):
+            f1 = corr_matrix.columns[i]
+            f2 = corr_matrix.columns[j]
+            corr_val = corr_matrix.iloc[i, j]
+
+            if abs(corr_val) >= corr_threshold:
+                correlated_pairs.append((f1, f2, corr_val))
+                print(f"{f1} ↔ {f2}: correlation = {corr_val:.2f}")
+
+    print("\n--- Similar PCA Loading Pairs ---")
+    loading_pairs = []
+
+    for i in range(len(loadings.index)):
+        for j in range(i + 1, len(loadings.index)):
+            f1 = loadings.index[i]
+            f2 = loadings.index[j]
+
+            vec1 = loadings.loc[f1].values
+            vec2 = loadings.loc[f2].values
+
+            if np.all(np.abs(np.abs(vec1) - np.abs(vec2)) < loading_diff_threshold):
+                loading_pairs.append((f1, f2))
+                print(f"{f1} ↔ {f2}: similar PCA loading pattern")
+
+    print("\n--- Strong Redundancy Candidates ---")
+    for f1, f2, corr_val in correlated_pairs:
+        for g1, g2 in loading_pairs:
+            if {f1, f2} == {g1, g2}:
+                print(f"{f1} and {f2} are strong redundancy candidates")
+
 def PCA_determination(df):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'x', 'y', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg', 'tilt_angle_mean']
 
     scale = StandardScaler()
     data_scaled = scale.fit_transform(df[features])
 
+    corr_matrix = pd.DataFrame(data_scaled, columns=features).corr()
+    print("\nCorrelation matrix:\n", corr_matrix.to_string())
+
     pca = PCA(n_components=data_scaled.shape[1])
     data_transformed = pca.fit_transform(data_scaled)
+
+    loadings = pd.DataFrame(pca.components_.T,
+        columns=[f'PC{i+1}' for i in range(pca.n_components_)],
+        index=features)
+
+    print("\nPCA Loadings:\n", loadings.to_string())
+
+    analyze_redundancy(corr_matrix, loadings)
 
     coverage_lst = np.cumsum(pca.explained_variance_ratio_) * 100
 
@@ -41,7 +87,7 @@ def PCA_determination(df):
     plt.ylim(0, 100)
     plt.grid(True)
     plt.legend()
-    plt.savefig("Correct_PCA_10_coverage.png")
+    #plt.savefig("Correct_PCA_10_coverage.png")
     plt.close()
     print("PCA plot saved")
 

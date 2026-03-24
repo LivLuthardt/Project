@@ -10,26 +10,6 @@ data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-zz = np.arange(1,128)
-zz_complete = np.arange(129)
-"""
-### Choose parameters to plot and predict with copula
-par_1,par_2 = 'angle_x_deg','angle_y_deg'
-df_grouped = df.groupby('z')
-
-mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
-
-### Magic
-cov_series = df_grouped.apply(
-    lambda group: group[par_1].corr(group[par_2]),
-    include_groups=False)
-cov_arr = cov_series.reindex(zz).to_numpy()
-
-cop_models = [pv.gaussian,pv.student,pv.frank]
-
-### Plot original data
-# plot_og_data(par_1,par_2,mean_arr,df,[67])
-
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 first = True
@@ -60,6 +40,27 @@ with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
 
+#copulas
+zz = np.arange(1,128)
+zz_complete = np.arange(129)
+
+### Choose parameters to plot and predict with copula
+par_1,par_2 = 'angle_x_deg','angle_y_deg'
+df_grouped = df.groupby('z')
+
+mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
+
+### Magic
+cov_series = df_grouped.apply(
+    lambda group: group[par_1].corr(group[par_2]),
+    include_groups=False)
+cov_arr = cov_series.reindex(zz).to_numpy()
+
+cop_models = [pv.gaussian,pv.student,pv.frank]
+
+### Plot original data
+# plot_og_data(par_1,par_2,mean_arr,df,[67])
+
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
@@ -77,23 +78,22 @@ for z in zz:
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
-sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
+sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
 
-sim_fibers_df = pd.DataFrame(columns=df_columns)
-
+sim_df = pd.DataFrame(columns=df_columns)
 
 for fibre_id in range(n_fibers):
-    new_rows = np.empty((129,4))
+    new_rows = np.empty((129,4),dtype=object)
 
-    new_rows[:,-2:] = sim_fibers[:,fibre_id,:]
+    new_rows[:,-2:] = np.round(sim_arr[:,fibre_id,:],4)
     new_rows[:,0] = fibre_id
     new_rows[:,1] = zz_complete
 
     new_df = pd.DataFrame(new_rows, columns=df_columns)
 
-    sim_fibers_df = pd.concat([sim_fibers_df, new_df],ignore_index=True)
+    sim_df = pd.concat([sim_df, new_df],ignore_index=True)
 
 # Plot synthetic fibers
 
@@ -124,11 +124,11 @@ plt.close('all')
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
-"""
+
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
-
+"""
 # Number of pre-defined clusters and range for score plots
 n = 5
 n_clusters = range(2,16)
@@ -190,4 +190,4 @@ for n in n_clusters:
 
 plot_score(score_k_list, n_clusters, 'K-means')
 plot_score(score_gmm_list, n_clusters, 'GMM')
-plot_score(score_agg_list, n_clusters, 'Agglomerative')
+plot_score(score_agg_list, n_clusters, 'Agglomerative')"""
