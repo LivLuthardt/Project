@@ -207,9 +207,13 @@ for n in n_clusters:
 
 plot_score(score_k_list, n_clusters, 'K-means')
 plot_score(score_gmm_list, n_clusters, 'GMM')
-plot_score(score_agg_list, n_clusters, 'Agglomerative')"""
+plot_score(score_agg_list, n_clusters, 'Agglomerative')
+
+"""
 
 ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
+
+"""
