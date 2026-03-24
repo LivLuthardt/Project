@@ -10,7 +10,8 @@ data_clean = data_cleaned(df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-zz = range(1,128)
+zz = np.arange(1,128)
+zz_complete = np.arange(129)
 
 ### Choose parameters to plot and predict with copula
 par_1,par_2 = 'angle_x_deg','angle_y_deg'
@@ -24,7 +25,7 @@ cov_series = df_grouped.apply(
     include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
-cop_models = [pv.gaussian,pv.student,pv.clayton]
+cop_models = [pv.gaussian,pv.student,pv.frank]
 
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
@@ -77,6 +78,35 @@ for z in zz:
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
 sim_fibers = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
+
+df_columns = ['fibre_id','z','x','y']
+
+sim_fibers_df = pd.DataFrame(columns=df_columns)
+
+
+for fibre_id in range(n_fibers):
+    new_rows = np.empty((129,4))
+
+    new_rows[:,-2:] = sim_fibers[:,fibre_id,:]
+    new_rows[:,0] = fibre_id
+    new_rows[:,1] = zz_complete
+
+    new_df = pd.DataFrame(new_rows, columns=df_columns)
+
+    sim_fibers_df = pd.concat([sim_fibers_df, new_df],ignore_index=True)
+
+# Plot synthetic fibers
+""" 
+fig = px.line_3d(sim_fibers_df,
+                x="x", y="y", z="z",
+                color="fibre_id",
+                title='Synthetic Fibers')
+fig.update_layout(
+    scene=dict(aspectmode="manual",
+            aspectratio=dict(x=15, y=7.5, z=1))
+)
+fig.show()
+ """
 
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
