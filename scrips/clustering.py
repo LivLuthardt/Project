@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score,calinski_harabasz_score,davies_bouldin_score
+from sklearn.metrics import calinski_harabasz_score
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
@@ -99,13 +99,13 @@ def perform_kmeans_clustering(df, n_clusters):
     df = df.drop_duplicates(subset=['fibre_id'])
     features = ['x_mean', 'y_mean', 'tilt_angle_mean']
 
-    scaler = MinMaxScaler()
+    scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
     
 
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
-    scaled_df['x_mean'] *= 1
-    scaled_df['y_mean'] *= 1
+    #scaled_df['x_mean'] *= 1
+    #scaled_df['y_mean'] *= 1
 
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
@@ -114,29 +114,6 @@ def perform_kmeans_clustering(df, n_clusters):
 
     score = calinski_harabasz_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
-
-def sse_plot_k(df, n_clusters):
-    sse = []
-    for k in n_clusters:
-        df , inertia, score = perform_kmeans_clustering(df,n_clusters=k)
-        sse.append(inertia)
-
-    # Create a DataFrame for plotting
-    plot_df = pd.DataFrame({
-        'Number of Clusters': n_clusters,
-        'SSE': sse
-    })
-
-    # Create 2D line plot with Plotly Express
-    fig = px.line(
-        plot_df, 
-        x='Number of Clusters', 
-        y='SSE', 
-        markers=True,
-        title="SSE vs Number of Clusters"
-    )
-
-    fig.show()
 
 # ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------------
 
@@ -160,33 +137,6 @@ def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
 
     return df_pca_clustered, kmeans_pca.inertia_, score_pca, pca.explained_variance_ratio_
 
-def sse_plot_kmeans_pca(df, n_components=3):
-    sse_pca = []
-    n_clusters_range = range(1, 11)
-
-    for k in n_clusters_range:
-        _, inertia_pca, _, _ = perform_kmeans_clustering_with_pca(
-            df,
-            n_clusters=k,
-            n_components=n_components
-        )
-        sse_pca.append(inertia_pca)
-
-    plot_df_pca = pd.DataFrame({
-        'Number of Clusters': n_clusters_range,
-        'SSE': sse_pca
-    })
-
-    fig = px.line(
-        plot_df_pca,
-        x='Number of Clusters',
-        y='SSE',
-        markers=True,
-        title=f"SSE vs Number of Clusters (K-means with PCA, {n_components} PCs)"
-    )
-
-    fig.show()
-
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
     df = df.drop_duplicates(subset=['fibre_id'])
@@ -204,8 +154,9 @@ def perform_DBSCAN_clustering(df):
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labels
 
-    # Calculate calinski-harabasz score
+    # Calculate scores
     score = calinski_harabasz_score(scaled_data, cluster_labels)
+    print(f'Calinski-Harabasz score of DBSCAN is {score}')
     return df,score
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
@@ -227,6 +178,7 @@ def perform_HDBSCAN_clustering(df):
 
     # Calculate calinski-harabasz score
     score = calinski_harabasz_score(scaled_data, cluster_labels)
+    print(f'Calinski-Harabasz score of DBSCAN is {score}')
     return df,score
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
@@ -249,33 +201,6 @@ def perform_gmm_clustering(df,n_clusters):
     # Calculate calinski-harabasz score
     score = calinski_harabasz_score(scaled_data, cluster_labels)
     return df,gmm.aic(scaled_data),gmm.bic(scaled_data),score
-
-def aic_bic_plot_gmm(df, n_clusters):
-    aic_vals = []
-    bic_vals = []
-    for k in n_clusters:
-        df , aic , bic, score = perform_gmm_clustering(df,n_clusters=k)
-        aic_vals.append(aic)
-        bic_vals.append(bic)
-
-    # Create a DataFrame for plotting
-    plot_df = pd.DataFrame({
-        'Number of Clusters': list(n_clusters) * 2,
-        'Criterion': ['AIC'] * len(n_clusters) + ['BIC'] * len(n_clusters),
-        'Value': aic_vals + bic_vals
-    })
-
-    fig = px.line(
-        plot_df, 
-        x='Number of Clusters', 
-        y='Value', 
-        color='Criterion',
-        markers=True,
-        title="AIC and BIC vs Number of Clusters",
-        labels={'Value': 'Criterion Value'}
-    )
-
-    fig.show()
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 def perform_agglomerative_clustering(df, n_clusters):
@@ -307,11 +232,38 @@ def perform_agglomerative_clustering(df, n_clusters):
     df_clustered = df.copy()
     df_clustered['cluster_id'] = df_clustered['fibre_id'].map(fibre_to_cluster)
 
-    # Calculate calinski-harabasz score
+    # Calculate scores
     score = calinski_harabasz_score(X_scaled, labels)
     return df_clustered, model, score
 
 # ------------------------------------Plots----------------------------------------------------------------------
+
+def sse_plot_kmeans_pca(df, n_components=3):
+    sse_pca = []
+    n_clusters_range = range(1, 11)
+
+    for k in n_clusters_range:
+        _, inertia_pca, _, _ = perform_kmeans_clustering_with_pca(
+            df,
+            n_clusters=k,
+            n_components=n_components
+        )
+        sse_pca.append(inertia_pca)
+
+    plot_df_pca = pd.DataFrame({
+        'Number of Clusters': n_clusters_range,
+        'SSE': sse_pca
+    })
+
+    fig = px.line(
+        plot_df_pca,
+        x='Number of Clusters',
+        y='SSE',
+        markers=True,
+        title=f"SSE vs Number of Clusters (K-means with PCA, {n_components} PCs)"
+    )
+
+    fig.show()
 
 def plot_fibers(clustered,title):
     fig_3d = px.line_3d(
@@ -321,25 +273,94 @@ def plot_fibers(clustered,title):
         line_group='fibre_id',
         title=title
     )
-    fig_3d.show()
+    #fig_3d.show()
     print(f'Plot {title} finished')
 
-def plot_score(score, n_clusters, title):
+def plot_score(df, n_clusters):
+    score_list_k = []
+    score_list_gmm = []
+    score_list_agg = []
+    for n in n_clusters:
+        _,_, score_k = perform_kmeans_clustering(df,n)
+        _,_,_, score_gmm = perform_gmm_clustering(df,n)
+        _,_, score_agg = perform_agglomerative_clustering(df,n)
+    
+        score_list_k.append(score_k)
+        score_list_gmm.append(score_gmm)
+        score_list_agg.append(score_agg)
+
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': list(n_clusters) * 3,
+        'Calinski-Harabasz': score_list_k + score_list_gmm + score_list_agg,
+        'Method': ['K-means'] * len(n_clusters) + ['GMM'] * len(n_clusters) + ['Agglomerative'] * len(n_clusters)
+    })
+
+    # Create 2D line plot with Plotly Express, coloring by Method
+    fig = px.line(
+        plot_df,
+        x='Number of Clusters',
+        y='Calinski-Harabasz',
+        color='Method',
+        markers=True,
+        title="Calinski-Harabasz score vs Number of Clusters for Clustering Methods"
+    )
+
+    #fig.show()
+    fig.write_image(f"CD_score_plot.png")
+    print(f'Plot CD finished')
+
+def plot_sse_k(df, n_clusters):
+    sse = []
+    for k in n_clusters:
+        _ , inertia, _ = perform_kmeans_clustering(df,n_clusters=k)
+        sse.append(inertia)
 
     # Create a DataFrame for plotting
     plot_df = pd.DataFrame({
         'Number of Clusters': n_clusters,
-        'Score': score
+        'SSE': sse
     })
 
     # Create 2D line plot with Plotly Express
     fig = px.line(
         plot_df, 
-        x=n_clusters, 
-        y=score, 
+        x='Number of Clusters', 
+        y='SSE', 
         markers=True,
-        title=f"Score vs Number of Clusters for {title}"
+        title="SSE vs Number of Clusters for K-means"
     )
 
-    fig.show()
-    print(f'Plot {title} finished')
+    #fig.show()
+    fig.write_image(f"SSE_k_means.png")
+    print(f'Plot SSE K-means finished')
+
+def plot_aic_bic_gmm(df, n_clusters):
+    aic_vals = []
+    bic_vals = []
+    for k in n_clusters:
+        _ , aic , bic, _ = perform_gmm_clustering(df,n_clusters=k)
+        aic_vals.append(aic)
+        bic_vals.append(bic)
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': list(n_clusters) * 2,
+        'Criterion': ['AIC'] * len(n_clusters) + ['BIC'] * len(n_clusters),
+        'Value': aic_vals + bic_vals
+    })
+
+    fig = px.line(
+        plot_df, 
+        x='Number of Clusters', 
+        y='Value', 
+        color='Criterion',
+        markers=True,
+        title="AIC and BIC vs Number of Clusters for GMM",
+        labels={'Value': 'Criterion Value'}
+    )
+
+    #fig.show()
+    fig.write_image(f"AIC_BIC_GMM.png")
+    print(f'Plot AIC BIC GMM finished')
