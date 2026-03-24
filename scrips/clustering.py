@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import calinski_harabasz_score,davies_bouldin_score
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
@@ -59,7 +59,7 @@ def perform_kmeans_clustering(df, n_clusters):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
     df['cluster_id'] = cluster_labels
-    score = silhouette_score(scaled_df, cluster_labels)
+    score = calinski_harabasz_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
 
 def sse_plot_k(df, n_clusters):
@@ -102,7 +102,7 @@ def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
     df_pca_clustered = df.copy()
     df_pca_clustered['cluster_id'] = cluster_labels
 
-    score_pca = silhouette_score(pca_data, cluster_labels)
+    score_pca = calinski_harabasz_score(pca_data, cluster_labels)
 
     return df_pca_clustered, kmeans_pca.inertia_, score_pca, pca.explained_variance_ratio_
 
@@ -149,8 +149,8 @@ def perform_DBSCAN_clustering(df):
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labels
 
-    # Calculate silhouette score
-    score = silhouette_score(scaled_data, cluster_labels)
+    # Calculate calinski-harabasz score
+    score = calinski_harabasz_score(scaled_data, cluster_labels)
     return df,score
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
@@ -169,8 +169,8 @@ def perform_HDBSCAN_clustering(df):
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labels
 
-    # Calculate silhouette score
-    score = silhouette_score(scaled_data, cluster_labels)
+    # Calculate calinski-harabasz score
+    score = calinski_harabasz_score(scaled_data, cluster_labels)
     return df,score
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
@@ -189,8 +189,8 @@ def perform_gmm_clustering(df,n_clusters):
     # Add cluster labels to DataFrame
     df['cluster_id'] = cluster_labels
 
-    # Calculate silhouette score
-    score = silhouette_score(scaled_data, cluster_labels)
+    # Calculate calinski-harabasz score
+    score = calinski_harabasz_score(scaled_data, cluster_labels)
     return df,gmm.aic(scaled_data),gmm.bic(scaled_data),score
 
 def aic_bic_plot_gmm(df, n_clusters):
@@ -249,8 +249,8 @@ def perform_agglomerative_clustering(df, n_clusters):
     df_clustered = df.copy()
     df_clustered['cluster_id'] = df_clustered['fibre_id'].map(fibre_to_cluster)
 
-    # Calculate silhouette score
-    score = silhouette_score(X_scaled, labels)
+    # Calculate calinski-harabasz score
+    score = calinski_harabasz_score(X_scaled, labels)
     return df_clustered, model, score
 
 # ------------------------------------Plots----------------------------------------------------------------------
@@ -264,13 +264,14 @@ def plot_fibers(clustered,title):
         title=title
     )
     fig_3d.show()
+    print(f'Plot {title} finished')
 
-def plot_silhouette(score, n_clusters, title):
+def plot_score(score, n_clusters, title):
 
     # Create a DataFrame for plotting
     plot_df = pd.DataFrame({
         'Number of Clusters': n_clusters,
-        'Silhouette': score
+        'Score': score
     })
 
     # Create 2D line plot with Plotly Express
@@ -279,7 +280,8 @@ def plot_silhouette(score, n_clusters, title):
         x=n_clusters, 
         y=score, 
         markers=True,
-        title=f"Silhouette vs Number of Clusters for {title}"
+        title=f"Score vs Number of Clusters for {title}"
     )
 
     fig.show()
+    print(f'Plot {title} finished')
