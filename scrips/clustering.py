@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import calinski_harabasz_score,davies_bouldin_score
+from sklearn.metrics import silhouette_score,calinski_harabasz_score,davies_bouldin_score
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from hdbscan import HDBSCAN
 from sklearn.mixture import GaussianMixture
@@ -16,14 +16,60 @@ from sklearn.preprocessing import MinMaxScaler
 # ---------------------------------PCA Calculation for 10 Features-----------------------------
 
 #x_mean, y_mean, angle_x_mean, angle_y_mean, x, y, angle_x, angle_y, tilt_angle_deg     
+def analyze_redundancy(corr_matrix, loadings, corr_threshold=0.9, loading_diff_threshold=0.15):
+    print("\n--- Highly Correlated Feature Pairs ---")
+    correlated_pairs = []
+
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i + 1, len(corr_matrix.columns)):
+            f1 = corr_matrix.columns[i]
+            f2 = corr_matrix.columns[j]
+            corr_val = corr_matrix.iloc[i, j]
+
+            if abs(corr_val) >= corr_threshold:
+                correlated_pairs.append((f1, f2, corr_val))
+                print(f"{f1} ↔ {f2}: correlation = {corr_val:.2f}")
+
+    print("\n--- Similar PCA Loading Pairs ---")
+    loading_pairs = []
+
+    for i in range(len(loadings.index)):
+        for j in range(i + 1, len(loadings.index)):
+            f1 = loadings.index[i]
+            f2 = loadings.index[j]
+
+            vec1 = loadings.loc[f1].values
+            vec2 = loadings.loc[f2].values
+
+            if np.all(np.abs(np.abs(vec1) - np.abs(vec2)) < loading_diff_threshold):
+                loading_pairs.append((f1, f2))
+                print(f"{f1} ↔ {f2}: similar PCA loading pattern")
+
+    print("\n--- Strong Redundancy Candidates ---")
+    for f1, f2, corr_val in correlated_pairs:
+        for g1, g2 in loading_pairs:
+            if {f1, f2} == {g1, g2}:
+                print(f"{f1} and {f2} are strong redundancy candidates")
+
 def PCA_determination(df):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean', 'x', 'y', 'angle_x_deg', 'angle_y_deg', 'tilt_angle_deg', 'tilt_angle_mean']
 
     scale = StandardScaler()
     data_scaled = scale.fit_transform(df[features])
 
+    corr_matrix = pd.DataFrame(data_scaled, columns=features).corr()
+    print("\nCorrelation matrix:\n", corr_matrix.to_string())
+
     pca = PCA(n_components=data_scaled.shape[1])
     data_transformed = pca.fit_transform(data_scaled)
+
+    loadings = pd.DataFrame(pca.components_.T,
+        columns=[f'PC{i+1}' for i in range(pca.n_components_)],
+        index=features)
+
+    print("\nPCA Loadings:\n", loadings.to_string())
+
+    analyze_redundancy(corr_matrix, loadings)
 
     coverage_lst = np.cumsum(pca.explained_variance_ratio_) * 100
 
@@ -41,7 +87,7 @@ def PCA_determination(df):
     plt.ylim(0, 100)
     plt.grid(True)
     plt.legend()
-    plt.savefig("Correct_PCA_10_coverage.png")
+    #plt.savefig("Correct_PCA_10_coverage.png")
     plt.close()
     print("PCA plot saved")
 
@@ -50,15 +96,22 @@ def PCA_determination(df):
 # ---------------------------------------METHOD 1: k means------------------------------------------
 
 def perform_kmeans_clustering(df, n_clusters):
+    df = df.drop_duplicates(subset=['fibre_id'])
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+
     scaler = MinMaxScaler()
     scaled_data = scaler.fit_transform(df[features])
+    
+
     scaled_df = pd.DataFrame(scaled_data, columns=features) #trying to give them more importance
-    scaled_df['x_mean'] *= 1.5
-    scaled_df['y_mean'] *= 1.5
+    scaled_df['x_mean'] *= 1
+    scaled_df['y_mean'] *= 1
+
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_labels = kmeans.fit_predict(scaled_df.values)
+
     df['cluster_id'] = cluster_labels
+
     score = calinski_harabasz_score(scaled_df, cluster_labels)
     return df, kmeans.inertia_, score
 
@@ -88,11 +141,12 @@ def sse_plot_k(df, n_clusters):
 # ------------------------------------METHOD 1B: K-MEANS WITH PCA---------------------------
 
 def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
+    df = df.drop_duplicates(subset=['fibre_id'])
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
     
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
-
+    
     pca = PCA(n_components=n_components)
     pca_data = pca.fit_transform(scaled_data)
 
@@ -135,13 +189,14 @@ def sse_plot_kmeans_pca(df, n_components=3):
 
 # -----------------------------------------METHOD 2: DBSCAN ----------------------------------------------
 def perform_DBSCAN_clustering(df):
+    df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
 
     # Scale features
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
-
+    
     # Fit HDSCAN
     DBS = DBSCAN()
     cluster_labels = DBS.fit_predict(scaled_data)
@@ -155,8 +210,9 @@ def perform_DBSCAN_clustering(df):
     
 #-----------------------------------------METHOD 3: HDBSCAN-----------------------------------------------
 def perform_HDBSCAN_clustering(df):
+    df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean']
 
     # Scale features
     scaler = StandardScaler()
@@ -175,8 +231,9 @@ def perform_HDBSCAN_clustering(df):
 
 # ---------------------------------------METHOD 4: Gaussian Mixture GMM-----------------------------------
 def perform_gmm_clustering(df,n_clusters):
+    df = df.drop_duplicates(subset=['fibre_id'])
     # Features to use for clustering
-    features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
+    features = ['x_mean', 'y_mean']
     
     # Scale features
     scaler = StandardScaler()
@@ -222,6 +279,7 @@ def aic_bic_plot_gmm(df, n_clusters):
 
 # ------------------------------------METHOD 5: Agglomerative (Hierarchical)------------------------------
 def perform_agglomerative_clustering(df, n_clusters):
+    df = df.drop_duplicates(subset=['fibre_id'])
     df_sorted = df.sort_values(['fibre_id', 'z']).copy()
     features = ['x', 'y', 'tilt_angle_deg']
 
