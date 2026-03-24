@@ -88,9 +88,11 @@ def coordinates(arr):
     df_synthetic = pd.DataFrame(columns=['fibre_id', 'angle_x_deg', 'angle_y_deg', 'x', 'y', 'z'])
     for i in range(len(arr[0])):
         for j in range(0,128):
+            df_synthetic['fibre_id'] = i
             df_synthetic['z'] = j
-        df_synthetic['angle_x_deg'] = arr[i][j][0]
-        df_synthetic['angle_y_deg'] = arr[i][j][1]
+            df_synthetic['angle_x_deg'] = arr[j][i][0]
+            df_synthetic['angle_y_deg'] = arr[j][i][1]
+
 
 
     return df_synthetic
