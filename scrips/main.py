@@ -39,7 +39,7 @@ estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
-
+"""
 #copulas
 zz = np.arange(1,128)
 zz_complete = np.arange(129)
@@ -125,10 +125,10 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
-
+"""
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
-"""
+
 # Number of pre-defined clusters and range for score plots
 n = 5
 n_clusters = range(2,16)
@@ -190,4 +190,4 @@ for n in n_clusters:
 
 plot_score(score_k_list, n_clusters, 'K-means')
 plot_score(score_gmm_list, n_clusters, 'GMM')
-plot_score(score_agg_list, n_clusters, 'Agglomerative')"""
+plot_score(score_agg_list, n_clusters, 'Agglomerative')
