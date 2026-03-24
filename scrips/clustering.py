@@ -89,7 +89,7 @@ def sse_plot_k(df, n_clusters):
 
 def perform_kmeans_clustering_with_pca(df, n_clusters, n_components=3):
     features = ['x_mean', 'y_mean', 'angle_x_mean', 'angle_y_mean']
-
+    
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[features])
 
