@@ -70,14 +70,33 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 # Generate a list with lists inside it
 cop_lst = [[] for i in range(len(cop_models))]
 
+aic_gaussian = []
+aic_student = []
+aic_frank = []
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
     for i,model in enumerate(cop_models):
-        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
+        data_sim_arr[i,z], cop, aic = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
+        if f"{model}" == 'BicopFamily.gaussian':
+            aic_gaussian.append(aic)
+        elif f"{model}" == 'BicopFamily.student':
+            aic_student.append(aic)
+        elif f"{model}" == 'BicopFamily.frank':
+            aic_frank.append(aic)
+        else:
+            print('aaaa')
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
+gaussian_mean = np.mean(aic_gaussian)
+student_mean = np.mean(aic_student)
+frank_mean = np.mean(aic_frank)
+print(gaussian_mean)
+print(student_mean)
+print(frank_mean)
+
+"""
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
@@ -128,38 +147,38 @@ plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
-"""
+
 # Number of pre-defined clusters and range for score plots
 n = 5
 n_clusters = range(2,16)
 
 #K-means clustering
-fiber_summary_k, inertia_k, score_k = perform_kmeans_clustering(fiber_sum.copy(),n)
+fiber_summary_k,_,_ = perform_kmeans_clustering(fiber_sum.copy(),n)
 df_k = df.merge(fiber_summary_k[['fibre_id', 'cluster_id']], on='fibre_id')
 # Make a plot of the error
 #fig_k_error = sse_plot_k(fiber_sum)
 
 # K-means clustering with PCA
-fiber_summary_k_pca, inertia_k_pca, score_k_pca, explained_var_pca = perform_kmeans_clustering_with_pca(
+fiber_summary_k_pca,_,_,_ = perform_kmeans_clustering_with_pca(
     fiber_sum, n_clusters=n, n_components=3)
 df_k_pca = df.merge(fiber_summary_k_pca[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # DBSCAN clustering
-fiber_summary_dbscan, score_dbscan = perform_DBSCAN_clustering(fiber_sum.copy())
+fiber_summary_dbscan,_ = perform_DBSCAN_clustering(fiber_sum.copy())
 df_dbscan = df.merge(fiber_summary_dbscan[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # HDBSCAN clustering
-fiber_summary_hdbscan, score_hdbscan = perform_HDBSCAN_clustering(fiber_sum.copy())
+fiber_summary_hdbscan,_ = perform_HDBSCAN_clustering(fiber_sum.copy())
 df_hdbscan = df.merge(fiber_summary_hdbscan[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # GMM clustering
-fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_sum.copy(),n)
+fiber_summary_gmm,_,_,_ = perform_gmm_clustering(fiber_sum.copy(),n)
 df_gmm = df.merge(fiber_summary_gmm[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make a plot of the error
 #fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
 
-fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
+fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
@@ -168,31 +187,16 @@ plot_fibers(df_k_pca, 'K-means with PCA')
 plot_fibers(df_dbscan, 'DBSCAN')
 plot_fibers(df_hdbscan, 'HDBSCAN')
 plot_fibers(df_gmm, 'GMM')
-plot_fibers(df_agg, 'agglomerative')
+plot_fibers(df_agg, 'Agglomerative')
 
 # Make score plot for all pre-defined cluster methods
-score_k_list = []
-score_gmm_list = []
-score_agg_list = []
 
-for n in n_clusters:
-    print(f'iteration {n}')
-
-    fiber_summary_k, inertia_k, score_k = perform_kmeans_clustering(fiber_sum,n)
-
-    fiber_summary_gmm, aic_gmm, bic_gmm, score_gmm = perform_gmm_clustering(fiber_sum,n)
-
-    fiber_summary_agg, model, score_agg = perform_agglomerative_clustering(fiber_sum,n)
-    
-    score_k_list.append(score_k)
-    score_gmm_list.append(score_gmm)
-    score_agg_list.append(score_agg)
-
-plot_score(score_k_list, n_clusters, 'K-means')
-plot_score(score_gmm_list, n_clusters, 'GMM')
-plot_score(score_agg_list, n_clusters, 'Agglomerative')"""
+plot_score(fiber_sum, n_clusters)
+plot_sse_k(fiber_sum, n_clusters)
+plot_aic_bic_gmm(fiber_sum, n_clusters)
 
 ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
+"""
