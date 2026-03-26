@@ -92,12 +92,12 @@ for z in zz:
 gaussian_mean = np.mean(aic_gaussian)
 student_mean = np.mean(aic_student)
 frank_mean = np.mean(aic_frank)
-print(gaussian_mean)
-print(student_mean)
-print(frank_mean)
+# print(gaussian_mean)
+# print(student_mean)
+# print(frank_mean)
 
-"""
-sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
+
+sim_arr = reconstruct(data_clean,data_sim_arr[1],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
 
@@ -142,7 +142,7 @@ plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
+plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[31])
 
 
 #PCA method figure
@@ -199,4 +199,3 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
-"""
