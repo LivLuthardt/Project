@@ -364,3 +364,50 @@ def plot_aic_bic_gmm(df, n_clusters):
     #fig.show()
     fig.write_image(f"AIC_BIC_GMM.png")
     print(f'Plot AIC BIC GMM finished')
+
+def plot_hist_per_cluster(df,name):
+    clusters = sorted(df['cluster_id'].unique())
+    num_clusters = len(clusters)
+
+    fig, axes = plt.subplots(num_clusters, 2, figsize=(12, 3*num_clusters), sharex='col')
+    if num_clusters == 1:
+        axes = [axes]
+
+    for i, cluster in enumerate(clusters):
+        cluster_df = df[df['cluster_id'] == cluster]
+
+        # angle_x_deg histogram (left column)
+        axes[i][0].hist(cluster_df['angle_x_deg'], bins=100, alpha=0.7)
+        axes[i][0].set_title(f'Cluster {cluster} - angle_x_deg')
+        axes[i][0].set_ylabel('Frequency')
+        if i == num_clusters - 1:
+            axes[i][0].set_xlabel('angle_x_deg (degrees)')
+
+        # angle_y_deg histogram (right column)
+        axes[i][1].hist(cluster_df['angle_y_deg'], bins=100, alpha=0.7)
+        axes[i][1].set_title(f'Cluster {cluster} - angle_y_deg')
+        if i == num_clusters - 1:
+            axes[i][1].set_xlabel('angle_y_deg (degrees)')
+
+    plt.tight_layout()
+    plt.savefig(f"AllClusters_1DHistograms_{name}.png")
+    plt.close()
+
+    # 2D hexbin plots for angle_x_deg vs angle_y_deg
+    fig, axes = plt.subplots(num_clusters, 1, figsize=(8, 4*num_clusters), sharex=True, sharey=True)
+    if num_clusters == 1:
+        axes = [axes]
+
+    for i, cluster in enumerate(clusters):
+        cluster_df = df[df['cluster_id'] == cluster]
+        hb = axes[i].hexbin(cluster_df['angle_x_deg'], cluster_df['angle_y_deg'], gridsize=50, cmap='viridis', extent=[-10, 10, -10, 10])
+        axes[i].set_title(f'Cluster {cluster} - angle_x_deg vs angle_y_deg')
+        axes[i].set_xlim(-10, 10)
+        axes[i].set_ylim(-10, 10)
+        axes[i].set_xlabel('angle_x_deg')
+        axes[i].set_ylabel('angle_y_deg')
+        fig.colorbar(hb, ax=axes[i], label='Counts')
+
+    plt.tight_layout()
+    plt.savefig(f"AllClusters_2DHexbinPlots_{name}.png")
+    plt.close()

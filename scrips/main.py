@@ -96,7 +96,7 @@ print(gaussian_mean)
 print(student_mean)
 print(frank_mean)
 
-"""
+
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
@@ -155,12 +155,9 @@ n_clusters = range(2,16)
 #K-means clustering
 fiber_summary_k,_,_ = perform_kmeans_clustering(fiber_sum.copy(),n)
 df_k = df.merge(fiber_summary_k[['fibre_id', 'cluster_id']], on='fibre_id')
-# Make a plot of the error
-#fig_k_error = sse_plot_k(fiber_sum)
 
 # K-means clustering with PCA
-fiber_summary_k_pca,_,_,_ = perform_kmeans_clustering_with_pca(
-    fiber_sum, n_clusters=n, n_components=3)
+fiber_summary_k_pca,_,_,_ = perform_kmeans_clustering_with_pca(fiber_sum.copy(), n_clusters=n, n_components=3)
 df_k_pca = df.merge(fiber_summary_k_pca[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # DBSCAN clustering
@@ -175,10 +172,7 @@ df_hdbscan = df.merge(fiber_summary_hdbscan[['fibre_id', 'cluster_id']], on='fib
 fiber_summary_gmm,_,_,_ = perform_gmm_clustering(fiber_sum.copy(),n)
 df_gmm = df.merge(fiber_summary_gmm[['fibre_id', 'cluster_id']], on='fibre_id')
 
-# Make a plot of the error
-#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
-
-fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
+fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum.copy(),n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
@@ -190,13 +184,10 @@ plot_fibers(df_gmm, 'GMM')
 plot_fibers(df_agg, 'Agglomerative')
 
 # Make score plot for all pre-defined cluster methods
-
 plot_score(fiber_sum, n_clusters)
 plot_sse_k(fiber_sum, n_clusters)
 plot_aic_bic_gmm(fiber_sum, n_clusters)
 
 ks_x_list, ks_y_list = ks_by_z_lists(df)
 
-print("KS X:", ks_x_list)
-print("KS Y:", ks_y_list)
-"""
+plot_hist_per_cluster(df_k,'K_means')
