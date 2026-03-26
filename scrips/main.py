@@ -144,6 +144,14 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
+# ADD THE OTHER COLOUMNS TO SIMM_DF 
+
+# apparently if we dont do this the objects cause everything to break
+sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
+
+sim_df = tangent_angles_central(sim_df)
+sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
+
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
