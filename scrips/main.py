@@ -196,6 +196,13 @@ plot_score(fiber_sum, n_clusters)
 plot_sse_k(fiber_sum, n_clusters)
 plot_aic_bic_gmm(fiber_sum, n_clusters)
 
+# Make histogram per cluster
+plot_hist_per_cluster(df_k, 'K-means')
+plot_hist_per_cluster(df_k_pca, 'K-means with PCA')
+plot_hist_per_cluster(df_dbscan, 'DBSCAN')
+plot_hist_per_cluster(df_hdbscan, 'HDBSCAN')
+plot_hist_per_cluster(df_gmm, 'GMM')
+plot_hist_per_cluster(df_agg, 'Agglomerative')
+
 ks_x_list, ks_y_list = ks_by_z_lists(df)
 
-plot_hist_per_cluster(df_k,'K_means')

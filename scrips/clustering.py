@@ -390,7 +390,7 @@ def plot_hist_per_cluster(df,name):
             axes[i][1].set_xlabel('angle_y_deg (degrees)')
 
     plt.tight_layout()
-    plt.savefig(f"AllClusters_1DHistograms_{name}.png")
+    plt.savefig(f"Histograms_{name}_clusters.png")
     plt.close()
 
     # 2D hexbin plots for angle_x_deg vs angle_y_deg
@@ -409,5 +409,5 @@ def plot_hist_per_cluster(df,name):
         fig.colorbar(hb, ax=axes[i], label='Counts')
 
     plt.tight_layout()
-    plt.savefig(f"AllClusters_2DHexbinPlots_{name}.png")
+    plt.savefig(f"HexbinPlots_{name}_clusters.png")
     plt.close()
