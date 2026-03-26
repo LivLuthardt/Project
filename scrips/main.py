@@ -39,7 +39,7 @@ estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
-"""
+
 #copulas
 zz = np.arange(1,128)
 zz_complete = np.arange(129)
@@ -70,14 +70,33 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 # Generate a list with lists inside it
 cop_lst = [[] for i in range(len(cop_models))]
 
+aic_gaussian = []
+aic_student = []
+aic_frank = []
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
     for i,model in enumerate(cop_models):
-        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
+        data_sim_arr[i,z], cop, aic = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
+        if f"{model}" == 'BicopFamily.gaussian':
+            aic_gaussian.append(aic)
+        elif f"{model}" == 'BicopFamily.student':
+            aic_student.append(aic)
+        elif f"{model}" == 'BicopFamily.frank':
+            aic_frank.append(aic)
+        else:
+            print('aaaa')
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
+gaussian_mean = np.mean(aic_gaussian)
+student_mean = np.mean(aic_student)
+frank_mean = np.mean(aic_frank)
+print(gaussian_mean)
+print(student_mean)
+print(frank_mean)
+
+"""
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
@@ -97,7 +116,7 @@ for fibre_id in range(n_fibers):
 
 # Plot synthetic fibers
 
-fig = px.line_3d(sim_fibers_df,
+fig = px.line_3d(sim_df,
                 x="x", y="y", z="z",
                 color="fibre_id",
                 title='Synthetic Fibers')
@@ -125,7 +144,7 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
-"""
+
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
@@ -180,3 +199,4 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
+"""
