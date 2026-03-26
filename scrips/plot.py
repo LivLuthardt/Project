@@ -33,26 +33,26 @@ def plot_synthetic_data(x1,x2,mean_arr,df,df_sim,z_values=range(1,128)):
         plt.close()
 
         plt.subplot(2,2,1)
-        plt.hist(x1_df,label='Actual Data',bins=1000)
+        plt.hist(x1_df,label='Actual Data',bins=75)
         plt.xlabel(f'{x1}')
         plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
         plt.title('Actual Data')
 
         plt.subplot(2,2,2)
-        plt.hist(x2_df,label='Actual Data',bins=1000)
+        plt.hist(x2_df,label='Actual Data',bins=75)
         plt.xlabel(f'{x2}')
         plt.title('Actual Data')
         plt.axvline(mean_arr[z,1], color='k', linestyle='dashed', linewidth=1)
 
         plt.subplot(2,2,3)
-        plt.hist(df_sim[z,:,0],label='Synthetic',bins=1000)
+        plt.hist(df_sim[z,:,0],label='Synthetic',bins=75)
         plt.xlabel(f'{x1}')
         plt.title('Synthetic')
         plt.axvline(df_sim[z,:,0].mean(), color='k', linestyle='dashed', linewidth=1)
 
 
         plt.subplot(2,2,4)
-        plt.hist(df_sim[z,:,1],label='Synthetic',bins=1000)
+        plt.hist(df_sim[z,:,1],label='Synthetic',bins=75)
         plt.xlabel(f'{x2}')
         plt.title('Synthetic')
         plt.axvline(df_sim[z,:,1].mean(), color='k', linestyle='dashed', linewidth=1)
