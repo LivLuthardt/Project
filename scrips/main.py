@@ -39,7 +39,7 @@ estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
-"""
+
 #copulas
 zz = np.arange(1,128)
 zz_complete = np.arange(129)
@@ -77,7 +77,8 @@ for z in zz:
         cop_lst[i].append(cop)
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
-
+sim_dataframe = coordinates(data_sim_arr, df)
+print(sim_dataframe)
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
@@ -125,7 +126,7 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
-"""
+
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
