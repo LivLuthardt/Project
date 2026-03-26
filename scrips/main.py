@@ -97,7 +97,7 @@ for fibre_id in range(n_fibers):
 
 # Plot synthetic fibers
 
-fig = px.line_3d(sim_fibers_df,
+fig = px.line_3d(sim_df,
                 x="x", y="y", z="z",
                 color="fibre_id",
                 title='Synthetic Fibers')
