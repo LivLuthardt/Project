@@ -70,13 +70,31 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 # Generate a list with lists inside it
 cop_lst = [[] for i in range(len(cop_models))]
 
+aic_gaussian = []
+aic_student = []
+aic_frank = []
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
     for i,model in enumerate(cop_models):
-        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
+        data_sim_arr[i,z], cop, aic = bivariate_copula(df_z,n_fibers,model=model)
         cop_lst[i].append(cop)
+        if f"{model}" == 'BicopFamily.gaussian':
+            aic_gaussian.append(aic)
+        elif f"{model}" == 'BicopFamily.student':
+            aic_student.append(aic)
+        elif f"{model}" == 'BicopFamily.frank':
+            aic_frank.append(aic)
+        else:
+            print('aaaa')
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
+
+gaussian_mean = np.mean(aic_gaussian)
+student_mean = np.mean(aic_student)
+frank_mean = np.mean(aic_frank)
+print(gaussian_mean)
+print(student_mean)
+print(frank_mean)
 
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
@@ -97,7 +115,7 @@ for fibre_id in range(n_fibers):
 
 # Plot synthetic fibers
 
-fig = px.line_3d(sim_fibers_df,
+fig = px.line_3d(sim_df,
                 x="x", y="y", z="z",
                 color="fibre_id",
                 title='Synthetic Fibers')
