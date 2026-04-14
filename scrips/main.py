@@ -78,9 +78,9 @@ for z in zz:
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
-gaussian_mean = np.mean(aic_gaussian)
-student_mean = np.mean(aic_student)
-frank_mean = np.mean(aic_frank)
+for cops in cop_lst:
+    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+
 # print(gaussian_mean)
 # print(student_mean)
 # print(frank_mean)
