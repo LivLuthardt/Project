@@ -86,7 +86,7 @@ for cops in cop_lst:
 
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz_complete,n_fibers)
 
-df_columns = ['fibre_id','z','x','y']
+df_columns = ['fibre_id','z_idx','x','y']
 
 sim_df = pd.DataFrame(columns=df_columns)
 
@@ -100,6 +100,8 @@ for fibre_id in range(n_fibers):
     new_df = pd.DataFrame(new_rows, columns=df_columns)
 
     sim_df = pd.concat([sim_df, new_df],ignore_index=True)
+
+sim_df['z'] = sim_df['z_idx'] * (500 / 128)
 
 # Plot synthetic fibers
 
@@ -135,9 +137,6 @@ plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
 # apparently if we dont do this the objects cause everything to break (making floats)
 sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
-
-sim_df = sim_df.rename(columns={'z':'z_idx'})
-sim_df['z'] = sim_df['z_idx'] * (500 / 128)
 
 sim_df = tangent_angles_central(sim_df)
 sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
