@@ -1,7 +1,8 @@
-'''import pandas as pd 
+import pandas as pd 
 import numpy as np
 import plotly.express as px
 
+'''
 def data_cleaned(df):
     #PART 1: CLEANING NAN
     #Data Import
