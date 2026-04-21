@@ -308,8 +308,8 @@ def plot_score(df, n_clusters):
     )
 
     #fig.show()
-    fig.write_image(f"CH_score_plot.png")
-    print(f'Plot CH finished')
+    fig.write_image(f"CD_score_plot.png")
+    print(f'Plot CD finished')
 
 def plot_sse_k(df, n_clusters):
     sse = []

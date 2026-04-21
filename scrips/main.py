@@ -4,7 +4,6 @@ from tangent import*
 from copula import*
 from clustering import*
 from plot import *
-from layer_clustering import *
 
 
 raw_df = pd.read_csv('raw_data.csv')
@@ -196,3 +195,6 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
+
+
+
