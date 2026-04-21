@@ -25,6 +25,7 @@ all_z = sorted(data_clean['z'].unique())
 for z in all_z[1,:]:
 
     layer = data_clean[data_clean['z'] == z].reset_index(drop=True)
+    
 #---------------------------------Stef's try to do this stuff------------------------------
 def eqdqzd(df):
     points = ['x','y']
