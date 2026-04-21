@@ -5,8 +5,8 @@ from copula import*
 from clustering import*
 from plot import *
 
-df = pd.read_csv('raw_data.csv')
-data_clean = data_cleaned(df)
+raw_df = pd.read_csv('raw_data.csv')
+data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
@@ -68,7 +68,7 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 
 # list to contain copulas 
 # Generate a list with lists inside it
-cop_lst = [[] for i in range(len(cop_models))]
+cop_lst = [[] for _ in range(len(cop_models))]
 
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
@@ -141,6 +141,7 @@ sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
 sim_df = tangent_angles_central(sim_df)
 sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 
+sim_df[['fibre_id','x', 'y', 'z']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
