@@ -112,10 +112,7 @@ def reconstruct(df_clean,df_sim,zz,n_fibers):
 
     sim_fibers[:,:,:] += df_0
 
-    for i in range(len(zz) + 1):
+    for i in range(len(zz) - 1):
         sim_fibers[i+1:,:,:] += np.tan(np.radians(df_sim[i,:,:])) * z_scale
-
-    # for i in range(len(n_fibers)):
-    #     sim_fibers[]
 
     return sim_fibers
