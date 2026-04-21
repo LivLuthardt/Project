@@ -104,14 +104,16 @@ def coordinates(arr, df_clean):
     return df_synthetic
 
 def reconstruct(df_clean,df_sim,zz,n_fibers):
-    sim_fibers = np.zeros((len(zz)+2,n_fibers,2))
+    z_scale = 500 / 128
+
+    sim_fibers = np.zeros((len(zz),n_fibers,2))
 
     df_0 = sort(df_clean,0,'x','y')
 
     sim_fibers[:,:,:] += df_0
 
     for i in range(len(zz) + 1):
-        sim_fibers[i+1:,:,:] += np.tan(np.radians(df_sim[i,:,:]))
+        sim_fibers[i+1:,:,:] += np.tan(np.radians(df_sim[i,:,:])) * z_scale
 
     # for i in range(len(n_fibers)):
     #     sim_fibers[]
