@@ -152,7 +152,7 @@ sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
 sim_df = tangent_angles_central(sim_df)
 sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 
-sim_df[['fibre_id','x', 'y', 'z']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
+sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -209,5 +209,4 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
 
-neighbors(df)
-
+# neighbors(df)
