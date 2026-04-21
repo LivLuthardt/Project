@@ -79,6 +79,11 @@ for z in zz:
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
+""" 
+for cops in cop_lst:
+    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+ """
+
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
@@ -98,7 +103,7 @@ for fibre_id in range(n_fibers):
 
 # Plot synthetic fibers
 
-fig = px.line_3d(sim_fibers_df,
+fig = px.line_3d(sim_df,
                 x="x", y="y", z="z",
                 color="fibre_id",
                 title='Synthetic Fibers')
