@@ -70,14 +70,23 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 # Generate a list with lists inside it
 cop_lst = [[] for i in range(len(cop_models))]
 
-for z in zz:
-    df_z = sort(df,z,par_1,par_2)
-    for i,model in enumerate(cop_models):
-        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
-        cop_lst[i].append(cop)
-    for i in range(len(cop_models)):
-        data_sim_arr[i,0] = data_sim_arr[i,1]
-
+for z in zz:    #Iterate by layer
+    df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
+    for i,model in enumerate(cop_models): #Iterate by copula model
+        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
+        if z > 1:    
+            mega_array = np.concatenate([data_sim_arr[i,z-1], data_sim_arr[i,z]], axis=1) #Array of tilts of previous and current layers
+            #Get Kendall's Tau betweens layers
+            xtau = get_correlation(mega_array[:, [0,2]])
+            ytau = get_correlation(mega_array[:, [1,3]])
+            #Set tilt angles using depth memory
+            xtilt = mega_array[:,0] * xtau + mega_array[:,2] * (1-xtau)
+            ytilt = mega_array[:,1] * ytau + mega_array[:,3] * (1-ytau)
+            data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
+        elif z==1:
+            data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
+        cop_lst[i].append(cop)  #Add the copula to the list
+        
 for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
