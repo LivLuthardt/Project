@@ -14,8 +14,13 @@ scaled_data = scaler.fit_transform(layer0[features])
 
 X= data_clean['z'].to_numpy()
 
-# finding neighbors 
+    # finding neighbors 
 nbrs = NearestNeighbors(n_neighbors=100, algorithm='auto').fit(X)
 
 clust = KNeighborsClassifier(n_neighbors=5, weights='uniform')
 
+all_z = sorted(data_clean['z'].unique())
+
+for z in all_z[1,:]:
+
+    layer = data_clean[data_clean['z'] == z].reset_index(drop=True)
