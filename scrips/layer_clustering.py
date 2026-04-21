@@ -3,6 +3,7 @@ import numpy as np
 from  sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import kneighbors_graph
 from main import data_clean
 import matplotlib as plt
 
@@ -20,6 +21,10 @@ nbrs = NearestNeighbors(n_neighbors=100, algorithm='auto').fit(X)
 
 clust = KNeighborsClassifier(n_neighbors=5, weights='uniform')
 
+test = [[1], [0], [3], [77], [2], [9]]
+Atest = kneighbors_graph(test, 2, mode='connectivity', include_self=True)
+Atest.toarray()
+print(Atest)
 #---------------------------------Stef's try to do this stuff------------------------------
 def eqdqzd(df):
     points = ['x','y']
