@@ -18,7 +18,7 @@ def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
 
 def plot_synthetic_data(x1,x2,mean_arr,df,df_sim,z_values=range(1,128)):
     for z in z_values:
-        df_z = df[df['z_idx'] == z]
+        df_z = df[df['z'] == z]
         x1_df = df_z[[x1]]
         x2_df = df_z[[x2]]
         plt.scatter(x1_df,x2_df,label='Actual Data',alpha=.3,edgecolors=None)

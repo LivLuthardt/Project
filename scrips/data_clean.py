@@ -9,11 +9,9 @@ def data_cleaned(df):
     #Data Cleanup
     df = df_raw.dropna()
 
-    df = df.rename(columns={'z':'z_idx'})
-
     #Z-Scaling
-    Z_SCALE = 500 / (df["z_idx"].max() - df["z_idx"].min())   # µm per slice (n slices → n-1 intervals)
-    df["z"] = df["z_idx"] * Z_SCALE      # This becomes your z-coordinate 
+    Z_SCALE = 500 / (df["z"].max() - df["z"].min())   # µm per slice (n slices → n-1 intervals)
+    df["z"] = df["z"] * Z_SCALE      # This becomes your z-coordinate 
     #3D plot
     """
     fig = px.line_3d(df, x="x", y="y", z="z", color='fibre_id')
