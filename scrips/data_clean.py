@@ -71,43 +71,48 @@ def data_cleaned(df):
     Q3 = max_tilts.quantile(0.75)
     IQR = Q3 - Q1
     lower_bound = Q1 - 1.5 * IQR
-    import pandas as pd 
+import pandas as pd 
 import numpy as np
 import plotly.express as px
 
 def data_cleaned(df):
     #PART 1: CLEANING NAN
     #Data Import
-    df = pd.read_csv('raw_data.csv')
+    df_raw = pd.read_csv('raw_data.csv')
     #Data Cleanup
-    df_clean = df.dropna()
+    df = df_raw.dropna()
 
+    #Z-Scaling
+    Z_SCALE = 500 / (df["z"].max() - df["z"].min())   # µm per slice (n slices → n-1 intervals)
+    df["z"] = df["z"] * Z_SCALE      # This becomes your z-coordinate 
     #3D plot
-    ''' 
+    """
     fig = px.line_3d(df, x="x", y="y", z="z", color='fibre_id')
     fig.update_layout(scene=dict(aspectmode='manual',aspectratio=dict(x=15,y=7.5,z=1)))
     fig.show()
-    '''
+    """
     #PART 2: CLEANING SHORT ONES
 
 
     # remove ones that dont reach the full z length 
     # global end‑points
-    zmin = df_clean['z'].min()
-    zmax = df_clean['z'].max()
-
+    zmin = df['z'].min()
+    zmax = df['z'].max()
     # take z values for each fibre, compute min and max, return new DataFrame indexed by fibre_id
     #agg: computes BOTH min and max
-    z_ext = df_clean.groupby('fibre_id')['z'].agg(['min','max'])
+    z_ext = df.groupby('fibre_id')['z'].agg(['min','max'])
 
     # strict test for full_ids
-    full_ids = z_ext[(z_ext['min'] == zmin) & (z_ext['max'] == zmax)].index
+    tol = 1e-6
+    full_ids = z_ext[
+        (np.abs(z_ext['min'] - zmin) < tol) &
+        (np.abs(z_ext['max'] - zmax) < tol)
+    ].index
     partial_ids = z_ext.index.difference(full_ids)
 
     # make two dataframes
-    df_full = df_clean[df_clean['fibre_id'].isin(full_ids)]
-    df_partial = df_clean[df_clean['fibre_id'].isin(partial_ids)]
-
+    df_full = df[df['fibre_id'].isin(full_ids)]
+    df_partial = df[df['fibre_id'].isin(partial_ids)]
     expected_points = df_full.groupby('fibre_id')['z'].count().max()
 
 # 2. Filter out fibers that have fewer points than the maximum
@@ -116,11 +121,11 @@ def data_cleaned(df):
 
     df_full = df_full[df_full['fibre_id'].isin(continuous_ids)]
 
-    # print(f"{len(full_ids)} fibres span [{zmin},{zmax}]; "
-    #     f"{len(partial_ids)} do not.")
+    #print(f"{len(full_ids)} fibres span [{zmin},{zmax}]; "
+    #    f"{len(partial_ids)} do not.")
 
     # plot both sets
-    '''
+    """
     for dset, title in ((df_full,    "Fibres reaching full z range"),
                         (df_partial, "Fibres not reaching full z range")):
         fig = px.line_3d(dset,
@@ -132,7 +137,7 @@ def data_cleaned(df):
                     aspectratio=dict(x=15, y=7.5, z=1))
         )
         fig.show()
-    '''
+    """
     #PART 3: CLEANING WONKY ONES
     # tilt angle relative to the Z-axis
     # sort.values to compare consecutive points
@@ -169,4 +174,3 @@ def data_cleaned(df):
     print(f" - {len(kinked_ids)} fibres removed")
 
     return df_cleaned
-

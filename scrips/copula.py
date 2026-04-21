@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     # Return tilt angles for a given z-value, first indexing by layer and then by tilt outputs
-    return data[data['z'] == n][[x1,x2]].to_numpy()
+    return data[data['z_idx'] == n][[x1,x2]].to_numpy()
 
 def bivariate_copula(data,n,model=None): #n is number of fibers in a layer
     u = pv.to_pseudo_obs(data)
@@ -54,9 +54,6 @@ def vine_copula(x,n): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
     return data_sim
 
-def gen_copula(df,x1,x2):
-    pass
-    return data_sim,cop
 
 def plot_cop_parameters(cop_lst,ax1,ax2):
     zz = np.arange(len(cop_lst))
@@ -107,14 +104,16 @@ def coordinates(arr, df_clean):
     return df_synthetic
 
 def reconstruct(df_clean,df_sim,zz,n_fibers):
-    sim_fibers = np.zeros((len(zz)+2,n_fibers,2))
+    z_scale = 500 / 128
+
+    sim_fibers = np.zeros((len(zz),n_fibers,2))
 
     df_0 = sort(df_clean,0,'x','y')
 
     sim_fibers[:,:,:] += df_0
 
-    for i in range(len(zz)):
-        sim_fibers[i+1:,:,:] += np.tan(np.radians(df_sim[i,:,:]))
+    for i in range(len(zz) + 1):
+        sim_fibers[i+1:,:,:] += np.tan(np.radians(df_sim[i,:,:])) * z_scale
 
     # for i in range(len(n_fibers)):
     #     sim_fibers[]
