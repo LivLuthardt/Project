@@ -5,8 +5,9 @@ from copula import*
 from clustering import*
 from plot import *
 
-df = pd.read_csv('raw_data.csv')
-data_clean = data_cleaned(df)
+
+raw_df = pd.read_csv('raw_data.csv')
+data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
@@ -68,7 +69,7 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 
 # list to contain copulas 
 # Generate a list with lists inside it
-cop_lst = [[] for i in range(len(cop_models))]
+cop_lst = [[] for _ in range(len(cop_models))]
 
 for z in zz:
     df_z = sort(df,z,par_1,par_2)
@@ -78,15 +79,7 @@ for z in zz:
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
-for cops in cop_lst:
-    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
-
-# print(gaussian_mean)
-# print(student_mean)
-# print(frank_mean)
-
-
-sim_arr = reconstruct(data_clean,data_sim_arr[1],zz,n_fibers)
+sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
 
@@ -105,7 +98,7 @@ for fibre_id in range(n_fibers):
 
 # Plot synthetic fibers
 
-fig = px.line_3d(sim_df,
+fig = px.line_3d(sim_fibers_df,
                 x="x", y="y", z="z",
                 color="fibre_id",
                 title='Synthetic Fibers')
@@ -131,16 +124,17 @@ plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[31])
+plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
-# apparently if we dont do this the objects cause everything to break
+# apparently if we dont do this the objects cause everything to break (making floats)
 sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
 
 sim_df = tangent_angles_central(sim_df)
 sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 
+sim_df[['fibre_id','x', 'y', 'z']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -196,3 +190,6 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
+
+
+
