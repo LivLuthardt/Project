@@ -84,7 +84,7 @@ for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
  """
 
-sim_arr = reconstruct(data_clean,data_sim_arr[0],zz,n_fibers)
+sim_arr = reconstruct(data_clean,data_sim_arr[0],zz_complete,n_fibers)
 
 df_columns = ['fibre_id','z','x','y']
 
