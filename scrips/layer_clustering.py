@@ -1,5 +1,6 @@
 import pandas as pd 
 import numpy as np
+from  sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 from main import data_clean
@@ -15,3 +16,5 @@ X= data_clean['z'].to_numpy()
 
 # finding neighbors 
 nbrs = NearestNeighbors(n_neighbors=100, algorithm='auto').fit(X)
+
+clust = KNeighborsClassifier(n_neighbors=5, weights='uniform')
