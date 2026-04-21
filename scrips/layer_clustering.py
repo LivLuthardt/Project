@@ -21,7 +21,7 @@ nbrs = NearestNeighbors(n_neighbors=100, algorithm='auto').fit(X)
 clust = KNeighborsClassifier(n_neighbors=5, weights='uniform')
 
 #---------------------------------Stef's try to do this stuff------------------------------
-def eqdqzd(df):
+def neighbors(df):
     points = ['x','y']
     subset = df.loc[df['z'] == 0, points]
 

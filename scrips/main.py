@@ -4,13 +4,14 @@ from tangent import*
 from copula import*
 from clustering import*
 from plot import *
+from layer_clustering import *
 
 
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
-
+"""
 #ellipse 
 xtiltAngles, ytiltAngles = [], [] #Init empty lists
 first = True
@@ -79,10 +80,10 @@ for z in zz:
     for i in range(len(cop_models)):
         data_sim_arr[i,0] = data_sim_arr[i,1]
 
-""" 
+
 for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
- """
+
 
 sim_arr = reconstruct(data_clean,data_sim_arr[0],zz_complete,n_fibers)
 
@@ -195,6 +196,6 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
-
-
+"""
+neighbors(df)
 
