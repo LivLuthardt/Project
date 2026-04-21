@@ -82,6 +82,12 @@ def data_cleaned(df):
     #Data Cleanup
     df_clean = df.dropna()
 
+    df_clean = df_clean.rename(columns={'z': 'z_idx'})
+
+    z_scale = 500 / 128
+
+    df_clean['z'] = df_clean['z_idx'] * z_scale
+
     #3D plot
     ''' 
     fig = px.line_3d(df, x="x", y="y", z="z", color='fibre_id')
