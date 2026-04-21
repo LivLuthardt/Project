@@ -72,16 +72,16 @@ cop_lst = [[] for i in range(len(cop_models))]
 
 for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
+    df_zp = sort(df,z-1,par_1,par_2) #Previous layer
     for i,model in enumerate(cop_models): #Iterate by copula model
         data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         if z > 1 and i==1:    
-            #mega_array = np.concatenate([data_sim_arr[i,z-1], data_sim_arr[i,z]], axis=1) #Array of tilts of previous and current layers
-            #Get Kendall's Tau betweens layers
-            xtau = pv.wdm(data_sim_arr[i,z-1][:,0], data_sim_arr[i,z][:,0], 'rho')
-            ytau = pv.wdm(data_sim_arr[i,z-1][:,1], data_sim_arr[i,z][:,1], 'rho')
+            #Get Pearson's r betweens layers
+            xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'cor')
+            ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'cor')
             #Set tilt angles using depth memory
-            xtilt = data_sim_arr[i,z-1][:,0] * xtau + data_sim_arr[i,z][:,0] * (1-xtau)
-            ytilt = data_sim_arr[i,z-1][:,1] * ytau + data_sim_arr[i,z][:,1] * (1-ytau)
+            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0] - df_z[:,0]) * (1-xcor)
+            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1] - df_z[:,1]) * (1-ycor)
             data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
         elif z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer

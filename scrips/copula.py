@@ -54,12 +54,6 @@ def vine_copula(x,n): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
     return data_sim
 
-def get_correlation(x):
-    u = pv.to_pseudo_obs(x)
-    cop = pv.Bicop()
-    cop.select(data=u)
-    return getattr(cop, 'tau')
-
 def gen_copula(df,x1,x2):
     pass
     return data_sim,cop
