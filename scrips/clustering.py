@@ -273,7 +273,7 @@ def plot_fibers(clustered,title):
         line_group='fibre_id',
         title=title
     )
-    #fig_3d.show()
+    fig_3d.show()
     print(f'Plot {title} finished')
 
 def plot_score(df, n_clusters):
@@ -307,7 +307,7 @@ def plot_score(df, n_clusters):
         title="Calinski-Harabasz score vs Number of Clusters for Clustering Methods"
     )
 
-    #fig.show()
+    fig.show()
     fig.write_image(f"CD_score_plot.png")
     print(f'Plot CD finished')
 
@@ -332,7 +332,7 @@ def plot_sse_k(df, n_clusters):
         title="SSE vs Number of Clusters for K-means"
     )
 
-    #fig.show()
+    fig.show()
     fig.write_image(f"SSE_k_means.png")
     print(f'Plot SSE K-means finished')
 
@@ -361,6 +361,6 @@ def plot_aic_bic_gmm(df, n_clusters):
         labels={'Value': 'Criterion Value'}
     )
 
-    #fig.show()
+    fig.show()
     fig.write_image(f"AIC_BIC_GMM.png")
     print(f'Plot AIC BIC GMM finished')

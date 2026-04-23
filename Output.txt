@@ -1,5 +1,5 @@
 Finite Difference Standard Deviations (x, y): (angle_x_deg    1.213568
 dtype: float64, angle_y_deg    1.301479
-dtype: float64)Ellipse Method Standard Deviations (x, y): (EllipseXTilt    1.233904
-dtype: float64, EllipseYTilt    1.342466
+dtype: float64)Ellipse Method Standard Deviations (x, y): (EllipseXTilt    4.759033
+dtype: float64, EllipseYTilt    5.167857
 dtype: float64)
