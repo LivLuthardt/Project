@@ -140,8 +140,8 @@ knn_results = []
 
 for i in range(len(indices)):
     fid_i = int(fibre_ids[i])
-
-    for j in range(1, len(indices[i])):   # skip self
+    #Ensures no branches are created between a node and itself
+    for j in range(1, len(indices[i])):   
         neighbor_idx = indices[i, j]
         fid_j = int(fibre_ids[neighbor_idx])
         score = distances[i, j]
