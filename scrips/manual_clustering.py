@@ -9,6 +9,8 @@ from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
+
+
 """Ïmport data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
@@ -21,6 +23,33 @@ features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
 scaled_data = np.column_stack((layer_0['fibre_id'].values, scaled_data))
+
+
+""" --- Optimal n_neighbors (Elbow Method) --- """
+X_eval = scaled_data[:, 1:] # Exclude fibre_id
+
+avg_distances = []
+k_range = range(1, 50) 
+
+for k in k_range:
+    knn_eval = NearestNeighbors(n_neighbors=k)
+    knn_eval.fit(X_eval)
+    distances, _ = knn_eval.kneighbors(X_eval)
+    avg_distances.append(np.mean(distances[:, -1]))
+
+plt.figure(figsize=(10,6))
+plt.plot(k_range, avg_distances, color='blue', linestyle='dashed', marker='o', markerfacecolor='red', markersize=6)
+plt.title('Average K-Distance vs. K Value (Find the Elbow)')
+plt.xlabel('K (Number of Neighbors)')
+plt.ylabel('Average Distance to K-th Neighbor')
+plt.show()
+
+from kneed import KneeLocator
+
+kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
+optimal_k = kneedle.knee
+print(f"The optimal number of neighbors is: {optimal_k}")
+""" ------------------------------------------ """
 
 """Neighborhood rule"""
 def good_neighbor(scaled_data):
