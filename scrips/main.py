@@ -95,34 +95,7 @@ for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
 
-sim_arr = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
-
-stacked_arr = np.vstack(sim_arr)
-# Get array like 0,1,2,3,...,n_fibers,0,1,2,3,...,n_fibers
-fibre_id_arr = np.tile(np.arange(n_fibers),len(sim_arr))
-zz_arr = np.repeat(zz_complete,n_fibers)
-
-df_columns = ['fibre_id','z_idx','x','y']
-
-sim_df = pd.DataFrame(columns=df_columns)
-sim_df['x'] = stacked_arr[:,0]
-sim_df['y'] = stacked_arr[:,1]
-sim_df['z_idx'] = zz_arr
-sim_df['fibre_id'] = fibre_id_arr
-sim_df['z'] = sim_df['z_idx'] * (500 / 128)
-
-""" 
-for fibre_id in range(n_fibers):
-    new_rows = np.empty((129,4),dtype=object)
-
-    new_rows[:,-2:] = np.round(sim_arr[:,fibre_id,:],4)
-    new_rows[:,0] = fibre_id
-    new_rows[:,1] = zz_complete
-
-    new_df = pd.DataFrame(new_rows, columns=df_columns)
-
-    sim_df = pd.concat([sim_df, new_df],ignore_index=True)
- """
+sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 
 # Plot the first 100 synthetic fibers (quicker plotting)
 fig = px.line_3d(sim_df[sim_df['fibre_id'] < 100],
