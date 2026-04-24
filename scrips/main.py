@@ -95,12 +95,23 @@ for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
 
-sim_arr = reconstruct(data_clean,data_sim_arr[0],zz_complete,n_fibers)
+sim_arr = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
+
+stacked_arr = np.vstack(sim_arr)
+# Get array like 0,1,2,3,...,n_fibers,0,1,2,3,...,n_fibers
+fibre_id_arr = np.tile(np.arange(n_fibers),len(sim_arr))
+zz_arr = np.repeat(zz_complete,n_fibers)
 
 df_columns = ['fibre_id','z_idx','x','y']
 
 sim_df = pd.DataFrame(columns=df_columns)
+sim_df['x'] = stacked_arr[:,0]
+sim_df['y'] = stacked_arr[:,1]
+sim_df['z_idx'] = zz_arr
+sim_df['fibre_id'] = fibre_id_arr
+sim_df['z'] = sim_df['z_idx'] * (500 / 128)
 
+""" 
 for fibre_id in range(n_fibers):
     new_rows = np.empty((129,4),dtype=object)
 
@@ -111,22 +122,20 @@ for fibre_id in range(n_fibers):
     new_df = pd.DataFrame(new_rows, columns=df_columns)
 
     sim_df = pd.concat([sim_df, new_df],ignore_index=True)
+ """
 
-sim_df['z'] = sim_df['z_idx'] * (500 / 128)
-
-# Plot synthetic fibers
-
-fig = px.line_3d(sim_df,
+# Plot the first 100 synthetic fibers (quicker plotting)
+fig = px.line_3d(sim_df[sim_df['fibre_id'] < 100],
                 x="x", y="y", z="z",
                 color="fibre_id",
-                title='Synthetic Fibers')
+                title=f'Synthetic Fibers')
 fig.update_layout(
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=15, y=7.5, z=1))
 )
 fig.show()
 
-
+"""
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
 
@@ -209,4 +218,5 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
 
-# neighbors(df)
+# neighbors(df) 
+"""
