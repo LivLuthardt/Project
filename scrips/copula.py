@@ -93,20 +93,19 @@ def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
     """
     z_scale = 500 / 128
 
-    # Create empty array to accomodate new fivers
-    sim_fibers = np.zeros((len(zz_complete),n_fibers,2))
-
     # Take base layer of measured fibers
     df_0 = sort(df_clean,0,'x','y')
 
-    # Add starting points to each corresponding fiber
-    sim_fibers[:,:,:] += df_0
+    # Broadcast the starting points in an array which has the same shape as the angles array
+    # This makes it possible to use np operations to add the angles 
+    sim_fibers = np.broadcast_to(df_0,(len(zz_complete),n_fibers,2)).copy()
 
-    # Cummulatively sum the dx and dy values by converting angles to distance
-    # TODO this could probably be done with np.cumsum
-    for i in range(len(zz_complete) - 1):
-        sim_fibers[i+1:,:,:] += np.tan(np.radians(df_sim[i,:,:])) * z_scale
 
+    # Cummulatively sum the dx and dy values anb convert angles to distance
+    sim_fibers[1:] += np.cumsum(np.tan(np.radians(df_sim[1:]))*z_scale,axis=0)
+
+
+    # Stack the arrays to get data back in original shape
     stacked_sim_fibers = np.vstack(sim_fibers)
     
     # Create array in the format 0,1,2,...,n_fibers,0,1,2,...,n_fibers to repeat as many times as there are layers
