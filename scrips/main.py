@@ -90,8 +90,9 @@ for z in zz:    #Iterate by layer
             xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'cor')
             ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'cor')
             #Set tilt angles using depth memory
-            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5
-            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5
+            xe, ye = -1 + (xcor + (1-xcor**2) ** 0.5), -1 + (ycor + (1-ycor**2) ** 0.5)
+            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5 - mean_arr[z-1, 0] * xe
+            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5 - mean_arr[z-1, 1] * ye
             data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
         elif z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
