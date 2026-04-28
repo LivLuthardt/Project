@@ -87,7 +87,7 @@ for z in zz:    #Iterate by layer
         elif z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         cop_lst[i].append(cop)  #Add the copula to the list
-
+    df_zp = df_z
 
 
 for cops in cop_lst:
