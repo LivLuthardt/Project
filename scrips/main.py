@@ -6,7 +6,6 @@ from clustering import*
 from plot import *
 from layer_clustering import *
 
-
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
@@ -134,7 +133,8 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 # Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
-delaunay_triangulation(df)
+delaunay_fig = delaunay_triangulation(df)
+delaunay_fig.savefig(fname='delaunay')
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
