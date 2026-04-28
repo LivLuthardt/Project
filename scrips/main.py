@@ -76,9 +76,18 @@ for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
     for i,model in enumerate(cop_models): #Iterate by copula model
         data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
-        data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
+        if z > 1 and i==1:    
+            #Get Pearson's r betweens layers
+            xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'cor')
+            ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'cor')
+            #Set tilt angles using depth memory
+            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5
+            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5
+            data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
+        elif z==1:
+            data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         cop_lst[i].append(cop)  #Add the copula to the list
-
+    df_zp = df_z
 
 
 for cops in cop_lst:
@@ -90,14 +99,14 @@ sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 fig = px.line_3d(sim_df[sim_df['fibre_id'] < 300],
                 x="x", y="y", z="z",
                 color="fibre_id",
-                title='Synthetic Fibers')
+                title=f'Synthetic Fibers')
 fig.update_layout(
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=15, y=7.5, z=1))
 )
 fig.show()
 
-
+"""
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
 
@@ -183,4 +192,5 @@ ks_x_list, ks_y_list = ks_by_z_lists(df)
 print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
 
-# neighbors(df)
+# neighbors(df) 
+"""
