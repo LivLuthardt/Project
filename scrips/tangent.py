@@ -65,3 +65,27 @@ def ks_global(df):
     ks_y = ks_2samp(y_finite, y_ellipse)
 
     return ks_x, ks_y
+
+
+def tangent_angles_backwards(df_cleaned):
+    # Using backward difference method: (current - prev)
+    df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
+
+    x_prev = df.groupby('fibre_id')['x'].shift(1)
+    y_prev = df.groupby('fibre_id')['y'].shift(1)
+    z_prev = df.groupby('fibre_id')['z'].shift(1)
+
+    df['dx'] = df['x'] - x_prev
+    df['dy'] = df['y'] - y_prev
+    df['dz'] = df['z'] - z_prev
+
+    df['angle_x_deg'] = np.degrees(np.arctan2(df['dx'], df['dz']))
+    df['angle_y_deg'] = np.degrees(np.arctan2(df['dy'], df['dz']))
+
+    lateral_dist = np.sqrt(df['dx']**2 + df['dy']**2)
+    df['tilt_angle_deg'] = np.degrees(np.arctan2(lateral_dist, df['dz']))
+
+    cols_to_fill = ['angle_x_deg', 'angle_y_deg', 'tilt_angle_deg']
+    df[cols_to_fill] = df.groupby('fibre_id')[cols_to_fill].bfill().ffill()
+
+    return df
