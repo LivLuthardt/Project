@@ -66,7 +66,7 @@ if __name__ == "__main__":
     print(eTiltAngles([0, 0, 0], [1, 0, 1]))
 
 
-def plotellispe(df,z):
+def plotellipse(df,z):
 
     df = df[df["z_idx"] == z]
     

@@ -37,7 +37,7 @@ for r in df.itertuples(index=True):
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 #Ellipse plot
-plotellispe(df,120)
+plotellipse(df,120)
 #Save 1D histograms
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="XTiltHist.png")
