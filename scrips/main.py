@@ -144,8 +144,8 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 # Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
-delaunay_fig = delaunay_triangulation(df)
-plt.savefig(fname='delaunay')
+#delaunay_fig = delaunay_triangulation(df)
+#plt.savefig(fname='delaunay')
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -196,11 +196,6 @@ df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 # plot_score(fiber_sum, n_clusters)
 # plot_sse_k(fiber_sum, n_clusters)
 # plot_aic_bic_gmm(fiber_sum, n_clusters)
-
-ks_x_list, ks_y_list = ks_by_z_lists(df)
-
-print("KS X:", ks_x_list)
-print("KS Y:", ks_y_list)
 
 # neighbors(df) 
 
