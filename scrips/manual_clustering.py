@@ -9,6 +9,7 @@ from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
+#shsgs
 
 
 """Ïmport data and manipulate dataframe"""
@@ -65,7 +66,7 @@ def good_neighbor(scaled_data):
 
             #Distance metric for knn
             weight_d = 1
-            weight_a = 1
+            weight_a = 15
             D_distance = np.sqrt(delta_x_norm**2 + delta_y_norm**2)
             D_angle = np.sqrt(delta_anglex_norm**2 + delta_angley_norm**2)
             D_knn = weight_a * D_angle + weight_d * D_distance
@@ -86,7 +87,7 @@ for item in layer_0_results:
 mean_scores_0 = np.mean(scores_0)
 std_scores_0 = np.std(scores_0)
 #Threshold
-n_std = -1
+n_std = -1.0
 threshold = mean_scores_0 + n_std * std_scores_0
 # Plot histogram
 plt.hist(scores_0, bins=100)
@@ -129,8 +130,9 @@ for fibre_d_i, fibre_d_j, score in results:
     D[i, j] = score
     D[j, i] = score
 
+'''
 # apply kNN on your precomputed score matrix
-knn = NearestNeighbors(n_neighbors=9, metric='precomputed')
+knn = NearestNeighbors(n_neighbors= optimal_k, metric='precomputed')
 knn.fit(D)
 
 distances, indices = knn.kneighbors(D)
@@ -140,8 +142,8 @@ knn_results = []
 
 for i in range(len(indices)):
     fid_i = int(fibre_ids[i])
-    #Ensures no branches are created between a node and itself
-    for j in range(1, len(indices[i])):   
+
+    for j in range(1, len(indices[i])):   # skip self
         neighbor_idx = indices[i, j]
         fid_j = int(fibre_ids[neighbor_idx])
         score = distances[i, j]
@@ -180,3 +182,31 @@ pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in r
 
 nx.draw(G, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.show()
+'''
+# apply DBSCAN using your precomputed score matrix
+dbscan = DBSCAN(eps=threshold*0.2, min_samples=12, metric='precomputed')
+labels = dbscan.fit_predict(D)
+
+# Organize clusters
+clusters = {}
+for i, label in enumerate(labels):
+    if label == -1:
+        continue # Ignore noise
+    fid = int(fibre_ids[i])
+    if label not in clusters:
+        clusters[label] = []
+    clusters[label].append(fid)
+
+print(f"Amount of clusters: {len(clusters)}")
+print("Cluster sizes:", [len(c) for c in clusters.values()])
+
+# plot graph colored by cluster
+plt.figure(figsize=(10,6))
+scatter = plt.scatter(scaled_data[:, 1], scaled_data[:, 2], c=labels, cmap='tab20', s=10)
+plt.title("Fiber Clusters (DBSCAN)")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.show()
+
+
+
