@@ -5,6 +5,7 @@ from copula import*
 from clustering import*
 from plot import *
 from layer_clustering import *
+import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
