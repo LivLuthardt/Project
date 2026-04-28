@@ -11,7 +11,6 @@ from sklearn.cluster import DBSCAN
 
 #shsgs
 
-
 """Ïmport data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
@@ -46,91 +45,124 @@ plt.ylabel('Average Distance to K-th Neighbor')
 plt.show()
 
 from kneed import KneeLocator
-
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
 optimal_k = kneedle.knee
 print(f"The optimal number of neighbors is: {optimal_k}")
 """ ------------------------------------------ """
 
+
 """Neighborhood rule"""
-def good_neighbor(scaled_data):
+def good_neighbor_distance(scaled_data):
     #Determine distance metric and store as list
-    results = []
+    results_d = []
     for i in range(len(scaled_data)):
         for j in range(i+1, len(scaled_data)):
-            #Difference in angles and distances
+            #Difference in distances
             delta_x_norm = scaled_data[i, 1] - scaled_data[j, 1]
             delta_y_norm = scaled_data[i, 2] - scaled_data[j, 2]
-            delta_anglex_norm = scaled_data[i, 3] - scaled_data[j, 3]
-            delta_angley_norm = scaled_data[i, 4] - scaled_data[j, 4]
-
-            #Distance metric for knn
-            weight_d = 1
-            weight_a = 15
+            
+            #Distance metric for distance
             D_distance = np.sqrt(delta_x_norm**2 + delta_y_norm**2)
-            D_angle = np.sqrt(delta_anglex_norm**2 + delta_angley_norm**2)
-            D_knn = weight_a * D_angle + weight_d * D_distance
 
             #Store fiber metric score with respective fibre id's
             fibre_id_i = scaled_data[i, 0]
             fibre_id_j = scaled_data[j, 0]
 
-            results.append((fibre_id_i, fibre_id_j, D_knn))
+            results_d.append((fibre_id_i, fibre_id_j, D_distance))
 
-    return results
+    return results_d
+
+def good_neighbor_angle(scaled_data):
+    results_a = []
+    for i in range(len(scaled_data)):
+            for j in range(i+1, len(scaled_data)):
+                #Difference in angles
+                delta_anglex_norm = np.abs(scaled_data[i, 3] - scaled_data[j, 3])
+                delta_angley_norm = np.abs(scaled_data[i, 4] - scaled_data[j, 4])
+
+                #Distance metric for angle
+                D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
+
+                #Store fiber metric score with respective fibre id's
+                fibre_id_i = scaled_data[i, 0]
+                fibre_id_j = scaled_data[j, 0]
+
+                results_a.append((fibre_id_i, fibre_id_j, D_angle))
+
+    return results_a
+
 
 """Plot histogram and determine threshold"""
-scores_0 = []
-layer_0_results = good_neighbor(scaled_data)
-for item in layer_0_results:
-    scores_0.append(item[2])
-mean_scores_0 = np.mean(scores_0)
-std_scores_0 = np.std(scores_0)
+scores_0_d = []
+layer_0_results_d = good_neighbor_distance(scaled_data)
+for item in layer_0_results_d:
+    scores_0_d.append(item[2])
+mean_scores_0_d = np.mean(scores_0_d)
+std_scores_0_d = np.std(scores_0_d)
 #Threshold
-n_std = -1.0
-threshold = mean_scores_0 + n_std * std_scores_0
+n_std_d = -1
+threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
 # Plot histogram
-plt.hist(scores_0, bins=100)
-plt.axvline(threshold)  
+plt.hist(scores_0_d, bins=100)
+plt.axvline(threshold_distance) 
+plt.title("Distance Histogram") 
 plt.show()
-print("Mean:", mean_scores_0)
-print("Std:", std_scores_0)
-print("Threshold", threshold)
+print("Mean_Distance:", mean_scores_0_d)
+print("Std_Distance:", std_scores_0_d)
+print("Threshold_Distance", threshold_distance)
 
-   
-"""Initialise knn on the initial layer (layer 0) and plot the graph knn_graph"""
-"""
-X = scaled_data[:, 1:]
-A = kneighbors_graph(X, n_neighbors=5, mode='distance')
-A = A.minimum(A.T)
-A.data[A.data > threshold] = 0
-A.eliminate_zeros()
-G = nx.from_scipy_sparse_array(A)
-pos = {i: (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
-nx.draw(G, pos, node_size=5, width=0.1, alpha=0.3)
+scores_0_a = []
+layer_0_results_a = good_neighbor_angle(scaled_data)
+for item in layer_0_results_a:
+    scores_0_a.append(item[2])
+mean_scores_0_a = np.mean(scores_0_a)
+std_scores_0_a = np.std(scores_0_a)
+#Threshold
+n_std_a = -1
+threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
+# Plot histogram
+plt.hist(scores_0_a, bins=100)
+plt.axvline(threshold_angle)  
+plt.title("Angle Histogram")
 plt.show()
-print(nx.number_connected_components(G))
-"""
+print("Mean_Angle:", mean_scores_0_a)
+print("Std_Angle:", std_scores_0_a)
+print("Threshold_Angle", threshold_angle)
+
 
 """Initialise knn and deteremine clusters + graph from this"""
-results = good_neighbor(scaled_data)
+results_distance = good_neighbor_distance(scaled_data)
+results_angle = good_neighbor_angle(scaled_data)
 
 #Map fibre_id to row index
 fibre_ids = scaled_data[:, 0].astype(int)
 id_to_idx = {fid: i for i, fid in enumerate(fibre_ids)}
 
-#Build distance matrix
-n = len(fibre_ids)
-D = np.full((n, n), np.inf)
-np.fill_diagonal(D, 0)
+#Build distance matrices
+n_d = len(fibre_ids)
+D_d = np.full((n_d, n_d), np.inf)
+np.fill_diagonal(D_d, 0)
 
-for fibre_d_i, fibre_d_j, score in results:
+n_a = len(fibre_ids)
+D_a = np.full((n_a, n_a), np.inf)
+np.fill_diagonal(D_a, 0)
+
+for fibre_d_i, fibre_d_j, score in results_distance:
     i = id_to_idx[int(fibre_d_i)]
     j = id_to_idx[int(fibre_d_j)]
-    D[i, j] = score
-    D[j, i] = score
+    D_d[i, j] = score
+    D_d[j, i] = score
 
-'''
+for fibre_d_i, fibre_d_j, score in results_angle:
+    ii = id_to_idx[int(fibre_d_i)]
+    jj = id_to_idx[int(fibre_d_j)]
+    D_a[ii, jj] = score
+    D_a[jj, ii] = score
+
+print(D_d)
+print(D_a)
+
+"""    
 # apply kNN on your precomputed score matrix
 knn = NearestNeighbors(n_neighbors= optimal_k, metric='precomputed')
 knn.fit(D)
@@ -181,32 +213,5 @@ for i, cluster in enumerate(clusters, start=1):
 pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
 
 nx.draw(G, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
-plt.show()
-'''
-# apply DBSCAN using your precomputed score matrix
-dbscan = DBSCAN(eps=threshold*0.2, min_samples=12, metric='precomputed')
-labels = dbscan.fit_predict(D)
-
-# Organize clusters
-clusters = {}
-for i, label in enumerate(labels):
-    if label == -1:
-        continue # Ignore noise
-    fid = int(fibre_ids[i])
-    if label not in clusters:
-        clusters[label] = []
-    clusters[label].append(fid)
-
-print(f"Amount of clusters: {len(clusters)}")
-print("Cluster sizes:", [len(c) for c in clusters.values()])
-
-# plot graph colored by cluster
-plt.figure(figsize=(10,6))
-scatter = plt.scatter(scaled_data[:, 1], scaled_data[:, 2], c=labels, cmap='tab20', s=10)
-plt.title("Fiber Clusters (DBSCAN)")
-plt.xlabel("X")
-plt.ylabel("Y")
-plt.show()
-
-
+plt.show()"""
 
