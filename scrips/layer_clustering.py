@@ -3,7 +3,7 @@ import numpy as np
 from  sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from scipy.spatial import Delaunay
 
 # layer0 = data_clean[data_clean['z'] == 0]
