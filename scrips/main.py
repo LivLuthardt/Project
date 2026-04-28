@@ -203,3 +203,13 @@ print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
 
 # neighbors(df) 
+
+ks_x, ks_y = ks_global(df)
+ks_x_stat = ks_x.statistic
+ks_x_p = ks_x.pvalue
+ks_y_stat = ks_y.statistic
+ks_y_p = ks_y.pvalue
+
+with open("Output.txt", "a") as text_file:
+    text_file.write(f"\nKS Test (X): statistic={ks_x.statistic:.4f}, p={ks_x.pvalue:.4e}\n")
+    text_file.write(f"KS Test (Y): statistic={ks_y.statistic:.4f}, p={ks_y.pvalue:.4e}\n")
