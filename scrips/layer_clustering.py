@@ -5,6 +5,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 from main import data_clean
 import matplotlib as plt
+from scipy import Delaunay
 
 layer0 = data_clean[data_clean['z'] == 0]
 layer0 = layer0.reset_index(drop=True)
@@ -29,6 +30,13 @@ all_z = sorted(data_clean['z'].unique())
 for z in all_z[1,:]:
 
     layer = data_clean[data_clean['z'] == z].reset_index(drop=True)
+
+#---------------------------------Delauney-------------------------------------------------
+tri = Delaunay(X)
+plt.triplot(X[:,0], X[:,1], tri.simplices)
+plt.plot(X[:,0], X[:,1], 'o')
+plt.show()
+
     
 #---------------------------------Stef's try to do this stuff------------------------------
 def eqdqzd(df):
