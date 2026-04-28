@@ -74,19 +74,9 @@ cop_lst = [[] for _ in range(len(cop_models))]
 
 for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
-    df_zp = sort(df,z-1,par_1,par_2) #Previous layer
     for i,model in enumerate(cop_models): #Iterate by copula model
         data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
-        if z > 1 and i==1:    
-            #Get Pearson's r betweens layers
-            xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'cor')
-            ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'cor')
-            #Set tilt angles using depth memory
-            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0] - df_z[:,0]) * (1-xcor)
-            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1] - df_z[:,1]) * (1-ycor)
-            data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
-        elif z==1:
-            data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
+        data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         cop_lst[i].append(cop)  #Add the copula to the list
 
 
@@ -94,29 +84,10 @@ for z in zz:    #Iterate by layer
 for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
-
-sim_arr = reconstruct(data_clean,data_sim_arr[0],zz_complete,n_fibers)
-
-df_columns = ['fibre_id','z_idx','x','y']
-
-sim_df = pd.DataFrame(columns=df_columns)
-
-for fibre_id in range(n_fibers):
-    new_rows = np.empty((129,4),dtype=object)
-
-    new_rows[:,-2:] = np.round(sim_arr[:,fibre_id,:],4)
-    new_rows[:,0] = fibre_id
-    new_rows[:,1] = zz_complete
-
-    new_df = pd.DataFrame(new_rows, columns=df_columns)
-
-    sim_df = pd.concat([sim_df, new_df],ignore_index=True)
-
-sim_df['z'] = sim_df['z_idx'] * (500 / 128)
+sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 
 # Plot synthetic fibers
-
-fig = px.line_3d(sim_df,
+fig = px.line_3d(sim_df[sim_df['fibre_id'] < 300],
                 x="x", y="y", z="z",
                 color="fibre_id",
                 title='Synthetic Fibers')
@@ -152,6 +123,7 @@ sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
 sim_df = tangent_angles_central(sim_df)
 sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 
+# Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #PCA method figure

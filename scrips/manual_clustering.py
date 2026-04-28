@@ -86,7 +86,7 @@ for item in layer_0_results:
 mean_scores_0 = np.mean(scores_0)
 std_scores_0 = np.std(scores_0)
 #Threshold
-n_std = 0
+n_std = -1
 threshold = mean_scores_0 + n_std * std_scores_0
 # Plot histogram
 plt.hist(scores_0, bins=100)
@@ -130,7 +130,7 @@ for fibre_d_i, fibre_d_j, score in results:
     D[j, i] = score
 
 # apply kNN on your precomputed score matrix
-knn = NearestNeighbors(n_neighbors=100, metric='precomputed')
+knn = NearestNeighbors(n_neighbors=9, metric='precomputed')
 knn.fit(D)
 
 distances, indices = knn.kneighbors(D)
@@ -140,8 +140,8 @@ knn_results = []
 
 for i in range(len(indices)):
     fid_i = int(fibre_ids[i])
-
-    for j in range(1, len(indices[i])):   # skip self
+    #Ensures no branches are created between a node and itself
+    for j in range(1, len(indices[i])):   
         neighbor_idx = indices[i, j]
         fid_j = int(fibre_ids[neighbor_idx])
         score = distances[i, j]
