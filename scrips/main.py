@@ -38,9 +38,18 @@ plt.savefig(fname="FiniteTiltHex.png")
 # Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
+
+fmean_x = df["angle_x_deg"].mean()
+fmean_y = df["angle_y_deg"].mean()
+
+emean_x = df["EllipseXTilt"].mean()
+emean_y = df["EllipseYTilt"].mean()
 with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
+
+    text_file.write(f"Finite Difference Mean (x, y): {fmean_x}, {fmean_y}\n")
+    text_file.write(f"Ellipse Method Mean (x, y): {emean_x}, {emean_y}\n")
 
 #copulas
 zz = np.arange(1,128)
@@ -121,7 +130,7 @@ plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
+plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30,60])
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
