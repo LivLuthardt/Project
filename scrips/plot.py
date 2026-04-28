@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
-        df_z = df[df['z'] == z]
+        df_z = df[df['z_idx'] == z]
         x1_df = df_z[[x1]]
         x2_df = df_z[[x2]]
         plt.subplot(1,3,1)
@@ -18,7 +18,8 @@ def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
 
 def plot_synthetic_data(x1,x2,mean_arr,df,df_sim,z_values=range(1,128)):
     for z in z_values:
-        df_z = df[df['z'] == z]
+        plt.close('all')
+        df_z = df[df['z_idx'] == z]
         x1_df = df_z[[x1]]
         x2_df = df_z[[x2]]
         plt.scatter(x1_df,x2_df,label='Actual Data',alpha=.3,edgecolors=None)
@@ -37,28 +38,28 @@ def plot_synthetic_data(x1,x2,mean_arr,df,df_sim,z_values=range(1,128)):
         plt.xlabel(f'{x1}')
         plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
         plt.title('Actual Data')
-        plt.xlim(-20,20)
+        plt.xlim(-10,10)
 
         plt.subplot(2,2,2)
         plt.hist(x2_df,label='Actual Data',bins=150)
         plt.xlabel(f'{x2}')
         plt.title('Actual Data')
         plt.axvline(mean_arr[z,1], color='k', linestyle='dashed', linewidth=1)
-        plt.xlim(-20,20)
+        plt.xlim(-10,10)
 
         plt.subplot(2,2,3)
         plt.hist(df_sim[z,:,0],label='Synthetic',bins=150)
         plt.xlabel(f'{x1}')
         plt.title('Synthetic')
         plt.axvline(df_sim[z,:,0].mean(), color='k', linestyle='dashed', linewidth=1)
-        plt.xlim(-20,20)
+        plt.xlim(-10,10)
 
         plt.subplot(2,2,4)
         plt.hist(df_sim[z,:,1],label='Synthetic',bins=150)
         plt.xlabel(f'{x2}')
         plt.title('Synthetic')
         plt.axvline(df_sim[z,:,1].mean(), color='k', linestyle='dashed', linewidth=1)
-        plt.xlim(-20,20)
+        plt.xlim(-10,10)
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)

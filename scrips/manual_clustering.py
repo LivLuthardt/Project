@@ -9,6 +9,7 @@ from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
+#shsgs
 
 """Ïmport data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
@@ -163,7 +164,7 @@ print(D_a)
 
 """    
 # apply kNN on your precomputed score matrix
-knn = NearestNeighbors(n_neighbors=9, metric='precomputed')
+knn = NearestNeighbors(n_neighbors= optimal_k, metric='precomputed')
 knn.fit(D)
 
 distances, indices = knn.kneighbors(D)
@@ -173,8 +174,8 @@ knn_results = []
 
 for i in range(len(indices)):
     fid_i = int(fibre_ids[i])
-    #Ensures no branches are created between a node and itself
-    for j in range(1, len(indices[i])):   
+
+    for j in range(1, len(indices[i])):   # skip self
         neighbor_idx = indices[i, j]
         fid_j = int(fibre_ids[neighbor_idx])
         score = distances[i, j]
