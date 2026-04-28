@@ -32,15 +32,12 @@ from scipy.spatial import Delaunay
 
 #---------------------------------Delauney-------------------------------------------------
 def delaunay_triangulation(df):
-
-    subset = df[df['z_idx'] == 1]
-    points = subset[['x', 'y']].to_numpy()
+    points = df[['z'==0, 'tilt_angle_deg'==0]]
+    points = points.to_numpy()
     tri = Delaunay(points)
-    
-    plt.figure() 
-    plt.triplot(points[:,0], points[:,1], tri.simplices)
-    plt.plot(points[:,0], points[:,1], 'o', markersize=2)
-    plt.show()
+    plot = plt.triplot(points[:,0], points[:,1], tri.simplices)
+    plot = plt.plot(points[:,0], points[:,1], 'o')
+    return plot
 
     
 #---------------------------------Stef's try to do this stuff------------------------------

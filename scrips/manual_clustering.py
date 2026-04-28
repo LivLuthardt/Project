@@ -77,11 +77,11 @@ def good_neighbor_angle(scaled_data):
     for i in range(len(scaled_data)):
             for j in range(i+1, len(scaled_data)):
                 #Difference in angles
-                delta_anglex_norm = scaled_data[i, 3] - scaled_data[j, 3]
-                delta_angley_norm = scaled_data[i, 4] - scaled_data[j, 4]
+                delta_anglex_norm = np.abs(scaled_data[i, 3] - scaled_data[j, 3])
+                delta_angley_norm = np.abs(scaled_data[i, 4] - scaled_data[j, 4])
 
                 #Distance metric for angle
-                D_angle = np.abs(delta_anglex_norm - delta_angley_norm)
+                D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
 
                 #Store fiber metric score with respective fibre id's
                 fibre_id_i = scaled_data[i, 0]
@@ -156,8 +156,8 @@ for fibre_d_i, fibre_d_j, score in results_distance:
 for fibre_d_i, fibre_d_j, score in results_angle:
     ii = id_to_idx[int(fibre_d_i)]
     jj = id_to_idx[int(fibre_d_j)]
-    D_a[i, j] = score
-    D_a[j, i] = score
+    D_a[ii, jj] = score
+    D_a[jj, ii] = score
 
 print(D_d)
 print(D_a)
