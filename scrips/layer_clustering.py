@@ -32,9 +32,8 @@ from scipy.spatial import Delaunay
 
 #---------------------------------Delauney-------------------------------------------------
 def delaunay_triangulation(df):
-
-    subset = df[df['z_idx'] == 1]
-    points = subset[['x', 'y']].to_numpy()
+    points = df[['z'==0, 'tilt_angle_deg'==0]]
+    points = points.to_numpy()
     tri = Delaunay(points)
     neighbours = []
     for pindex in range(len(points)):
@@ -65,3 +64,7 @@ def eqdqzd(df):
     plt.title('K-distance Graph for eps selection')
     plt.show()
 
+
+    plot = plt.triplot(points[:,0], points[:,1], tri.simplices)
+    plot = plt.plot(points[:,0], points[:,1], 'o')
+    return plot
