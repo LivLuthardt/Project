@@ -35,6 +35,34 @@ def delaunay_triangulation(df):
     points = df[['z'==0, 'tilt_angle_deg'==0]]
     points = points.to_numpy()
     tri = Delaunay(points)
-    plot = plt.triplot(points[:,0], points[:,1], tri.simplices)
-    plot = plt.plot(points[:,0], points[:,1], 'o')
-    return plot
+    neighbours = []
+    for pindex in range(len(points)):
+        neighbours.append(tri.vertex_neighbor_vertices[1][tri.vertex_neighbor_vertices[0][pindex]:tri.vertex_neighbor_vertices[0][pindex+1]])
+
+    print(neighbours)
+    plt.figure() 
+    plt.triplot(points[:,0], points[:,1], tri.simplices)
+    plt.plot(points[:,0], points[:,1], 'o', markersize=2)
+    plt.show()
+
+    
+#---------------------------------Stef's try to do this stuff------------------------------
+def eqdqzd(df):
+    points = ['x','y']
+    subset = df.loc[df['z'] == 0, points]
+
+    nbrs = NearestNeighbors(n_neighbors=2).fit(subset)
+    distances,ids = nbrs.kneighbors(subset)
+
+    distances = distances[:,1] # Distance to nearest neighbor (excluding self)
+    print(distances)
+
+    distances_sorted = sorted(distances)
+    plt.plot(distances_sorted)
+    plt.xlabel('Points sorted by distance to nearest neighbor')
+    plt.ylabel('Distance to nearest neighbor')
+    plt.title('K-distance Graph for eps selection')
+    plt.show()
+
+
+    
