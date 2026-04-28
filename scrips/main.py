@@ -106,7 +106,6 @@ fig.update_layout(
 )
 fig.show()
 
-"""
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
 
@@ -193,4 +192,3 @@ print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
 
 # neighbors(df) 
-"""
