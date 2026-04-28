@@ -13,18 +13,31 @@ df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
 #ellipse 
-xtiltAngles, ytiltAngles = [], [] #Init empty lists
+xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = [], [], [], [], [] #Init empty lists
 first = True
 for r in df.itertuples(index=True):
     x2 = (r[3], r[4], r[2]) #Current fiber point
-    if first: tilt = (0, 0) #Can't compute tilt from a single point
-    else:  tilt = eTiltAngles(x1, x2) #Pass the past and current points
+    if first: 
+        x1 = x2
+        tilt = (0, 0) #Can't compute tilt from a single point
+        theta = 0 #same for axes and angles
+        a, b = 0,0
+    else:  
+        tilt = eTiltAngles(x1, x2) #Pass the past and current points
+        theta = ellipseAngle(x1, x2)
+        a, b = getEllipse(x1, x2)
+
     xtiltAngles.append(tilt[0])
     ytiltAngles.append(tilt[1])
+    xytiltAngles.append(theta)
+    alist.append(a)
+    blist.append(b)
     x1 = x2 #Set the current point to the past point
     first = False
-df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles) #Add the tilt angles as a df column
+df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
+#Ellipse plot
+plotellipse(df,120)
 #Save 1D histograms
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="XTiltHist.png")
