@@ -2,7 +2,7 @@ import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.stats import chisquare
+
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     """  
@@ -123,5 +123,3 @@ def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
     sim_df['z'] = sim_df['z_idx'] * z_scale
 
     return sim_df
-
-def compare_copulas(cop_lst, sim_data_arr, df_clean):
