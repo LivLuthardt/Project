@@ -65,6 +65,4 @@ def eqdqzd(df):
     plt.show()
 
 
-    plot = plt.triplot(points[:,0], points[:,1], tri.simplices)
-    plot = plt.plot(points[:,0], points[:,1], 'o')
-    return plot
+    
