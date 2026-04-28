@@ -32,10 +32,13 @@ for z in all_z[1,:]:
     layer = data_clean[data_clean['z'] == z].reset_index(drop=True)
 
 #---------------------------------Delauney-------------------------------------------------
-tri = Delaunay(X)
-plt.triplot(X[:,0], X[:,1], tri.simplices)
-plt.plot(X[:,0], X[:,1], 'o')
-plt.show()
+def delaunay_triangulation(df):
+    points = df['z','tilt_angle_deg']
+    points.to_numpy()
+    tri = Delaunay(points)
+    plt.triplot(points[:,0], points[:,1], tri.simplices)
+    plt.plot(points[:,0], points[:,1], 'o')
+    plt.show()
 
     
 #---------------------------------Stef's try to do this stuff------------------------------
