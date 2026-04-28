@@ -3,7 +3,7 @@ import numpy as np
 from  sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from scipy.spatial import Delaunay
 
 # layer0 = data_clean[data_clean['z'] == 0]
@@ -32,11 +32,15 @@ from scipy.spatial import Delaunay
 
 #---------------------------------Delauney-------------------------------------------------
 def delaunay_triangulation(df):
-    points = df[['z', 'tilt_angle_deg']].to_numpy()
+
+    subset = df[df['z_idx'] == 1]
+    points = subset[['x', 'y']].to_numpy()
     tri = Delaunay(points)
-    plot = plt.triplot(points[:,0], points[:,1], tri.simplices)
-    plot = plt.plot(points[:,0], points[:,1], 'o')
-    return plot
+    
+    plt.figure() 
+    plt.triplot(points[:,0], points[:,1], tri.simplices)
+    plt.plot(points[:,0], points[:,1], 'o', markersize=2)
+    plt.show()
 
     
 #---------------------------------Stef's try to do this stuff------------------------------

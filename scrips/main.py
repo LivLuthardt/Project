@@ -5,6 +5,7 @@ from copula import*
 from clustering import*
 from plot import *
 from layer_clustering import *
+import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
@@ -37,9 +38,18 @@ plt.savefig(fname="FiniteTiltHex.png")
 # Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
+
+fmean_x = df["angle_x_deg"].mean()
+fmean_y = df["angle_y_deg"].mean()
+
+emean_x = df["EllipseXTilt"].mean()
+emean_y = df["EllipseYTilt"].mean()
 with open("Output.txt", "w") as text_file:
     text_file.write("Finite Difference Standard Deviations (x, y): %s" % str(fstd))
     text_file.write("Ellipse Method Standard Deviations (x, y): %s" % str(estd))
+
+    text_file.write(f"Finite Difference Mean (x, y): {fmean_x}, {fmean_y}\n")
+    text_file.write(f"Ellipse Method Mean (x, y): {emean_x}, {emean_y}\n")
 
 #copulas
 zz = np.arange(1,128)
@@ -80,8 +90,9 @@ for z in zz:    #Iterate by layer
             xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'cor')
             ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'cor')
             #Set tilt angles using depth memory
-            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5
-            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5
+            xe, ye = -1 + (xcor + (1-xcor**2) ** 0.5), -1 + (ycor + (1-ycor**2) ** 0.5)
+            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5 - mean_arr[z-1, 0] * xe
+            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5 - mean_arr[z-1, 1] * ye
             data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
         elif z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
@@ -120,7 +131,7 @@ plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30])
+#plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30,60])
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
@@ -134,7 +145,7 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 delaunay_fig = delaunay_triangulation(df)
-delaunay_fig.savefig(fname='delaunay')
+plt.savefig(fname='delaunay')
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -192,3 +203,13 @@ print("KS X:", ks_x_list)
 print("KS Y:", ks_y_list)
 
 # neighbors(df) 
+
+ks_x, ks_y = ks_global(df)
+ks_x_stat = ks_x.statistic
+ks_x_p = ks_x.pvalue
+ks_y_stat = ks_y.statistic
+ks_y_p = ks_y.pvalue
+
+with open("Output.txt", "a") as text_file:
+    text_file.write(f"\nKS Test (X): statistic={ks_x.statistic:.4f}, p={ks_x.pvalue:.4e}\n")
+    text_file.write(f"KS Test (Y): statistic={ks_y.statistic:.4f}, p={ks_y.pvalue:.4e}\n")

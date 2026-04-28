@@ -2,4 +2,5 @@ Finite Difference Standard Deviations (x, y): (angle_x_deg    1.213568
 dtype: float64, angle_y_deg    1.301479
 dtype: float64)Ellipse Method Standard Deviations (x, y): (EllipseXTilt    4.759033
 dtype: float64, EllipseYTilt    5.167857
-dtype: float64)
+dtype: float64)Finite Difference Mean (x, y): 0.3924932096252535, 0.047255655938832526
+Ellipse Method Mean (x, y): 1.5190743386688494, 0.18548038311233428
