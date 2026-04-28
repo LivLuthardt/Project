@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
@@ -16,19 +17,36 @@ def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
         plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
     plt.show()
 
-def plot_synthetic_data(x1,x2,mean_arr,df,df_sim,z_values=range(1,128)):
+def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
         plt.close('all')
         df_z = df[df['z_idx'] == z]
-        x1_df = df_z[[x1]]
-        x2_df = df_z[[x2]]
+        x1_df = df_z[[x1]].to_numpy()
+        x2_df = df_z[[x2]].to_numpy()
+
+        sim_std_arr = np.std(arr_sim[z],axis=0)
+        sim_mean_arr = np.mean(arr_sim)
+
+        print(f'Real std dev: {std_arr[z]}\nSynthethic std dev: {sim_std_arr}')
+
+        pltlims = max(np.abs(x1_df).max(),np.abs(x2_df).max(),np.abs(arr_sim).max())
+        pltlims = (-pltlims*1.1,pltlims*1.1)
+
         plt.scatter(x1_df,x2_df,label='Actual Data',alpha=.3,edgecolors=None)
-        plt.scatter(df_sim[z,:,0],df_sim[z,:,1],label='Synthetic',alpha=.3,edgecolors=None)
+        plt.scatter(arr_sim[z,:,0],arr_sim[z,:,1],label='Synthetic',alpha=.3,edgecolors=None)
         plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
+
+        plt.xlim(pltlims), plt.ylim(pltlims)
         plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
         plt.title(f'Scatterplot at z = {z}')
         plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
         plt.tight_layout()
+
+        plt.text(pltlims[0],pltlims[0],
+                    rf"""Real: $\sigma_x = {std_arr[z,0]:.3f} \quad \sigma_y = {std_arr[z,1]:.3f}$
+                    Synthetic: $\sigma_x = {sim_std_arr[0]:.3f} \quad \sigma_y = {sim_std_arr[1]:.3f}$"""
+                 )
+
         plt.savefig(fname=f'Real_synthetic_scatterplot_z_{z}',dpi=200)
         print('Real and Synthetic scatterplot saved')
         plt.close()
@@ -38,28 +56,28 @@ def plot_synthetic_data(x1,x2,mean_arr,df,df_sim,z_values=range(1,128)):
         plt.xlabel(f'{x1}')
         plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
         plt.title('Actual Data')
-        plt.xlim(-10,10)
+        plt.xlim(pltlims)
 
         plt.subplot(2,2,2)
         plt.hist(x2_df,label='Actual Data',bins=150)
         plt.xlabel(f'{x2}')
         plt.title('Actual Data')
         plt.axvline(mean_arr[z,1], color='k', linestyle='dashed', linewidth=1)
-        plt.xlim(-10,10)
+        plt.xlim(pltlims)
 
         plt.subplot(2,2,3)
-        plt.hist(df_sim[z,:,0],label='Synthetic',bins=150)
+        plt.hist(arr_sim[z,:,0],label='Synthetic',bins=150)
         plt.xlabel(f'{x1}')
         plt.title('Synthetic')
-        plt.axvline(df_sim[z,:,0].mean(), color='k', linestyle='dashed', linewidth=1)
-        plt.xlim(-10,10)
+        plt.axvline(arr_sim[z,:,0].mean(), color='k', linestyle='dashed', linewidth=1)
+        plt.xlim(pltlims)
 
         plt.subplot(2,2,4)
-        plt.hist(df_sim[z,:,1],label='Synthetic',bins=150)
+        plt.hist(arr_sim[z,:,1],label='Synthetic',bins=150)
         plt.xlabel(f'{x2}')
         plt.title('Synthetic')
-        plt.axvline(df_sim[z,:,1].mean(), color='k', linestyle='dashed', linewidth=1)
-        plt.xlim(-10,10)
+        plt.axvline(arr_sim[z,:,1].mean(), color='k', linestyle='dashed', linewidth=1)
+        plt.xlim(pltlims)
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)

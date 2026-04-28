@@ -103,3 +103,18 @@ def data_cleaned(df):
     print(f" - {len(kinked_ids)} fibres removed")
 
     return df_cleaned
+
+def single_fiber_plot(df,id):
+    df = df[df['fibre_id'] == id]
+
+    fig = px.line(
+        df, 
+        x='x', 
+        y='y', 
+        markers=True,
+        title=f"Fiber ID: {id}",
+        line_shape='linear'
+    )
+
+    #fig.show()
+    fig.write_image(f"fiber{id}_xy_proj_plot")
