@@ -172,7 +172,7 @@ distances_d, indices_d = knn_d.kneighbors(D_d)
 for i in range(len(indices_d)):
     fid_i = int(fibre_ids[i])
 
-    for jj in range(1, len(indices_d[i])):  #skip self
+    for jj in range(1, len(indices_d[i])):  #Skip self
         neighbor_idx = indices_d[i, jj]
         fid_j = int(fibre_ids[neighbor_idx])
 
