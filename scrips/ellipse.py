@@ -70,7 +70,7 @@ def plotellipse(df,z):
 
     df = df[df["z_idx"] == z]
     
-    fig, ax = plt.subplots(figsize=(14, 2))
+    fig, ax = plt.subplots(figsize=(14*3,1*3))
     for i in range(len(df)):
         x = df.iloc[i]['x']
         y = df.iloc[i]['y']
@@ -81,8 +81,12 @@ def plotellipse(df,z):
         ellipse = Ellipse(xy=(x, y), width=a*2, height=b*2, angle=np.degrees(xytilt), fill=False)
         ax.add_patch(ellipse)
 
-    ax.set_xlim(-5, 1220)
+    ax.set_xlim(-5, 1220) #full domain and range
     ax.set_ylim(-170, 5)
+
+    #ax.set_xlim(-5, 145) #section of domain and range
+    #ax.set_ylim(-145, 5)
+
     ax.set_aspect('equal')
     plt.savefig(fname="EllipsePlot.png")
 
