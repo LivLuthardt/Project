@@ -41,10 +41,25 @@ df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 plotellipse(df,120)
 
 #Save 1D histograms
+plt.figure()
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+ax.set_title('Fiber x-tilt Histogram')
+ax.set_xlabel('Fiber angle x-tilt (°)')
+ax.set_ylabel('Frequency')
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, ["Ellipse method", "Finite difference method"])
 plt.savefig(fname="XTiltHist.png")
-ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+plt.close()
+plt.figure()
+ax = plt.gca()
+ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+ax.set_title('Fiber y-tilt Histogram')
+ax.set_xlabel('Fiber angle y-tilt (°)')
+ax.set_ylabel('Frequency')
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, ["Ellipse method", "Finite difference method"])
 plt.savefig(fname="YTiltHist.png")
+plt.close()
 
 #Save 2D hex plots
 ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
