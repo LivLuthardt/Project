@@ -172,7 +172,7 @@ distances_d, indices_d = knn_d.kneighbors(D_d)
 for i in range(len(indices_d)):
     fid_i = int(fibre_ids[i])
 
-    for jj in range(1, len(indices_d[i])):  # skip self
+    for jj in range(1, len(indices_d[i])):  #skip self
         neighbor_idx = indices_d[i, jj]
         fid_j = int(fibre_ids[neighbor_idx])
 
@@ -210,3 +210,9 @@ pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in r
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Combined distance + angle graph")
 plt.show()
+
+
+"""Iteration through layers"""
+"""Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
+that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
+again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
