@@ -77,6 +77,7 @@ par_1,par_2 = 'angle_x_deg','angle_y_deg'
 df_grouped = df.groupby('z')
 
 mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
+std_arr = df_grouped.std()[[par_1,par_2]].to_numpy()
 
 ### Magic
 cov_series = df_grouped.apply(
@@ -148,7 +149,7 @@ plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-#plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30,60])
+plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
