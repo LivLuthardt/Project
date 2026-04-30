@@ -100,7 +100,7 @@ for item in layer_0_results_d:
 mean_scores_0_d = np.mean(scores_0_d)
 std_scores_0_d = np.std(scores_0_d)
 #Threshold
-n_std_d = -1.95
+n_std_d = -1
 threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
 # Plot histogram
 plt.hist(scores_0_d, bins=100)
@@ -118,7 +118,7 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = 1
+n_std_a = -1
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.hist(scores_0_a, bins=100)
@@ -160,140 +160,53 @@ for fibre_d_i, fibre_d_j, score in results_angle:
     D_a[jj, ii] = score
 
 
-#Apply kNN on your precomputed score matrix
-knn_d = NearestNeighbors(n_neighbors= optimal_k, metric='precomputed')
-knn_d.fit(D_d)
-
-knn_a = NearestNeighbors(n_neighbors= optimal_k, metric='precomputed')
-knn_a.fit(D_a)
-
-distances, indices_d = knn_d.kneighbors(D_d)
-angles, indices_a = knn_a.kneighbors(D_a)
-
-# store accepted kNN neighbor relations
-knn_results_d = []
-knn_results_a = []
-
-#Distances
-for i in range(len(indices_d)):
-    fid_i = int(fibre_ids[i])
-
-    for j in range(1, len(indices_d[i])):   #skip self
-        neighbor_idx = indices_d[i, j]
-        fid_j = int(fibre_ids[neighbor_idx])
-        score_d = distances[i, j]
-
-        if score_d <= threshold_distance:
-            knn_results_d.append((fid_i, fid_j, score_d))
-
-#Angles 
-for i in range(len(indices_a)):
-    fid_i = int(fibre_ids[i])
-
-    for j in range(1, len(indices_a[i])):   #skip self
-        neighbor_idx = indices_a[i, j]
-        fid_j = int(fibre_ids[neighbor_idx])
-        score_a = angles[i, j]
-
-        if score_a <= threshold_angle:
-            knn_results_a.append((fid_i, fid_j, score_a))
-
-
-# keep only mutual kNN edges
-edge_dict_d = {(fid_i, fid_j): score_d for fid_i, fid_j, score_d in knn_results_d}
-edge_dict_a = {(fid_i, fid_j): score_a for fid_i, fid_j, score_a in knn_results_a}
-
-mutual_results_d = []
-for fid_i, fid_j, score in knn_results_d:
-    if (fid_j, fid_i) in edge_dict_d:
-        mutual_results_d.append((fid_i, fid_j, score_d))
-
-mutual_results_a = []
-for fid_i, fid_j, score in knn_results_a:
-    if (fid_j, fid_i) in edge_dict_a:
-        mutual_results_a.append((fid_i, fid_j, score_a))
-
-#Build graphs
-G_d = nx.Graph()
-G_a = nx.Graph()
-
-for fid in fibre_ids:
-    G_d.add_node(int(fid))
-for fid_i, fid_j, score_d in mutual_results_d:
-    G_d.add_edge(int(fid_i), int(fid_j), weight=score)
-
-for fid in fibre_ids:
-    G_a.add_node(int(fid))
-for fid_i, fid_j, score_a in mutual_results_a:
-    G_a.add_edge(int(fid_i), int(fid_j), weight=score)
-
-
-#Connected components from both graphs are clusters
-clusters = [sorted(list(c)) for c in nx.connected_components(G_d)]
-
-print("Amount of clusters:", len(clusters))
-print("Cluster sizes:", [len(c) for c in clusters])
-
-for i, cluster in enumerate(clusters, start=1):
-    print(f"Cluster {i}: {cluster}")
-
-"""
-G_both = nx.Graph()
-
-#Keep all nodes that exist in both graphs
-G_both.add_nodes_from(set(G_d.nodes()) & set(G_a.nodes()))
-
-#Keep only edges present in both graphs
-edges_d = {tuple(sorted(e)) for e in G_d.edges()}
-edges_a = {tuple(sorted(e)) for e in G_a.edges()}
-common_edges = edges_d & edges_a
-G_both.add_edges_from(common_edges)
-"""
-"""
+""""Build combined graph"""
 G_both = nx.Graph()
 G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
-# Store distance pairs
-pairs_d = {
-    tuple(sorted((int(fid_i), int(fid_j)))): score_d
-    for fid_i, fid_j, score_d in knn_results_d
-}
+knn_d = NearestNeighbors(n_neighbors=optimal_k, metric='precomputed')
+knn_d.fit(D_d)
 
-# Store angle pairs
-pairs_a = {
-    tuple(sorted((int(fid_i), int(fid_j)))): score_a
-    for fid_i, fid_j, score_a in knn_results_a
-}
+distances_d, indices_d = knn_d.kneighbors(D_d)
 
-# Candidate pairs that appear in either graph
-candidate_pairs = set(pairs_d.keys()) | set(pairs_a.keys())
+for i in range(len(indices_d)):
+    fid_i = int(fibre_ids[i])
 
-for pair in candidate_pairs:
-    if pair in pairs_d and pair in pairs_a:
-        score_d = pairs_d[pair]
-        score_a = pairs_a[pair]
+    for jj in range(1, len(indices_d[i])):  # skip self
+        neighbor_idx = indices_d[i, jj]
+        fid_j = int(fibre_ids[neighbor_idx])
+
+        score_d = D_d[i, neighbor_idx]
+        score_a = D_a[i, neighbor_idx]
 
         if score_d <= threshold_distance and score_a <= threshold_angle:
-            G_both.add_edge(pair[0], pair[1])
+            combined_score = score_d + score_a
+            similarity = 1 / (combined_score + 1e-12)
 
-#Connected components from the intersection graph
-clusters = [sorted(list(c)) for c in nx.connected_components(G_both)]
+            G_both.add_edge(fid_i, fid_j, weight=similarity)
+print("Combined graph nodes:", G_both.number_of_nodes())
+print("Combined graph edges:", G_both.number_of_edges())
+print("Isolated nodes:", len(list(nx.isolates(G_both))))
 
+G_cluster = G_both.copy()
+
+# Optional: remove isolated fibres
+G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
+
+communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight")
+clusters = [sorted(list(c)) for c in communities]
+
+#Optional: remove tiny clusters
+min_cluster_size = 2
+clusters = [c for c in clusters if len(c) >= min_cluster_size]
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
 
 for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
-"""
 
-#Plot graphs
 pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
 
-nx.draw(G_d, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+plt.title("Combined distance + angle graph")
 plt.show()
-nx.draw(G_a, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
-plt.show()
-#nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
-#plt.show()
-
-
