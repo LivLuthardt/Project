@@ -123,7 +123,7 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = -1
+n_std_a = 2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
@@ -247,3 +247,5 @@ plt.show()
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
+
+print(data_clean)
