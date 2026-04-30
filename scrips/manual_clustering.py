@@ -216,7 +216,8 @@ print("Cluster sizes:", [len(c) for c in clusters])
 
 for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
-"""
+
+
 ## Create a dictionary to map each node to its cluster
 node_to_cluster = {}
 for cluster_id, cluster in enumerate(clusters):
@@ -234,9 +235,10 @@ colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default
 
 # Create a list of node colors based on their cluster
 node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
-"""
+
+
 pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
-nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Combined distance + angle graph")
 plt.show()
 
