@@ -159,59 +159,60 @@ for fibre_d_i, fibre_d_j, score in results_angle:
     D_a[ii, jj] = score
     D_a[jj, ii] = score
 
-print(D_d)
-print(D_a)
 
-"""    
-# apply kNN on your precomputed score matrix
-knn = NearestNeighbors(n_neighbors= optimal_k, metric='precomputed')
-knn.fit(D)
+""""Build combined graph"""
+G_both = nx.Graph()
+G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
-distances, indices = knn.kneighbors(D)
+knn_d = NearestNeighbors(n_neighbors=optimal_k, metric='precomputed')
+knn_d.fit(D_d)
 
-# store accepted kNN neighbor relations
-knn_results = []
+distances_d, indices_d = knn_d.kneighbors(D_d)
 
-for i in range(len(indices)):
+for i in range(len(indices_d)):
     fid_i = int(fibre_ids[i])
 
-    for j in range(1, len(indices[i])):   # skip self
-        neighbor_idx = indices[i, j]
+    for jj in range(1, len(indices_d[i])):  #Skip self
+        neighbor_idx = indices_d[i, jj]
         fid_j = int(fibre_ids[neighbor_idx])
-        score = distances[i, j]
 
-        if score <= threshold:
-            knn_results.append((fid_i, fid_j, score))
+        score_d = D_d[i, neighbor_idx]
+        score_a = D_a[i, neighbor_idx]
 
-# keep only mutual kNN edges
-edge_dict = {(fid_i, fid_j): score for fid_i, fid_j, score in knn_results}
+        if score_d <= threshold_distance and score_a <= threshold_angle:
+            combined_score = score_d + score_a
+            similarity = 1 / (combined_score + 1e-12)
+            G_both.add_edge(fid_i, fid_j, weight=similarity)
 
-mutual_results = []
-for fid_i, fid_j, score in knn_results:
-    if (fid_j, fid_i) in edge_dict:
-        mutual_results.append((fid_i, fid_j, score))
+print("Combined graph nodes:", G_both.number_of_nodes())
+print("Combined graph edges:", G_both.number_of_edges())
+print("Isolated nodes:", len(list(nx.isolates(G_both))))
 
-# build graph
-G = nx.Graph()
+G_cluster = G_both.copy()
 
-for fid in fibre_ids:
-    G.add_node(int(fid))
+#Remove isolated fibres
+G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
-for fid_i, fid_j, score in mutual_results:
-    G.add_edge(int(fid_i), int(fid_j), weight=score)
+communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight")
+clusters = [sorted(list(c)) for c in communities]
 
-# connected components = clusters
-clusters = [sorted(list(c)) for c in nx.connected_components(G)]
-
+#Remove tiny clusters
+min_cluster_size = 2
+clusters = [c for c in clusters if len(c) >= min_cluster_size]
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
 
 for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
 
-# plot graph
 pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
 
-nx.draw(G, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
-plt.show()"""
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+plt.title("Combined distance + angle graph")
+plt.show()
 
+
+"""Iteration through layers"""
+"""Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
+that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
+again both set thresholds to determine whether a fibre is clusterable throughout the full length."""

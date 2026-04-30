@@ -4,6 +4,3 @@ dtype: float64)Ellipse Method Standard Deviations (x, y): (EllipseXTilt    4.759
 dtype: float64, EllipseYTilt    5.167857
 dtype: float64)Finite Difference Mean (x, y): 0.3924932096252535, 0.047255655938832526
 Ellipse Method Mean (x, y): 1.5190743386688494, 0.18548038311233428
-
-KS Test (X): statistic=0.3400, p=0.0000e+00
-KS Test (Y): statistic=0.2815, p=0.0000e+00

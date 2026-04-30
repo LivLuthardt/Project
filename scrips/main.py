@@ -36,18 +36,22 @@ for r in df.itertuples(index=True):
     first = False
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
+
 #Ellipse plot
 plotellipse(df,120)
+
 #Save 1D histograms
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="XTiltHist.png")
 ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
 plt.savefig(fname="YTiltHist.png")
+
 #Save 2D hex plots
 ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
+
 # Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
@@ -158,8 +162,7 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 # Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
-#delaunay_fig = delaunay_triangulation(df)
-#plt.savefig(fname='delaunay')
+delaunay_fig = delaunay_triangulation(df)
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
