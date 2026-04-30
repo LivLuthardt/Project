@@ -182,21 +182,21 @@ for i in range(len(indices_d)):
         if score_d <= threshold_distance and score_a <= threshold_angle:
             combined_score = score_d + score_a
             similarity = 1 / (combined_score + 1e-12)
-
             G_both.add_edge(fid_i, fid_j, weight=similarity)
+
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
 
 G_cluster = G_both.copy()
 
-# Optional: remove isolated fibres
+#Remove isolated fibres
 G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
 communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight")
 clusters = [sorted(list(c)) for c in communities]
 
-#Optional: remove tiny clusters
+#Remove tiny clusters
 min_cluster_size = 2
 clusters = [c for c in clusters if len(c) >= min_cluster_size]
 print("Amount of clusters:", len(clusters))
