@@ -193,12 +193,14 @@ G_cluster = G_both.copy()
 #Remove isolated fibres
 G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
+#Creates clusters based on densely populated nodes
 communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight")
 clusters = [sorted(list(c)) for c in communities]
 
 #Remove tiny clusters
 min_cluster_size = 2
 clusters = [c for c in clusters if len(c) >= min_cluster_size]
+
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
 
@@ -206,7 +208,6 @@ for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
 
 pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
-
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Combined distance + angle graph")
 plt.show()
