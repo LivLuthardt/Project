@@ -182,7 +182,7 @@ distances_d, indices_d = knn_d.kneighbors(D_d)
 for i in range(len(indices_d)):
     fid_i = int(fibre_ids[i])
 
-    for jj in range(1, len(indices_d[i])):  # skip self
+    for jj in range(1, len(indices_d[i])):  #Skip self
         neighbor_idx = indices_d[i, jj]
         fid_j = int(fibre_ids[neighbor_idx])
 
@@ -192,23 +192,25 @@ for i in range(len(indices_d)):
         if score_d <= threshold_distance and score_a <= threshold_angle:
             combined_score = score_d + score_a
             similarity = 1 / (combined_score + 1e-12)
-
             G_both.add_edge(fid_i, fid_j, weight=similarity)
+
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
 
 G_cluster = G_both.copy()
 
-# Optional: remove isolated fibres
+#Remove isolated fibres
 G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
+#Creates clusters based on densely populated nodes
 communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight")
 clusters = [sorted(list(c)) for c in communities]
 
-#Optional: remove tiny clusters
+#Remove tiny clusters
 min_cluster_size = 2
 clusters = [c for c in clusters if len(c) >= min_cluster_size]
+
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
 
@@ -234,7 +236,12 @@ colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default
 node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 """
 pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
-
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Combined distance + angle graph")
 plt.show()
+
+
+"""Iteration through layers"""
+"""Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
+that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
+again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
