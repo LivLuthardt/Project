@@ -2,6 +2,7 @@ import pyvinecopulib as pv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import scipy as sp
 
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
@@ -123,3 +124,33 @@ def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
     sim_df['z'] = sim_df['z_idx'] * z_scale
 
     return sim_df
+
+def chi_squared(x1,x2,df_clean,df_sim,cop_lst,bins=50):
+    bins_x1_clean,_ = np.histogram(df_clean[:,0],bins=bins)
+    bins_x2_clean,_ = np.histogram(df_clean[:,1],bins=bins)
+    for i,model in enumerate(cop_lst):
+
+
+        obs_counts,xedges,yedges = np.histogram2d(df_sim[i,1:-1,:,0].flatten(),df_sim[i,1:-1,:,1].flatten(),bins=14)
+
+        sim_counts, _, _ = np.histogram2d(df_clean[:,0].flatten(), df_clean[:,1].flatten(), bins=(xedges, yedges))
+
+        if sim_counts.sum() > 0: # Prevent divide-by-zero if simulation is empty
+            sim_counts = sim_counts * (obs_counts.sum() / sim_counts.sum())
+
+        obs_flat = obs_counts.flatten()
+        sim_flat = sim_counts.flatten()
+
+        chisq = sp.stats.chisquare(obs_flat,sim_flat)
+        print(chisq)
+
+        """ 
+        bins_x1_sim,_ = np.histogram(df_sim[i,1:-1,:,0],bins=bins)
+        bins_x2_sim,_ = np.histogram(df_sim[i,1:-1,:,1],bins=bins)
+
+        chisq_x1 = sp.stats.chisquare(bins_x1_sim,bins_x1_clean)
+        chisq_x1 = sp.stats.chisquare(bins_x1_sim,bins_x1_clean)
+        chisq_x1 = sp.stats.chisquare(bins_x1_sim,bins_x1_clean)
+        chisq_x2 = sp.stats.chisquare(bins_x2_sim,bins_x2_clean)
+        """
+        # print(f'Chisquared for {model}:\n{x1} = {chisq_x1}\n{x2} = {chisq_x2}')
