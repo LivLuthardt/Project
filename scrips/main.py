@@ -151,6 +151,8 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
+chi_squared(par_1,par_2,df[[par_1,par_2]].to_numpy(),data_sim_arr,cop_models)
+
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
 # apparently if we dont do this the objects cause everything to break (making floats)
