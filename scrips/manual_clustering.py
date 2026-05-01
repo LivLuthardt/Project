@@ -248,4 +248,3 @@ plt.show()
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
 
-print(data_clean)
