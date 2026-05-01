@@ -103,10 +103,15 @@ std_scores_0_d = np.std(scores_0_d)
 n_std_d = -1
 threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
 # Plot histogram
+plt.figure()
 plt.hist(scores_0_d, bins=100)
-plt.axvline(threshold_distance) 
-plt.title("Distance Histogram") 
-plt.show()
+plt.axvline(threshold_distance,color = 'r', label = 'Threshold') 
+plt.title("Distance Histogram")
+plt.xlabel("Distance score")
+plt.ylabel("Frequency")
+plt.legend()
+plt.savefig(fname = 'Distance_Histogram')
+plt.close()
 print("Mean_Distance:", mean_scores_0_d)
 print("Std_Distance:", std_scores_0_d)
 print("Threshold_Distance", threshold_distance)
@@ -118,13 +123,18 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = -1
+n_std_a = 2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
+plt.figure()
 plt.hist(scores_0_a, bins=100)
-plt.axvline(threshold_angle)  
+plt.axvline(threshold_angle,color = 'r', label = 'Threshold') 
 plt.title("Angle Histogram")
-plt.show()
+plt.xlabel("Angle score")
+plt.ylabel("Frequency")
+plt.legend()
+plt.savefig(fname = 'Angle_Histogram')
+plt.close()
 print("Mean_Angle:", mean_scores_0_a)
 print("Std_Angle:", std_scores_0_a)
 print("Threshold_Angle", threshold_angle)
@@ -193,21 +203,42 @@ G_cluster = G_both.copy()
 #Remove isolated fibres
 G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
+#Creates clusters based on densely populated nodes
 communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight")
 clusters = [sorted(list(c)) for c in communities]
 
 #Remove tiny clusters
 min_cluster_size = 2
 clusters = [c for c in clusters if len(c) >= min_cluster_size]
+
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
 
 for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
 
-pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
 
-nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+## Create a dictionary to map each node to its cluster
+node_to_cluster = {}
+for cluster_id, cluster in enumerate(clusters):
+    for node in cluster:
+        node_to_cluster[node] = cluster_id
+
+# Assign isolated nodes to a default cluster (e.g., -1)
+isolated_nodes = list(nx.isolates(G_both))
+for node in isolated_nodes:
+    node_to_cluster[node] = -1  # Default cluster for isolated nodes
+
+# Assign a color to each cluster (including the default cluster)
+num_clusters = len(clusters)
+colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default cluster
+
+# Create a list of node colors based on their cluster
+node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
+
+
+pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Combined distance + angle graph")
 plt.show()
 
@@ -216,3 +247,5 @@ plt.show()
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
+
+print(data_clean)
