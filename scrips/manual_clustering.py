@@ -24,6 +24,8 @@ scaler = StandardScaler()
 scaled_data = scaler.fit_transform(layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
 scaled_data = np.column_stack((layer_0['fibre_id'].values, scaled_data))
 
+cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
+cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
 """ --- Optimal n_neighbors (Elbow Method) --- """
 X_eval = scaled_data[:, 1:] # Exclude fibre_id
@@ -52,40 +54,40 @@ print(f"The optimal number of neighbors is: {optimal_k}")
 
 
 """Neighborhood rule"""
-def good_neighbor_distance(scaled_data):
+def good_neighbor_distance(cleaned_data):
     #Determine distance metric and store as list
     results_d = []
-    for i in range(len(scaled_data)):
-        for j in range(i+1, len(scaled_data)):
+    for i in range(len(cleaned_data)):
+        for j in range(i+1, len(cleaned_data)):
             #Difference in distances
-            delta_x_norm = scaled_data[i, 1] - scaled_data[j, 1]
-            delta_y_norm = scaled_data[i, 2] - scaled_data[j, 2]
+            delta_x_norm = cleaned_data[i, 1] - cleaned_data[j, 1]
+            delta_y_norm = cleaned_data[i, 2] - cleaned_data[j, 2]
             
             #Distance metric for distance
             D_distance = np.sqrt(delta_x_norm**2 + delta_y_norm**2)
 
             #Store fiber metric score with respective fibre id's
-            fibre_id_i = scaled_data[i, 0]
-            fibre_id_j = scaled_data[j, 0]
+            fibre_id_i = cleaned_data[i, 0]
+            fibre_id_j = cleaned_data[j, 0]
 
             results_d.append((fibre_id_i, fibre_id_j, D_distance))
 
     return results_d
 
-def good_neighbor_angle(scaled_data):
+def good_neighbor_angle(cleaned_data):
     results_a = []
-    for i in range(len(scaled_data)):
-            for j in range(i+1, len(scaled_data)):
+    for i in range(len(cleaned_data)):
+            for j in range(i+1, len(cleaned_data)):
                 #Difference in angles
-                delta_anglex_norm = np.abs(scaled_data[i, 3] - scaled_data[j, 3])
-                delta_angley_norm = np.abs(scaled_data[i, 4] - scaled_data[j, 4])
+                delta_anglex_norm = np.abs(cleaned_data[i, 3] - cleaned_data[j, 3])
+                delta_angley_norm = np.abs(cleaned_data[i, 4] - cleaned_data[j, 4])
 
                 #Distance metric for angle
                 D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
 
                 #Store fiber metric score with respective fibre id's
-                fibre_id_i = scaled_data[i, 0]
-                fibre_id_j = scaled_data[j, 0]
+                fibre_id_i = cleaned_data[i, 0]
+                fibre_id_j = cleaned_data[j, 0]
 
                 results_a.append((fibre_id_i, fibre_id_j, D_angle))
 
@@ -94,7 +96,7 @@ def good_neighbor_angle(scaled_data):
 
 """Plot histogram and determine threshold"""
 scores_0_d = []
-layer_0_results_d = good_neighbor_distance(scaled_data)
+layer_0_results_d = good_neighbor_distance(cleaned_data)
 for item in layer_0_results_d:
     scores_0_d.append(item[2])
 mean_scores_0_d = np.mean(scores_0_d)
@@ -117,7 +119,7 @@ print("Std_Distance:", std_scores_0_d)
 print("Threshold_Distance", threshold_distance)
 
 scores_0_a = []
-layer_0_results_a = good_neighbor_angle(scaled_data)
+layer_0_results_a = good_neighbor_angle(cleaned_data)
 for item in layer_0_results_a:
     scores_0_a.append(item[2])
 mean_scores_0_a = np.mean(scores_0_a)
@@ -141,11 +143,11 @@ print("Threshold_Angle", threshold_angle)
 
 
 """Initialise knn and deteremine clusters + graph from this"""
-results_distance = good_neighbor_distance(scaled_data)
-results_angle = good_neighbor_angle(scaled_data)
+results_distance = good_neighbor_distance(cleaned_data)
+results_angle = good_neighbor_angle(cleaned_data)
 
 #Map fibre_id to row index
-fibre_ids = scaled_data[:, 0].astype(int)
+fibre_ids = cleaned_data[:, 0].astype(int)
 id_to_idx = {fid: i for i, fid in enumerate(fibre_ids)}
 
 #Build distance matrices
