@@ -20,15 +20,18 @@ layer_0 = df[df['z_idx'] == 0]
 layer_0 = layer_0.reset_index(drop=True)
 
 features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
+
+"""
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
 scaled_data = np.column_stack((layer_0['fibre_id'].values, scaled_data))
+"""
 
 cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
 """ --- Optimal n_neighbors (Elbow Method) --- """
-X_eval = scaled_data[:, 1:] # Exclude fibre_id
+X_eval = cleaned_data[:, 1:] # Exclude fibre_id
 
 avg_distances = []
 k_range = range(1, 50) 
@@ -239,7 +242,7 @@ colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default
 node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
-pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
+pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Combined distance + angle graph")
 plt.show()
