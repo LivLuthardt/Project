@@ -128,7 +128,7 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = -2
+n_std_a = 2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
@@ -243,9 +243,16 @@ node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
 pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
-nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
-plt.title("Combined distance + angle graph")
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+plt.title("Network plot")
 plt.show()
+plt.savefig(f'Network plot.png')
+plt.close()
+nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
+plt.title("Cluster plot")
+plt.savefig(f'Cluster plot.png')
+plt.show()
+plt.close()
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
