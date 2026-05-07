@@ -12,65 +12,24 @@ data_clean = data_cleaned(raw_df)
 df = tangent_angles_backwards(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-#ellipse 
-xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = [], [], [], [], [] #Init empty lists
-first = True
-for r in df.itertuples(index=True):
-    x2 = (r[3], r[4], r[2]) #Current fiber point
-    if first: 
-        x1 = x2
-        tilt = (0, 0) #Can't compute tilt from a single point
-        theta = 0 #same for axes and angles
-        a, b = 0,0
-    else:  
-        tilt = eTiltAngles(x1, x2) #Pass the past and current points
-        theta = ellipseAngle(x1, x2)
-        a, b = getEllipse(x1, x2)
-
-    xtiltAngles.append(tilt[0])
-    ytiltAngles.append(tilt[1])
-    xytiltAngles.append(theta)
-    alist.append(a)
-    blist.append(b)
-    x1 = x2 #Set the current point to the past point
-    first = False
+#ellipse
+xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(df)
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
 #Ellipse plot
-plotellipse(df,1)
+plot_ellipse(df,1)
 
 #Single fiber projection plot
 single_fiber_plot(df,5)
 
-#Save 1D histograms
-plt.figure()
-ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
-ax.set_title('Fiber x-tilt Histogram')
-ax.set_xlabel('Fiber angle x-tilt (°)')
-ax.set_ylabel('Frequency')
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, ["Ellipse method", "Finite difference method"])
-plt.savefig(fname="XTiltHist.png")
-plt.close()
-plt.figure()
-ax = plt.gca()
-ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
-ax.set_title('Fiber y-tilt Histogram')
-ax.set_xlabel('Fiber angle y-tilt (°)')
-ax.set_ylabel('Frequency')
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, ["Ellipse method", "Finite difference method"])
-plt.savefig(fname="YTiltHist.png")
-plt.close()
+#Make 1D histograms of ellipsetilt vs angle 
+One_D_ellipse_tilt_hist(df)
 
-#Save 2D hex plots
-ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
-plt.savefig(fname="EllipseTiltHex.png")
-ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
-plt.savefig(fname="FiniteTiltHex.png")
+#Make 2D hex plot of ellipsetilt
+Two_D_hex_plot(df)
 
-# Save and write standard deviations
+#Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 
@@ -172,7 +131,8 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
-chi_squared(par_1,par_2,df[[par_1,par_2]].to_numpy(),data_sim_arr,cop_models)
+chi_squared_2d(df,data_sim_arr,cop_models)
+chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models)
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 

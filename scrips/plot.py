@@ -6,7 +6,7 @@ import plotly.express as px
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 
-def plotellipse(df,z):
+def plot_ellipse(df,z):
 
     df = df[df["z_idx"] == z]
     
@@ -264,3 +264,30 @@ def plot_aic_bic_gmm(df, n_clusters):
     #fig.show()
     fig.write_image(f"AIC_BIC_GMM.png")
     print(f'Plot AIC BIC GMM finished')
+
+def One_D_ellipse_tilt_hist(df):
+    plt.figure()
+    ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+    ax.set_title('Fiber x-tilt Histogram')
+    ax.set_xlabel('Fiber angle x-tilt (°)')
+    ax.set_ylabel('Frequency')
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles, ["Ellipse method", "Finite difference method"])
+    plt.savefig(fname="XTiltHist.png")
+    plt.close()
+    plt.figure()
+    ax = plt.gca()
+    ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+    ax.set_title('Fiber y-tilt Histogram')
+    ax.set_xlabel('Fiber angle y-tilt (°)')
+    ax.set_ylabel('Frequency')
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles, ["Ellipse method", "Finite difference method"])
+    plt.savefig(fname="YTiltHist.png")
+    plt.close()
+
+def Two_D_hex_plot(df):
+    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    plt.savefig(fname="EllipseTiltHex.png")
+    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    plt.savefig(fname="FiniteTiltHex.png")
