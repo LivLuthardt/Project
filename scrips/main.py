@@ -12,65 +12,25 @@ data_clean = data_cleaned(raw_df)
 df = tangent_angles_backwards(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-#ellipse 
-xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = [], [], [], [], [] #Init empty lists
-first = True
-for r in df.itertuples(index=True):
-    x2 = (r[3], r[4], r[2]) #Current fiber point
-    if first: 
-        x1 = x2
-        tilt = (0, 0) #Can't compute tilt from a single point
-        theta = 0 #same for axes and angles
-        a, b = 0,0
-    else:  
-        tilt = eTiltAngles(x1, x2) #Pass the past and current points
-        theta = ellipseAngle(x1, x2)
-        a, b = getEllipse(x1, x2)
+#-------------------------------------------------------------Ellipse-------------------------------------------------------------
 
-    xtiltAngles.append(tilt[0])
-    ytiltAngles.append(tilt[1])
-    xytiltAngles.append(theta)
-    alist.append(a)
-    blist.append(b)
-    x1 = x2 #Set the current point to the past point
-    first = False
+xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(df)
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
 #Ellipse plot
-plotellipse(df,1)
+plot_ellipse(df,1)
 
 #Single fiber projection plot
 single_fiber_plot(df,5)
 
-#Save 1D histograms
-plt.figure()
-ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
-ax.set_title('Fiber x-tilt Histogram')
-ax.set_xlabel('Fiber angle x-tilt (°)')
-ax.set_ylabel('Frequency')
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, ["Ellipse method", "Finite difference method"])
-plt.savefig(fname="XTiltHist.png")
-plt.close()
-plt.figure()
-ax = plt.gca()
-ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
-ax.set_title('Fiber y-tilt Histogram')
-ax.set_xlabel('Fiber angle y-tilt (°)')
-ax.set_ylabel('Frequency')
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles, ["Ellipse method", "Finite difference method"])
-plt.savefig(fname="YTiltHist.png")
-plt.close()
+#Make 1D histograms of ellipsetilt vs angle 
+One_D_ellipse_tilt_hist(df)
 
-#Save 2D hex plots
-ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
-plt.savefig(fname="EllipseTiltHex.png")
-ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
-plt.savefig(fname="FiniteTiltHex.png")
+#Make 2D hex plot of ellipsetilt
+Two_D_hex_plot(df)
 
-# Save and write standard deviations
+#Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
 
@@ -85,6 +45,8 @@ with open("Output.txt", "w") as text_file:
 
     text_file.write(f"Finite Difference Mean (x, y): {fmean_x}, {fmean_y}\n")
     text_file.write(f"Ellipse Method Mean (x, y): {emean_x}, {emean_y}\n")
+
+#-------------------------------------------------------------Copulas-------------------------------------------------------------
 
 #copulas
 zz = np.arange(1,128)
@@ -145,15 +107,7 @@ for cops in cop_lst:
 sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 
 # Plot synthetic fibers
-fig = px.line_3d(sim_df[sim_df['fibre_id'] < 300],
-                x="x", y="y", z="z",
-                color="fibre_id",
-                title=f'Synthetic Fibers')
-fig.update_layout(
-    scene=dict(aspectmode="manual",
-            aspectratio=dict(x=15, y=7.5, z=1))
-)
-fig.show()
+plot_fibers(sim_df,'Synthetic Fibers')
 
 ### Plot copulas parameters
 cop_fig, (ax5,ax6) = plt.subplots(1,2)
@@ -187,6 +141,8 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 
 # Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
+
+#-------------------------------------------------------------Clustering (old)-------------------------------------------------------------
 
 delaunay_fig = delaunay_triangulation(df)
 
@@ -227,12 +183,12 @@ fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
-# plot_fibers(df_k, 'K-means')
-# plot_fibers(df_k_pca, 'K-means with PCA')
-# plot_fibers(df_dbscan, 'DBSCAN')
-# plot_fibers(df_hdbscan, 'HDBSCAN')
-# plot_fibers(df_gmm, 'GMM')
-# plot_fibers(df_agg, 'Agglomerative')
+# plot_fibers_clustered(df_k, 'K-means')
+# plot_fibers_clustered(df_k_pca, 'K-means with PCA')
+# plot_fibers_clustered(df_dbscan, 'DBSCAN')
+# plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
+# plot_fibers_clustered(df_gmm, 'GMM')
+# plot_fibers_clustered(df_agg, 'Agglomerative')
 
 # Make score plot for all pre-defined cluster methods
 

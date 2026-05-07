@@ -48,7 +48,7 @@ plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
 #plt.show()
 plt.savefig(fname = 'Elbow')
-plt.close()
+plt.close('all')
 
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
 optimal_k = kneedle.knee
@@ -116,7 +116,7 @@ plt.xlabel("Distance between pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Distance_Histogram')
-plt.close()
+plt.close('all')
 print("Mean_Distance:", mean_scores_0_d)
 print("Std_Distance:", std_scores_0_d)
 print("Threshold_Distance", threshold_distance)
@@ -128,7 +128,7 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = -2
+n_std_a = 2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
@@ -139,7 +139,7 @@ plt.xlabel("Angle bwetween pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Angle_Histogram')
-plt.close()
+plt.close('all')
 print("Mean_Angle:", mean_scores_0_a)
 print("Std_Angle:", std_scores_0_a)
 print("Threshold_Angle", threshold_angle)
@@ -243,9 +243,16 @@ node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
 pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
-nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
-plt.title("Combined distance + angle graph")
-plt.show()
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
+plt.title("Network plot")
+#plt.show()
+plt.savefig(f'Network plot.png')
+plt.close('all')
+nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
+plt.title("Cluster plot")
+plt.savefig(f'Cluster plot.png')
+#plt.show()
+plt.close('all')
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
