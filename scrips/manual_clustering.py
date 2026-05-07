@@ -44,10 +44,9 @@ for k in k_range:
 
 plt.figure(figsize=(10,6))
 plt.plot(k_range, avg_distances, color='blue', linestyle='dashed', marker='o', markerfacecolor='red', markersize=6)
-plt.title('Average K-Distance vs. K Value (Find the Elbow)')
+plt.title('Average K-Distance vs. K Value (Find the Elbow)' )
 plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
-plt.close()
 plt.show()
 
 from kneed import KneeLocator
