@@ -309,3 +309,4 @@ def Two_D_hex_plot(df):
     plt.savefig(fname="EllipseTiltHex.png")
     ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
     plt.savefig(fname="FiniteTiltHex.png")
+
