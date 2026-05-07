@@ -244,9 +244,16 @@ node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
 pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
-nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
+nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Combined distance + angle graph")
+plt.savefig(fname = 'Network plot')
+#plt.show()
+plt.close()
+nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
+plt.title("Cluster graph")
+plt.savefig(fname = 'Cluster graph')
 plt.show()
+plt.close()
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
