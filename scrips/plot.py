@@ -90,7 +90,7 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.savefig(fname=f'Real_synthetic_scatterplot_z_{z}',dpi=200)
         print('Real and Synthetic scatterplot saved')
-        plt.close()
+        plt.close('all')
 
         plt.subplot(2,2,1)
         plt.hist(x1_df,label='Actual Data',bins=150)
@@ -292,7 +292,7 @@ def One_D_ellipse_tilt_hist(df):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
     plt.savefig(fname="XTiltHist.png")
-    plt.close()
+    plt.close('all')
     plt.figure()
     ax = plt.gca()
     ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
@@ -302,7 +302,7 @@ def One_D_ellipse_tilt_hist(df):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
     plt.savefig(fname="YTiltHist.png")
-    plt.close()
+    plt.close('all')
 
 def Two_D_hex_plot(df):
     ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
