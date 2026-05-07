@@ -41,6 +41,12 @@ def delaunay_triangulation(df):
     subset = df[df['z_idx'] == 1]
     points = subset[['x', 'y']].to_numpy()
     tri = Delaunay(points)
+
+    neighbours = []
+    for pindex in range(len(points)):
+        neighbours.append(tri.vertex_neighbor_vertices[1][tri.vertex_neighbor_vertices[0][pindex]:tri.vertex_neighbor_vertices[0][pindex+1]])
+
+    print(neighbours)
     
     plt.figure() 
     plt.triplot(points[:,0], points[:,1], tri.simplices)

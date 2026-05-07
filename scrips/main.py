@@ -36,18 +36,37 @@ for r in df.itertuples(index=True):
     first = False
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
+
 #Ellipse plot
 plotellipse(df,120)
+
 #Save 1D histograms
+plt.figure()
 ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+ax.set_title('Fiber x-tilt Histogram')
+ax.set_xlabel('Fiber angle x-tilt (°)')
+ax.set_ylabel('Frequency')
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, ["Ellipse method", "Finite difference method"])
 plt.savefig(fname="XTiltHist.png")
-ax2 = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+plt.close()
+plt.figure()
+ax = plt.gca()
+ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
+ax.set_title('Fiber y-tilt Histogram')
+ax.set_xlabel('Fiber angle y-tilt (°)')
+ax.set_ylabel('Frequency')
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, ["Ellipse method", "Finite difference method"])
 plt.savefig(fname="YTiltHist.png")
+plt.close()
+
 #Save 2D hex plots
 ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="EllipseTiltHex.png")
 ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
 plt.savefig(fname="FiniteTiltHex.png")
+
 # Save and write standard deviations
 fstd = (df[["angle_x_deg"]].std(), df[["angle_y_deg"]].std())
 estd = (df[["EllipseXTilt"]].std(), df[["EllipseYTilt"]].std())
@@ -73,6 +92,7 @@ par_1,par_2 = 'angle_x_deg','angle_y_deg'
 df_grouped = df.groupby('z')
 
 mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
+std_arr = df_grouped.std()[[par_1,par_2]].to_numpy()
 
 ### Magic
 cov_series = df_grouped.apply(
@@ -144,7 +164,9 @@ plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
-#plot_synthetic_data(par_1,par_2,mean_arr,df,data_sim_arr[1],[30,60])
+plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
+
+chi_squared(par_1,par_2,df[[par_1,par_2]].to_numpy(),data_sim_arr,cop_models)
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
@@ -158,7 +180,6 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 delaunay_fig = delaunay_triangulation(df)
-plt.savefig(fname='delaunay')
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
