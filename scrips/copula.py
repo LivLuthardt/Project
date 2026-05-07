@@ -125,15 +125,16 @@ def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
 
     return sim_df
 
-def chi_squared(x1,x2,df_clean,df_sim,cop_lst,bins=50):
-    bins_x1_clean,_ = np.histogram(df_clean[:,0],bins=bins)
-    bins_x2_clean,_ = np.histogram(df_clean[:,1],bins=bins)
-    for i,model in enumerate(cop_lst):
+def chi_squared_2d(df,df_sim,cop_lst,bins=3,z=30):
+    df = sort(df,z)
 
+    for i,model_name in enumerate(cop_lst):
+        # obs_counts,xedges,yedges = np.histogram2d(df_sim[:,1:-1,:,0].flatten(),df_sim[:,1:-1,:,1].flatten(),bins=bins)
+        # print(f'SHAPE\n{df[:,0].flatten().shape}\n{df_sim[i,1:-1,:,0].flatten().shape}')
 
-        obs_counts,xedges,yedges = np.histogram2d(df_sim[i,1:-1,:,0].flatten(),df_sim[i,1:-1,:,1].flatten(),bins=14)
+        obs_counts,xedges,yedges = np.histogram2d(df_sim[i,z,:,0].flatten(),df_sim[i,z,:,1].flatten(),bins=bins)
 
-        sim_counts, _, _ = np.histogram2d(df_clean[:,0].flatten(), df_clean[:,1].flatten(), bins=(xedges, yedges))
+        sim_counts, _, _ = np.histogram2d(df[:,0], df[:,1], bins=(xedges, yedges))
 
         if sim_counts.sum() > 0: # Prevent divide-by-zero if simulation is empty
             sim_counts = sim_counts * (obs_counts.sum() / sim_counts.sum())
@@ -141,16 +142,29 @@ def chi_squared(x1,x2,df_clean,df_sim,cop_lst,bins=50):
         obs_flat = obs_counts.flatten()
         sim_flat = sim_counts.flatten()
 
+        # chisq = sp.stats.chisquare(obs_flat,sim_flat)
         chisq = sp.stats.chisquare(obs_flat,sim_flat)
-        print(chisq)
+        print(f'2-dimensional chi-squared for {model_name}: {chisq}')
 
-        """ 
-        bins_x1_sim,_ = np.histogram(df_sim[i,1:-1,:,0],bins=bins)
-        bins_x2_sim,_ = np.histogram(df_sim[i,1:-1,:,1],bins=bins)
 
-        chisq_x1 = sp.stats.chisquare(bins_x1_sim,bins_x1_clean)
-        chisq_x1 = sp.stats.chisquare(bins_x1_sim,bins_x1_clean)
-        chisq_x1 = sp.stats.chisquare(bins_x1_sim,bins_x1_clean)
-        chisq_x2 = sp.stats.chisquare(bins_x2_sim,bins_x2_clean)
-        """
-        # print(f'Chisquared for {model}:\n{x1} = {chisq_x1}\n{x2} = {chisq_x2}')
+def chi_squared_1d(x1,x2,df,df_sim,cop_lst,bins=5,z=30):
+
+    df = sort(df,z)
+
+    for i,model in enumerate(cop_lst):
+        obs_counts_x1,edges = np.histogram(df_sim[i,z,:,0].flatten(),bins=bins)
+        sim_counts_x1,_     = np.histogram(df[:,0],bins=edges)
+
+        if sim_counts_x1.sum() > 0: # Prevent divide-by-zero if simulation is empty
+            sim_counts_x1 = sim_counts_x1 * (obs_counts_x1.sum() / sim_counts_x1.sum())
+
+        obs_counts_x2,edges = np.histogram(df_sim[i,z,:,1].flatten(),bins=bins)
+        sim_counts_x2,_     = np.histogram(df[:,1],bins=edges)
+
+        if sim_counts_x2.sum() > 0: # Prevent divide-by-zero if simulation is empty
+            sim_counts_x2 = sim_counts_x2 * (obs_counts_x2.sum() / sim_counts_x2.sum())
+
+        chisq_x1 = sp.stats.chisquare(obs_counts_x1.flatten(),sim_counts_x1.flatten())
+        chisq_x2 = sp.stats.chisquare(obs_counts_x2.flatten(),sim_counts_x2.flatten())
+
+        print(f'1-dimensional chi-squared for {model}:\n{x1} = {chisq_x1}\n{x2} = {chisq_x2}')
