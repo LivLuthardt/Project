@@ -47,7 +47,8 @@ plt.plot(k_range, avg_distances, color='blue', linestyle='dashed', marker='o', m
 plt.title('Average K-Distance vs. K Value (Find the Elbow)')
 plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
-plt.show()
+plt.close()
+#plt.show()
 
 from kneed import KneeLocator
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
@@ -105,17 +106,23 @@ for item in layer_0_results_d:
 mean_scores_0_d = np.mean(scores_0_d)
 std_scores_0_d = np.std(scores_0_d)
 #Threshold
-n_std_d = -1
+n_std_d = 1
 threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
 # Plot histogram
 plt.figure()
 plt.hist(scores_0_d, bins=100)
+<<<<<<< Updated upstream
 plt.axvline(threshold_distance,color = 'r', label = 'Threshold') 
 plt.title("Distance Histogram")
 plt.xlabel("Distance between pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Distance_Histogram')
+=======
+plt.axvline(threshold_distance) 
+plt.title("Distance Histogram") 
+#plt.show()
+>>>>>>> Stashed changes
 plt.close()
 print("Mean_Distance:", mean_scores_0_d)
 print("Std_Distance:", std_scores_0_d)
@@ -128,18 +135,27 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
+<<<<<<< Updated upstream
 n_std_a = 2
+=======
+n_std_a = -2
+>>>>>>> Stashed changes
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
 plt.hist(scores_0_a, bins=100)
 plt.axvline(threshold_angle,color = 'r', label = 'Threshold') 
 plt.title("Angle Histogram")
+<<<<<<< Updated upstream
 plt.xlabel("Angle bwetween pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Angle_Histogram')
 plt.close()
+=======
+plt.close()
+#plt.show()
+>>>>>>> Stashed changes
 print("Mean_Angle:", mean_scores_0_a)
 print("Std_Angle:", std_scores_0_a)
 print("Threshold_Angle", threshold_angle)
@@ -246,6 +262,7 @@ pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i i
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Combined distance + angle graph")
 plt.show()
+<<<<<<< Updated upstream
 
 
 """Iteration through layers"""
@@ -253,3 +270,10 @@ plt.show()
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
 
+=======
+print("Combined graph nodes:", G_both.number_of_nodes())
+print("Combined graph edges:", G_both.number_of_edges())
+print("Isolated nodes:", len(list(nx.isolates(G_both))))
+print("Amount of clusters:", len(clusters))
+print("Cluster sizes:", [len(c) for c in clusters])
+>>>>>>> Stashed changes
