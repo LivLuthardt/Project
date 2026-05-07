@@ -5,6 +5,7 @@ import numpy as np
 import plotly.express as px
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
+from copula import sort
 
 def plot_ellipse(df,z):
 
