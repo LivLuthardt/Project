@@ -103,7 +103,18 @@ def plot_cop_parameters(cop_lst,ax1,ax2):
         ax.legend()
         ax.set_title(f'Parameter {i}')
 
-    return
+    fig, (ax1,ax2) = plt.subplots(1,2)
+
+    for cops in cop_lst:
+        plot_cop_parameters(cops,ax1,ax2)
+
+    ax1.plot(zz,cov_arr,label='Actual correlation')
+
+    fig.tight_layout()
+    fig.savefig(fname='Copula_correlation',dpi=200)
+    print(f'Copula Correlation plot saved')
+    plt.close('all')
+
 
 def get_L_and_phi(df_cleaned):
     df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
