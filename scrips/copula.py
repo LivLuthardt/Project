@@ -171,24 +171,25 @@ def chi_squared_2d(df,df_sim,cop_lst,bins=3,z=30):
         print(f'2-dimensional chi-squared for {model_name}: {chisq}')
 
 
-def chi_squared_1d(x1,x2,df,df_sim,cop_lst,bins=5,z=30):
+def chi_squared_1d(x1,x2,df,df_sim,cop_lst,zz,bins=5):
 
-    df = sort(df,z)
+    chi_arr = np.empty((len(cop_lst),len(zz),2))
 
-    for i,model in enumerate(cop_lst):
-        obs_counts_x1,edges = np.histogram(df_sim[i,z,:,0].flatten(),bins=bins)
-        sim_counts_x1,_     = np.histogram(df[:,0],bins=edges)
+    for z in zz:
+        df_z = sort(df,z)
 
-        if sim_counts_x1.sum() > 0: # Prevent divide-by-zero if simulation is empty
-            sim_counts_x1 = sim_counts_x1 * (obs_counts_x1.sum() / sim_counts_x1.sum())
+        for i,model in enumerate(cop_lst):
+            for j in range(2):
+                obs_counts,edges = np.histogram(df_sim[i,z,:,j].flatten(),bins=bins)
+                sim_counts,_     = np.histogram(df_z[:,j],bins=edges)
 
-        obs_counts_x2,edges = np.histogram(df_sim[i,z,:,1].flatten(),bins=bins)
-        sim_counts_x2,_     = np.histogram(df[:,1],bins=edges)
+                if sim_counts.sum() > 0: # Prevent divide-by-zero if simulation is empty
+                    sim_counts = sim_counts * (obs_counts.sum() / sim_counts.sum())
 
-        if sim_counts_x2.sum() > 0: # Prevent divide-by-zero if simulation is empty
-            sim_counts_x2 = sim_counts_x2 * (obs_counts_x2.sum() / sim_counts_x2.sum())
+                chisq,p_val = sp.stats.chisquare(obs_counts.flatten(),sim_counts.flatten())
+                chi_arr[i,z-1,j] = chisq
 
-        chisq_x1 = sp.stats.chisquare(obs_counts_x1.flatten(),sim_counts_x1.flatten())
-        chisq_x2 = sp.stats.chisquare(obs_counts_x2.flatten(),sim_counts_x2.flatten())
-
-        print(f'1-dimensional chi-squared for {model}:\n{x1} = {chisq_x1}\n{x2} = {chisq_x2}')
+    
+    # plt.close('all')
+    # plt.plot(chi_arr[1,:,0])
+    # plt.show()

@@ -127,7 +127,7 @@ for z in zz:
 for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
     for i,model in enumerate(cop_models): #Iterate by copula model
-        if i != 1 or i == 1 and z == 1:
+        if i != 1 or (i == 1 and z == 1):
             data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         elif z > 1 and i==1:    
             cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
@@ -172,8 +172,10 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
+plot_theta_z(df,data_sim_arr,cop_models)
+
 chi_squared_2d(df,data_sim_arr,cop_models)
-chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models)
+chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
