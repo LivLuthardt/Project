@@ -8,10 +8,9 @@ from data_clean import data_cleaned
 from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
+from kneed import KneeLocator
 
-#shsgs
-
-"""Ïmport data and manipulate dataframe"""
+"""Import data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
@@ -20,13 +19,18 @@ layer_0 = df[df['z_idx'] == 0]
 layer_0 = layer_0.reset_index(drop=True)
 
 features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
+
+"""
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
 scaled_data = np.column_stack((layer_0['fibre_id'].values, scaled_data))
+"""
 
+cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
+cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
 """ --- Optimal n_neighbors (Elbow Method) --- """
-X_eval = scaled_data[:, 1:] # Exclude fibre_id
+X_eval = cleaned_data[:, 1:] # Exclude fibre_id
 
 avg_distances = []
 k_range = range(1, 50) 
@@ -42,9 +46,10 @@ plt.plot(k_range, avg_distances, color='blue', linestyle='dashed', marker='o', m
 plt.title('Average K-Distance vs. K Value (Find the Elbow)')
 plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
-plt.show()
+#plt.show()
+plt.savefig(fname = 'Elbow')
+plt.close()
 
-from kneed import KneeLocator
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
 optimal_k = kneedle.knee
 print(f"The optimal number of neighbors is: {optimal_k}")
@@ -52,40 +57,40 @@ print(f"The optimal number of neighbors is: {optimal_k}")
 
 
 """Neighborhood rule"""
-def good_neighbor_distance(scaled_data):
+def good_neighbor_distance(cleaned_data):
     #Determine distance metric and store as list
     results_d = []
-    for i in range(len(scaled_data)):
-        for j in range(i+1, len(scaled_data)):
+    for i in range(len(cleaned_data)):
+        for j in range(i+1, len(cleaned_data)):
             #Difference in distances
-            delta_x_norm = scaled_data[i, 1] - scaled_data[j, 1]
-            delta_y_norm = scaled_data[i, 2] - scaled_data[j, 2]
+            delta_x_norm = cleaned_data[i, 1] - cleaned_data[j, 1]
+            delta_y_norm = cleaned_data[i, 2] - cleaned_data[j, 2]
             
             #Distance metric for distance
             D_distance = np.sqrt(delta_x_norm**2 + delta_y_norm**2)
 
             #Store fiber metric score with respective fibre id's
-            fibre_id_i = scaled_data[i, 0]
-            fibre_id_j = scaled_data[j, 0]
+            fibre_id_i = cleaned_data[i, 0]
+            fibre_id_j = cleaned_data[j, 0]
 
             results_d.append((fibre_id_i, fibre_id_j, D_distance))
 
     return results_d
 
-def good_neighbor_angle(scaled_data):
+def good_neighbor_angle(cleaned_data):
     results_a = []
-    for i in range(len(scaled_data)):
-            for j in range(i+1, len(scaled_data)):
+    for i in range(len(cleaned_data)):
+            for j in range(i+1, len(cleaned_data)):
                 #Difference in angles
-                delta_anglex_norm = np.abs(scaled_data[i, 3] - scaled_data[j, 3])
-                delta_angley_norm = np.abs(scaled_data[i, 4] - scaled_data[j, 4])
+                delta_anglex_norm = np.abs(cleaned_data[i, 3] - cleaned_data[j, 3])
+                delta_angley_norm = np.abs(cleaned_data[i, 4] - cleaned_data[j, 4])
 
                 #Distance metric for angle
                 D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
 
                 #Store fiber metric score with respective fibre id's
-                fibre_id_i = scaled_data[i, 0]
-                fibre_id_j = scaled_data[j, 0]
+                fibre_id_i = cleaned_data[i, 0]
+                fibre_id_j = cleaned_data[j, 0]
 
                 results_a.append((fibre_id_i, fibre_id_j, D_angle))
 
@@ -94,20 +99,20 @@ def good_neighbor_angle(scaled_data):
 
 """Plot histogram and determine threshold"""
 scores_0_d = []
-layer_0_results_d = good_neighbor_distance(scaled_data)
+layer_0_results_d = good_neighbor_distance(cleaned_data)
 for item in layer_0_results_d:
     scores_0_d.append(item[2])
 mean_scores_0_d = np.mean(scores_0_d)
 std_scores_0_d = np.std(scores_0_d)
 #Threshold
-n_std_d = -1
+n_std_d = 1
 threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
 # Plot histogram
 plt.figure()
 plt.hist(scores_0_d, bins=100)
 plt.axvline(threshold_distance,color = 'r', label = 'Threshold') 
 plt.title("Distance Histogram")
-plt.xlabel("Distance score")
+plt.xlabel("Distance between pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Distance_Histogram')
@@ -117,20 +122,20 @@ print("Std_Distance:", std_scores_0_d)
 print("Threshold_Distance", threshold_distance)
 
 scores_0_a = []
-layer_0_results_a = good_neighbor_angle(scaled_data)
+layer_0_results_a = good_neighbor_angle(cleaned_data)
 for item in layer_0_results_a:
     scores_0_a.append(item[2])
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = 2
+n_std_a = -2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
 plt.hist(scores_0_a, bins=100)
 plt.axvline(threshold_angle,color = 'r', label = 'Threshold') 
 plt.title("Angle Histogram")
-plt.xlabel("Angle score")
+plt.xlabel("Angle bwetween pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Angle_Histogram')
@@ -141,11 +146,11 @@ print("Threshold_Angle", threshold_angle)
 
 
 """Initialise knn and deteremine clusters + graph from this"""
-results_distance = good_neighbor_distance(scaled_data)
-results_angle = good_neighbor_angle(scaled_data)
+results_distance = good_neighbor_distance(cleaned_data)
+results_angle = good_neighbor_angle(cleaned_data)
 
 #Map fibre_id to row index
-fibre_ids = scaled_data[:, 0].astype(int)
+fibre_ids = cleaned_data[:, 0].astype(int)
 id_to_idx = {fid: i for i, fid in enumerate(fibre_ids)}
 
 #Build distance matrices
@@ -237,15 +242,18 @@ colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default
 node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
-pos = {int(scaled_data[i, 0]): (scaled_data[i, 1], scaled_data[i, 2]) for i in range(len(scaled_data))}
+pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Combined distance + angle graph")
 plt.show()
+print("Combined graph nodes:", G_both.number_of_nodes())
+print("Combined graph edges:", G_both.number_of_edges())
+print("Isolated nodes:", len(list(nx.isolates(G_both))))
+print("Amount of clusters:", len(clusters))
+print("Cluster sizes:", [len(c) for c in clusters])
 
 
 """Iteration through layers"""
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
-
-print(data_clean)

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
-df = tangent_angles_central(data_clean)
+df = tangent_angles_backwards(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
 #ellipse 
@@ -38,7 +38,10 @@ df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = 
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
 #Ellipse plot
-plotellipse(df,120)
+plotellipse(df,1)
+
+#Single fiber projection plot
+single_fiber_plot(df,5)
 
 #Save 1D histograms
 plt.figure()
@@ -113,24 +116,27 @@ data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
 # list to contain copulas 
 # Generate a list with lists inside it
 cop_lst = [[] for _ in range(len(cop_models))]
+u_lst = [[] for _ in range(len(zz)+1)]
+
+#Prepopulate u for student model
+for z in zz:
+    df_z = sort(df, z, par_1, par_2)
+    u_lst[z], cop = bivar_cop_u(df_z, n_fibers) #u corresponds to the appropriate z layer
+    cop_lst[1].append(cop)
 
 for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
     for i,model in enumerate(cop_models): #Iterate by copula model
-        data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
-        if z < 1 and i==1:    
-            #Get Pearson's r betweens layers
-            xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'cor')
-            ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'cor')
-            #Set tilt angles using depth memory
-            xe, ye = -1 + (xcor + (1-xcor**2) ** 0.5), -1 + (ycor + (1-ycor**2) ** 0.5)
-            xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5 - mean_arr[z-1, 0] * xe
-            ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5 - mean_arr[z-1, 1] * ye
-            data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
-        elif z==1:
+        if i != 1 or i == 1 and z == 1:
+            data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
+        elif z > 1 and i==1:    
+            cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
+            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), cor) #Set tilt angles using depth memory
+        if z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
-        cop_lst[i].append(cop)  #Add the copula to the list
-    df_zp = df_z
+        if i != 1:
+            cop_lst[i].append(cop)  #Add the copula to the list
+    df_zp = df_z #Update the variable for the previous layer tilt
 
 
 for cops in cop_lst:
