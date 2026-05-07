@@ -51,13 +51,14 @@ def bivar_cop_u(data,n):
     return u_sim, cop
 
 def depth_mem(data, u, rho):
-    z1, z2 = norm.ppf(u[0]), norm.ppf(u[1])
+    z1, z2 = norm.ppf(u[0]), norm.ppf(u[1]) #Transform from u-space to z-space
+    #Depth-memory calculation
     z2_x = z1[:,0] * rho[0] + z2[:,0] * (1-rho[0]**2) ** 0.5
     z2_y = z1[:,1] * rho[1] + z2[:,1] * (1-rho[1]**2) ** 0.5
-    z2 = np.concatenate([np.reshape(z2_x, (-1, 1)), np.reshape(z2_y, (-1, 1))], axis=1)
-    u2 = norm.cdf(z2)
-    data_sim = np.asarray([np.quantile(data[:, i], u2[:, i]) for i in range(0, 2)])
-    data_sim = np.transpose(data_sim)
+    z2 = np.concatenate([np.reshape(z2_x, (-1, 1)), np.reshape(z2_y, (-1, 1))], axis=1) #Reformat to a single array of (x, y) tilts
+    u2 = norm.cdf(z2) #Transform from z-space to u-space
+    data_sim = np.asarray([np.quantile(data[:, i], u2[:, i]) for i in range(0, 2)]) #Transform from u-space to x-space
+    data_sim = np.transpose(data_sim) #Reshape
     return data_sim, u2
 
 def vine_copula(x,n): #n is number of fibers in a layer

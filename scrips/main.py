@@ -136,7 +136,7 @@ for z in zz:    #Iterate by layer
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         if i != 1:
             cop_lst[i].append(cop)  #Add the copula to the list
-    df_zp = df_z
+    df_zp = df_z #Update the variable for the previous layer tilt
 
 
 for cops in cop_lst:
