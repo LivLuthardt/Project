@@ -38,7 +38,10 @@ df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = 
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
 #Ellipse plot
-plotellipse(df,120)
+plotellipse(df,1)
+
+#Single fiber projection plot
+single_fiber_plot(df,5)
 
 #Save 1D histograms
 plt.figure()

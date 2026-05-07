@@ -1,6 +1,32 @@
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.patches import Ellipse
 import numpy as np
+import plotly.express as px
+
+def plotellipse(df,z):
+
+    df = df[df["z_idx"] == z]
+    
+    fig, ax = plt.subplots(figsize=(14*3,1*3))
+    for i in range(len(df)):
+        x = df.iloc[i]['x']
+        y = df.iloc[i]['y']
+        a = df.iloc[i]['a']
+        b = df.iloc[i]['b']
+        xytilt = df.iloc[i]['xytilt']
+
+        ellipse = Ellipse(xy=(x, y), width=a*2, height=b*2, angle=np.degrees(xytilt), fill=False)
+        ax.add_patch(ellipse)
+
+    ax.set_xlim(-5, 1220) #full domain and range
+    ax.set_ylim(-170, 5)
+
+    #ax.set_xlim(-5, 145) #section of domain and range
+    #ax.set_ylim(-145, 5)
+
+    ax.set_aspect('equal')
+    plt.savefig(fname="EllipsePlot.png")
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
@@ -94,3 +120,18 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
+
+def single_fiber_plot(df,id):
+    df = df[df['fibre_id'] == id]
+
+    fig = px.line(
+        df, 
+        x='x', 
+        y='y', 
+        markers=True,
+        title=f"Fiber ID: {id}",
+        line_shape='linear'
+    )
+
+    #fig.show()
+    fig.write_image(f"Fiber_xy_proj_plot.png")
