@@ -47,8 +47,9 @@ plt.plot(k_range, avg_distances, color='blue', linestyle='dashed', marker='o', m
 plt.title('Average K-Distance vs. K Value (Find the Elbow)')
 plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
-plt.close()
 #plt.show()
+plt.savefig(fname = 'Elbow')
+plt.close()
 
 from kneed import KneeLocator
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
