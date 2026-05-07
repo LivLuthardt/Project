@@ -7,7 +7,7 @@ from scipy.stats import norm
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     """  
-    Sort pd dataframe by taking 2 parameters for a particular z_idx value
+    Sort pd dataframe by taking 2 parameters for a particular z_idx value and convert to numpy
     """
     return data[data['z_idx'] == n][[x1,x2]].to_numpy()
 
@@ -189,7 +189,7 @@ def chi_squared_1d(x1,x2,df,df_sim,cop_lst,zz,bins=5):
                 chisq,p_val = sp.stats.chisquare(obs_counts.flatten(),sim_counts.flatten())
                 chi_arr[i,z-1,j] = chisq
 
-    
+
     # plt.close('all')
     # plt.plot(chi_arr[1,:,0])
     # plt.show()
