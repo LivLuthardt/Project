@@ -48,7 +48,7 @@ plt.title('Average K-Distance vs. K Value (Find the Elbow)')
 plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
 plt.close()
-#plt.show()
+plt.show()
 
 from kneed import KneeLocator
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
@@ -129,7 +129,7 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = -2
+n_std_a = 2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
