@@ -165,16 +165,34 @@ def sse_plot_kmeans_pca(df, n_components=3):
 
     #fig.show()
 
-def plot_fibers(clustered,title):
-    fig_3d = px.line_3d(
-        clustered, 
+def plot_fibers(df,title):
+    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    fig = px.line_3d(
+        df, 
+        x='x', y='y', z='z', 
+        color='fibre_id',
+        title=title
+    )
+    fig.update_layout(
+    scene=dict(aspectmode="manual",
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
+    )
+    #fig.show()
+
+def plot_fibers_clustered(df,title):
+    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    fig = px.line_3d(
+        df, 
         x='x', y='y', z='z', 
         color='cluster_id',
         line_group='fibre_id',
         title=title
     )
-    #fig_3d.show()
-    print(f'Plot {title} finished')
+    fig.update_layout(
+    scene=dict(aspectmode="manual",
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
+    )
+    #fig.show()
 
 def plot_score(df, n_clusters):
     score_list_k = []
