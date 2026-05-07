@@ -61,5 +61,30 @@ def tiltAngles(a, b, theta):
     beta = gamma * np.sin(theta)
     return alpha, beta"""
 
+def getEllipseValues(df):
+    xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = [], [], [], [], [] #Init empty lists
+    first = True
+    for r in df.itertuples(index=True):
+        x2 = (r[3], r[4], r[2]) #Current fiber point
+        if first: 
+            x1 = x2
+            tilt = (0, 0) #Can't compute tilt from a single point
+            theta = 0 #same for axes and angles
+            a, b = 0,0
+        else:  
+            tilt = eTiltAngles(x1, x2) #Pass the past and current points
+            theta = ellipseAngle(x1, x2)
+            a, b = getEllipse(x1, x2)
+
+        xtiltAngles.append(tilt[0])
+        ytiltAngles.append(tilt[1])
+        xytiltAngles.append(theta)
+        alist.append(a)
+        blist.append(b)
+        x1 = x2 #Set the current point to the past point
+        first = False
+    
+    return xtiltAngles, ytiltAngles, xytiltAngles, alist, blist
+
 if __name__ == "__main__":
     print(eTiltAngles([0, 0, 0], [1, 0, 1]))
