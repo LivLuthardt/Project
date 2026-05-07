@@ -1,6 +1,34 @@
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
+from matplotlib.patches import Ellipse
 import numpy as np
+import plotly.express as px
+import pandas as pd
+from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
+
+def plotellipse(df,z):
+
+    df = df[df["z_idx"] == z]
+    
+    fig, ax = plt.subplots(figsize=(14*3,1*3))
+    for i in range(len(df)):
+        x = df.iloc[i]['x']
+        y = df.iloc[i]['y']
+        a = df.iloc[i]['a']
+        b = df.iloc[i]['b']
+        xytilt = df.iloc[i]['xytilt']
+
+        ellipse = Ellipse(xy=(x, y), width=a*2, height=b*2, angle=np.degrees(xytilt), fill=False)
+        ax.add_patch(ellipse)
+
+    ax.set_xlim(-5, 1220) #full domain and range
+    ax.set_ylim(-170, 5)
+
+    #ax.set_xlim(-5, 145) #section of domain and range
+    #ax.set_ylim(-145, 5)
+
+    ax.set_aspect('equal')
+    plt.savefig(fname="EllipsePlot.png")
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
@@ -94,3 +122,145 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
+
+def single_fiber_plot(df,id):
+    df = df[df['fibre_id'] == id]
+
+    fig = px.line(
+        df, 
+        x='x', 
+        y='y', 
+        markers=True,
+        title=f"Fiber ID: {id}",
+        line_shape='linear'
+    )
+
+    #fig.show()
+    fig.write_image(f"Fiber_xy_proj_plot.png")
+
+def sse_plot_kmeans_pca(df, n_components=3):
+    sse_pca = []
+    n_clusters_range = range(1, 11)
+
+    for k in n_clusters_range:
+        _, inertia_pca, _, _ = perform_kmeans_clustering_with_pca(
+            df,
+            n_clusters=k,
+            n_components=n_components
+        )
+        sse_pca.append(inertia_pca)
+
+    plot_df_pca = pd.DataFrame({
+        'Number of Clusters': n_clusters_range,
+        'SSE': sse_pca
+    })
+
+    fig = px.line(
+        plot_df_pca,
+        x='Number of Clusters',
+        y='SSE',
+        markers=True,
+        title=f"SSE vs Number of Clusters (K-means with PCA, {n_components} PCs)"
+    )
+
+    #fig.show()
+
+def plot_fibers(clustered,title):
+    fig_3d = px.line_3d(
+        clustered, 
+        x='x', y='y', z='z', 
+        color='cluster_id',
+        line_group='fibre_id',
+        title=title
+    )
+    #fig_3d.show()
+    print(f'Plot {title} finished')
+
+def plot_score(df, n_clusters):
+    score_list_k = []
+    score_list_gmm = []
+    score_list_agg = []
+    for n in n_clusters:
+        _,_, score_k = perform_kmeans_clustering(df,n)
+        _,_,_, score_gmm = perform_gmm_clustering(df,n)
+        _,_, score_agg = perform_agglomerative_clustering(df,n)
+    
+        score_list_k.append(score_k)
+        score_list_gmm.append(score_gmm)
+        score_list_agg.append(score_agg)
+
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': list(n_clusters) * 3,
+        'Calinski-Harabasz': score_list_k + score_list_gmm + score_list_agg,
+        'Method': ['K-means'] * len(n_clusters) + ['GMM'] * len(n_clusters) + ['Agglomerative'] * len(n_clusters)
+    })
+
+    # Create 2D line plot with Plotly Express, coloring by Method
+    fig = px.line(
+        plot_df,
+        x='Number of Clusters',
+        y='Calinski-Harabasz',
+        color='Method',
+        markers=True,
+        title="Calinski-Harabasz score vs Number of Clusters for Clustering Methods"
+    )
+
+    #fig.show()
+    fig.write_image(f"CD_score_plot.png")
+    print(f'Plot CD finished')
+
+def plot_sse_k(df, n_clusters):
+    sse = []
+    for k in n_clusters:
+        _ , inertia, _ = perform_kmeans_clustering(df,n_clusters=k)
+        sse.append(inertia)
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': n_clusters,
+        'SSE': sse
+    })
+
+    # Create 2D line plot with Plotly Express
+    fig = px.line(
+        plot_df, 
+        x='Number of Clusters', 
+        y='SSE', 
+        markers=True,
+        title="SSE vs Number of Clusters for K-means"
+    )
+
+    #fig.show()
+    fig.write_image(f"SSE_k_means.png")
+    print(f'Plot SSE K-means finished')
+
+def plot_aic_bic_gmm(df, n_clusters):
+    aic_vals = []
+    bic_vals = []
+    for k in n_clusters:
+        _ , aic , bic, _ = perform_gmm_clustering(df,n_clusters=k)
+        aic_vals.append(aic)
+        bic_vals.append(bic)
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Number of Clusters': list(n_clusters) * 2,
+        'Criterion': ['AIC'] * len(n_clusters) + ['BIC'] * len(n_clusters),
+        'Value': aic_vals + bic_vals
+    })
+
+    fig = px.line(
+        plot_df, 
+        x='Number of Clusters', 
+        y='Value', 
+        color='Criterion',
+        markers=True,
+        title="AIC and BIC vs Number of Clusters for GMM",
+        labels={'Value': 'Criterion Value'}
+    )
+
+    #fig.show()
+    fig.write_image(f"AIC_BIC_GMM.png")
+    print(f'Plot AIC BIC GMM finished')

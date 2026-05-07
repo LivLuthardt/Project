@@ -38,7 +38,10 @@ df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = 
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
 #Ellipse plot
-plotellipse(df,120)
+plotellipse(df,1)
+
+#Single fiber projection plot
+single_fiber_plot(df,5)
 
 #Save 1D histograms
 plt.figure()
@@ -124,24 +127,16 @@ for z in zz:
 for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
     for i,model in enumerate(cop_models): #Iterate by copula model
-        if i != 1:
+        if i != 1 or i == 1 and z == 1:
             data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         elif z > 1 and i==1:    
-            #Get Spearman's rho betweens layers
-            xcor = pv.wdm(df_zp[:,0], df_z[:,0], 'rho')
-            ycor = pv.wdm(df_zp[:,1], df_z[:,1], 'rho')
-            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), (xcor, ycor))
-            #Set tilt angles using depth memory
-            #xe, ye = -1 + (xcor + (1-xcor**2) ** 0.5), -1 + (ycor + (1-ycor**2) ** 0.5)
-            #xtilt = data_sim_arr[i,z-1][:,0] * xcor + (data_sim_arr[i,z][:,0]) * (1-xcor**2) ** 0.5 - mean_arr[z-1, 0] * xe
-            #ytilt = data_sim_arr[i,z-1][:,1] * ycor + (data_sim_arr[i,z][:,1]) * (1-ycor**2) ** 0.5 - mean_arr[z-1, 1] * ye
-            #data_sim_arr[i,z] = np.concatenate([np.reshape(xtilt, (-1, 1)), np.reshape(ytilt, (-1, 1))], axis=1)
+            cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
+            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), cor) #Set tilt angles using depth memory
         if z==1:
-            if i == 1: data_sim_arr[1,z], cop = bivariate_copula(df_z,n_fibers,model=pv.student)
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         if i != 1:
             cop_lst[i].append(cop)  #Add the copula to the list
-    df_zp = df_z
+    df_zp = df_z #Update the variable for the previous layer tilt
 
 
 for cops in cop_lst:
