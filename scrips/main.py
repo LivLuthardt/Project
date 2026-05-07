@@ -110,15 +110,15 @@ sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 plot_fibers(sim_df,'Synthetic Fibers')
 
 ### Plot copulas parameters
-cop_fig, (ax5,ax6) = plt.subplots(1,2)
+fig, (ax1,ax2) = plt.subplots(1,2)
 
 for cops in cop_lst:
-    plot_cop_parameters(cops,ax5,ax6)
+    plot_cop_parameters(cops,ax1,ax2)
 
-ax5.plot(zz,cov_arr,label='Actual correlation')
+ax1.plot(zz,cov_arr,label='Actual correlation')
 
-cop_fig.tight_layout()
-cop_fig.savefig(fname='Copula_correlation',dpi=200)
+fig.tight_layout()
+fig.savefig(fname='Copula_correlation',dpi=200)
 print(f'Copula Correlation plot saved')
 plt.close('all')
 
