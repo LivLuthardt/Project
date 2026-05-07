@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy as sp
-
+from scipy.stats import norm
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     """  
@@ -36,6 +36,29 @@ def bivariate_copula(data,n,model=None): #n is number of fibers in a layer
     data_sim = np.transpose(data_sim)
 
     return data_sim,cop
+
+def bivar_cop_u(data,n):
+     # Perform PIT on observed data
+    u = pv.to_pseudo_obs(data)
+
+    # If no family is specified, this means that cop.select will run to choose a family
+    # You should avoid running without specifying a family because it takes ages to run
+    cop = pv.Bicop(pv.student)
+    cop.fit(data=u)
+
+    # Create synthetic dataset from the fresh copula
+    u_sim = cop.simulate(n)
+    return u_sim, cop
+
+def depth_mem(data, u, rho):
+    z1, z2 = norm.ppf(u[0]), norm.ppf(u[1])
+    z2_x = z1[:,0] * rho[0] + z2[:,0] * (1-rho[0]**2) ** 0.5
+    z2_y = z1[:,1] * rho[1] + z2[:,1] * (1-rho[1]**2) ** 0.5
+    z2 = np.concatenate([np.reshape(z2_x, (-1, 1)), np.reshape(z2_y, (-1, 1))], axis=1)
+    u2 = norm.cdf(z2)
+    data_sim = np.asarray([np.quantile(data[:, i], u2[:, i]) for i in range(0, 2)])
+    data_sim = np.transpose(data_sim)
+    return data_sim, u2
 
 def vine_copula(x,n): #n is number of fibers in a layer
     # Do PIT
