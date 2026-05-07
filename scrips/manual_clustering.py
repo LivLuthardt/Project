@@ -8,10 +8,9 @@ from data_clean import data_cleaned
 from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
+from kneed import KneeLocator
 
-#shsgs
-
-"""Ïmport data and manipulate dataframe"""
+"""Import data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
@@ -49,7 +48,6 @@ plt.xlabel('K (Number of Neighbors)')
 plt.ylabel('Average Distance to K-th Neighbor')
 plt.show()
 
-from kneed import KneeLocator
 kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
 optimal_k = kneedle.knee
 print(f"The optimal number of neighbors is: {optimal_k}")
