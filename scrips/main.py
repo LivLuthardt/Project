@@ -112,9 +112,11 @@ plot_fibers(sim_df,'Synthetic Fibers')
 ### Plot copulas parameters
 fig, (ax1,ax2) = plt.subplots(1,2)
 
+# TODO this function is now broken
+""" 
 for cops in cop_lst:
     plot_cop_parameters(cops,ax1,ax2)
-
+"""
 ax1.plot(zz,cov_arr,label='Actual correlation')
 
 fig.tight_layout()

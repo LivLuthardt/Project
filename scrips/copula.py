@@ -108,7 +108,7 @@ def plot_cop_parameters(cop_lst,ax1,ax2):
     for cops in cop_lst:
         plot_cop_parameters(cops,ax1,ax2)
 
-    ax1.plot(zz,cov_arr,label='Actual correlation')
+    # ax1.plot(zz,cov_arr,label='Actual correlation')
 
     fig.tight_layout()
     fig.savefig(fname='Copula_correlation',dpi=200)

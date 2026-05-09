@@ -316,14 +316,14 @@ def plot_theta_z(data_raw,data_sim_arr,cop_models):
     Take raw data and simulated data and plot the absolute mean of
     fiber angle projected on xy-plane (theta in literature) 
     """
-    theta_z_sim = np.atan2(data_sim_arr[:,:,:,0],data_sim_arr[:,:,:,1])
+    theta_z_sim = np.degrees(np.atan2(np.radians(data_sim_arr[:,:,:,0]),np.radians(data_sim_arr[:,:,:,1])))
     theta_z_sim = np.mean(theta_z_sim,axis=2)
     theta_z_sim = np.abs(theta_z_sim)
 
     theta_z_raw = np.empty(129)
     for z in range(129):
         data_z = sort(data_raw,z)
-        theta_z = np.atan2(data_z[:,0],data_z[:,1])
+        theta_z = np.degrees(np.atan2(np.radians(data_z[:,0]),np.radians(data_z[:,1])))
         theta_z_raw[z] = np.mean(theta_z)
     # theta_z = np.atan2(data_raw[:,0],data_raw[:,1])
     # theta_z_sim = np.mean()
