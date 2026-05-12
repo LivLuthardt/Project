@@ -93,8 +93,9 @@ for z in zz:    #Iterate by layer
         if i != 1 or (i == 1 and z == 1):
             data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         elif z > 1 and i==1:    
-            cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
-            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), cor) #Set tilt angles using depth memory
+            cor = np.array([pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')]) #Get Spearman's rho betweens layers
+            rho_g = 2 * np.sin(np.pi / 6 * cor) #Adapt rho for the z-domain
+            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), rho_g) #Set tilt angles using depth memory
         if z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         if i != 1:
