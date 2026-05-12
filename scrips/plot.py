@@ -9,7 +9,7 @@ from copula import sort
 
 def plot_ellipse(df,z):
     """
-    Takes a dataframe and a z-level (0,128) and plots an ellipse intersection plot
+    takes a dataframe and a z-level (0,128) and plots an ellipse intersection plot
     """
     df = df[df["z_idx"] == z]
     
@@ -125,11 +125,12 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
 def single_fiber_plot(df,id):
     """
-    Plots the projection of a single fiber onto the xy plane to show the misalignment
+    plots the projection of a single fiber onto the xy plane to show the misalignment
     """
     df = df[df['fibre_id'] == id] #get a dataframe of one fiber
 
-    fig = px.line( #plot a 2D plot of the projection of the fiber onto the xy plane
+    #plot a 2D plot of the projection of the fiber onto the xy plane
+    fig = px.line( 
         df, 
         x='x', 
         y='y', 
@@ -143,7 +144,7 @@ def single_fiber_plot(df,id):
 
 def sse_plot_kmeans_pca(df, n_components=3):
     """
-    Uses the clustered dataframe and the number of principal component
+    uses the clustered dataframe and the number of principal component
     to make a 3D-plot of the clustered fibers
     """
     sse_pca = []
@@ -159,7 +160,7 @@ def sse_plot_kmeans_pca(df, n_components=3):
         )
         sse_pca.append(inertia_pca)
 
-    #make a dataframe with the number of clusters and sse
+    #create a dataframe for plotting
     plot_df_pca = pd.DataFrame({
         'Number of Clusters': n_clusters_range,
         'SSE': sse_pca
@@ -173,7 +174,6 @@ def sse_plot_kmeans_pca(df, n_components=3):
         markers=True,
         title=f"SSE vs Number of Clusters (K-means with PCA, {n_components} PCs)"
     )
-
     #fig.show()
 
 def plot_fibers(df,title):
@@ -214,9 +214,13 @@ def plot_fibers_clustered(df,title):
     #fig.show()
 
 def plot_score(df, n_clusters):
+    """
+    gets a dataframe and range of number of clusters to plot the Calinski–Harabasz index for k-means, GMM and agglomerative
+    """
     score_list_k = []
     score_list_gmm = []
     score_list_agg = []
+    #get CH index for all clustering methods
     for n in n_clusters:
         _,_, score_k = perform_kmeans_clustering(df,n)
         _,_,_, score_gmm = perform_gmm_clustering(df,n)
@@ -227,14 +231,14 @@ def plot_score(df, n_clusters):
         score_list_agg.append(score_agg)
 
 
-    # Create a DataFrame for plotting
+    #create a dataframe for plotting
     plot_df = pd.DataFrame({
         'Number of Clusters': list(n_clusters) * 3,
         'Calinski-Harabasz': score_list_k + score_list_gmm + score_list_agg,
         'Method': ['K-means'] * len(n_clusters) + ['GMM'] * len(n_clusters) + ['Agglomerative'] * len(n_clusters)
     })
 
-    # Create 2D line plot with Plotly Express, coloring by method
+    #plot a 2D plot of the CH index per number of clusters
     fig = px.line(
         plot_df,
         x='Number of Clusters',
@@ -249,18 +253,24 @@ def plot_score(df, n_clusters):
     print(f'Plot CD finished')
 
 def plot_sse_k(df, n_clusters):
+    """
+    gets a dataframe and range of number of clusters to plot the SSE for k-means
+    """
     sse = []
+
+    #get the inertia (sum of squared distances of samples to their closest cluster center) 
+    #of clustered dataframe for each number of clusters specified
     for k in n_clusters:
         _ , inertia, _ = perform_kmeans_clustering(df,n_clusters=k)
         sse.append(inertia)
 
-    # Create a DataFrame for plotting
+    #create a dataframe for plotting
     plot_df = pd.DataFrame({
         'Number of Clusters': n_clusters,
         'SSE': sse
     })
 
-    # Create 2D line plot with Plotly Express
+    #plot a 2D plot of the SSE per number of clusters
     fig = px.line(
         plot_df, 
         x='Number of Clusters', 
@@ -274,6 +284,9 @@ def plot_sse_k(df, n_clusters):
     print(f'Plot SSE K-means finished')
 
 def plot_aic_bic_gmm(df, n_clusters):
+    """
+    Resume here
+    """
     aic_vals = []
     bic_vals = []
     for k in n_clusters:
