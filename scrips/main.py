@@ -144,7 +144,7 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 # Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
-#-------------------------------------------------------------Clustering (old)-------------------------------------------------------------
+#-------------------------------------------------------------Global clustering (not used anymore)-------------------------------------------------------------
 
 delaunay_fig = delaunay_triangulation(df)
 
