@@ -197,12 +197,18 @@ df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # neighbors(df) 
 
-ks_x, ks_y = ks_global(df)
-ks_x_stat = ks_x.statistic
-ks_x_p = ks_x.pvalue
-ks_y_stat = ks_y.statistic
-ks_y_p = ks_y.pvalue
+ks_x_cd, ks_y_cd = ks_global(df)  # original (finite diff vs ellipse)
+
+# Central difference vs ellipse
+ks_x_cd_stat = ks_2samp(df["angle_x_deg"].dropna(), df["EllipseXTilt"].dropna())
+ks_y_cd_stat = ks_2samp(df["angle_y_deg"].dropna(), df["EllipseYTilt"].dropna())
+
+# Synthetic vs ellipse
+ks_x_syn = ks_2samp(sim_df["angle_x_deg"].dropna(), df["angle_x_deg"].dropna())
+ks_y_syn = ks_2samp(sim_df["angle_y_deg"].dropna(), df["angle_y_deg"].dropna())
 
 with open("Output.txt", "a") as text_file:
-    text_file.write(f"\nKS Test (X): statistic={ks_x.statistic:.4f}, p={ks_x.pvalue:.4e}\n")
-    text_file.write(f"KS Test (Y): statistic={ks_y.statistic:.4f}, p={ks_y.pvalue:.4e}\n")
+    text_file.write(f"\nKS Test Central Diff (X): statistic={ks_x_cd.statistic:.4f}, p={ks_x_cd.pvalue:.4e}\n")
+    text_file.write(f"KS Test Central Diff (Y): statistic={ks_y_cd.statistic:.4f}, p={ks_y_cd.pvalue:.4e}\n")
+    text_file.write(f"\nKS Test Synthetic (X): statistic={ks_x_syn.statistic:.4f}, p={ks_x_syn.pvalue:.4e}\n")
+    text_file.write(f"KS Test Synthetic (Y): statistic={ks_y_syn.statistic:.4f}, p={ks_y_syn.pvalue:.4e}\n")
