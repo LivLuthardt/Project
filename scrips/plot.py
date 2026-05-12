@@ -180,13 +180,13 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-     #change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[df['fibre_id'] < 300]#change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
-        x='x', y='y', z='z', 
+        x='x', y='y', z='z',
         line_group='fibre_id',
-        title=title,  
+        title=title
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",

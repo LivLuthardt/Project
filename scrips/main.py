@@ -12,7 +12,7 @@ data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-plot_fibers(df,'Original dataset')
+plot_fibers(df,'Original Fibers')
 #-------------------------------------------------------------Ellipse-------------------------------------------------------------
 
 xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(data_clean)
