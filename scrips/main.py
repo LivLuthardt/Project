@@ -146,8 +146,6 @@ sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=Fal
 
 #-------------------------------------------------------------Clustering (old)-------------------------------------------------------------
 
-delaunay_fig = delaunay_triangulation(df)
-
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
 
