@@ -14,7 +14,7 @@ fiber_sum,n_fibers = fiber_summary(df)
 
 #-------------------------------------------------------------Ellipse-------------------------------------------------------------
 
-xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(df)
+xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(data_clean)
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
