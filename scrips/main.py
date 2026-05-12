@@ -75,6 +75,25 @@ cop_models = [pv.gaussian,pv.student,pv.frank]
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
 data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
+data_sim_arr_og = np.empty((len(cop_models),129,n_fibers,2))
+
+# OG Copula -----------------------------------------
+# list to contain copulas 
+# Generate a list with lists inside it
+cop_lst_og = [[] for _ in range(len(cop_models))]
+
+for z in zz:
+    df_z = sort(df,z,par_1,par_2)
+    for i,model in enumerate(cop_models):
+        data_sim_arr_og[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
+        cop_lst_og[i].append(cop)
+    for i in range(len(cop_models)):
+        data_sim_arr_og[i,0] = data_sim_arr_og[i,1]
+        
+for cops in cop_lst_og:
+    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+
+#----------------------------------------------------
 
 # list to contain copulas 
 # Generate a list with lists inside it
@@ -102,11 +121,11 @@ for z in zz:    #Iterate by layer
             cop_lst[i].append(cop)  #Add the copula to the list
     df_zp = df_z #Update the variable for the previous layer tilt
 
-
 for cops in cop_lst:
-    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+    print(f'Mean of {cops[0].family} AIC with depth memory: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
 sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
+sim_df_og = reconstruct(data_clean,data_sim_arr_og[1],zz_complete,n_fibers)
 
 # Plot synthetic fibers
 plot_fibers(sim_df,'Synthetic Fibers')
@@ -129,6 +148,7 @@ plt.close('all')
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
+plot_synthetic_data_og(par_1,par_2,mean_arr,std_arr,df,data_sim_arr_og[1],[30,60])
 
 plot_theta_z(df,data_sim_arr,cop_models)
 
