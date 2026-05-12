@@ -65,7 +65,7 @@ cov_series = df_grouped.apply(
     include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
-cop_models = [pv.gaussian,pv.student,pv.frank]
+cop_models = [pv.gaussian,pv.student,pv.student,pv.frank]
 
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
@@ -96,6 +96,8 @@ for z in zz:    #Iterate by layer
             data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), cor) #Set tilt angles using depth memory
         if z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
+        if z==127:
+            data_sim_arr[i,128] = data_sim_arr[i,127] #Forward fill data to last layer
         if i != 1:
             cop_lst[i].append(cop)  #Add the copula to the list
     df_zp = df_z #Update the variable for the previous layer tilt
@@ -104,10 +106,11 @@ for z in zz:    #Iterate by layer
 for cops in cop_lst:
     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
-sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
+sim_df_dm   = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
+sim_df      = reconstruct(data_clean,data_sim_arr[2],zz_complete,n_fibers)
 
 # Plot synthetic fibers
-plot_fibers(sim_df,'Synthetic Fibers')
+plot_fibers(sim_df_dm,'Synthetic Fibers')
 
 ### Plot copulas parameters
 fig, (ax1,ax2) = plt.subplots(1,2)
@@ -128,7 +131,8 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
-plot_theta_z(df,data_sim_arr,cop_models)
+plot_alpha_z(df,data_sim_arr,cop_models)
+plot_theta_z(df,sim_df_dm,sim_df)
 
 chi_squared_2d(df,data_sim_arr,cop_models)
 chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
@@ -136,13 +140,13 @@ chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
 # apparently if we dont do this the objects cause everything to break (making floats)
-sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
+sim_df_dm[['x', 'y', 'z']] = sim_df_dm[['x', 'y', 'z']].apply(pd.to_numeric)
 
-sim_df = tangent_angles_central(sim_df)
-sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
+sim_df_dm = tangent_angles_central(sim_df_dm)
+sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df_dm)
 
 # Save the new simulated date to file
-sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
+sim_df_dm[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #-------------------------------------------------------------Clustering (old)-------------------------------------------------------------
 
