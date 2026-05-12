@@ -10,6 +10,7 @@ def eTiltAngles(x1, x2):
     return alpha, beta
 
 def getEllipse(x1, x2, r = 3.5): 
+    
     #Define coordinates as arrays
     x1, x2 = np.array(x1), np.array(x2)
     #Unit vectors for normal vector N and ellipse vector W
@@ -41,28 +42,30 @@ def tiltAngles(a, b, theta):
     return alpha * 180 / np.pi, beta * 180 / np.pi #Convert to degrees
 
 def getEllipseValues(df):
-    xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = [], [], [], [], [] #Init empty lists
-    first = True
+    xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = [], [], [], [], []
+    prev_fiber = None
+
     for r in df.itertuples(index=True):
-        x2 = (r[3], r[4], r[2]) #Current fiber point
-        if first: 
+        current_fiber = r.fibre_id
+        x2 = (r.x, r.y, r.z)          # named access, immune to column order
+
+        if prev_fiber is None or current_fiber != prev_fiber:
             x1 = x2
-            tilt = (0, 0) #Can't compute tilt from a single point
-            theta = 0 #same for axes and angles
-            a, b = 0,0
-        else:  
-            tilt = eTiltAngles(x1, x2) #Pass the past and current points
-            theta = ellipseAngle(x1, x2)
+            tilt = (0, 0)
+            a, b = 0, 0
+        else:
+            tilt = eTiltAngles(x1, x2)
             a, b = getEllipse(x1, x2)
 
         xtiltAngles.append(tilt[0])
         ytiltAngles.append(tilt[1])
-        xytiltAngles.append(theta)
+        xytiltAngles.append(ellipseAngle(x1, x2) if prev_fiber == current_fiber else 0)
         alist.append(a)
         blist.append(b)
-        x1 = x2 #Set the current point to the past point
-        first = False
-    
+
+        x1 = x2
+        prev_fiber = current_fiber
+
     return xtiltAngles, ytiltAngles, xytiltAngles, alist, blist
 
 if __name__ == "__main__":

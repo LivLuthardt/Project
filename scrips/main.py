@@ -9,12 +9,13 @@ import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
-df = tangent_angles_backwards(data_clean)
+df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
+plot_fibers(df,'Original Fibers')
 #-------------------------------------------------------------Ellipse-------------------------------------------------------------
 
-xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(df)
+xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(data_clean)
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 
@@ -92,8 +93,9 @@ for z in zz:    #Iterate by layer
         if i != 1 or (i == 1 and z == 1):
             data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         elif z > 1 and i==1:    
-            cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
-            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), cor) #Set tilt angles using depth memory
+            cor = np.array([pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')]) #Get Spearman's rho betweens layers
+            rho_g = 2 * np.sin(np.pi / 6 * cor) #Adapt rho for the z-domain
+            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), rho_g) #Set tilt angles using depth memory
         if z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
         if z==127:
@@ -148,9 +150,7 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df_dm)
 # Save the new simulated date to file
 sim_df_dm[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
-#-------------------------------------------------------------Clustering (old)-------------------------------------------------------------
-
-delaunay_fig = delaunay_triangulation(df)
+#-------------------------------------------------------------Global clustering (not used anymore)-------------------------------------------------------------
 
 #PCA method figure
 pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
@@ -162,8 +162,6 @@ n_clusters = range(2,16)
 #K-means clustering
 fiber_summary_k,_,_ = perform_kmeans_clustering(fiber_sum.copy(),n)
 df_k = df.merge(fiber_summary_k[['fibre_id', 'cluster_id']], on='fibre_id')
-# Make a plot of the error
-#fig_k_error = sse_plot_k(fiber_sum)
 
 # K-means clustering with PCA
 fiber_summary_k_pca,_,_,_ = perform_kmeans_clustering_with_pca(
@@ -182,9 +180,6 @@ df_hdbscan = df.merge(fiber_summary_hdbscan[['fibre_id', 'cluster_id']], on='fib
 fiber_summary_gmm,_,_,_ = perform_gmm_clustering(fiber_sum.copy(),n)
 df_gmm = df.merge(fiber_summary_gmm[['fibre_id', 'cluster_id']], on='fibre_id')
 
-# Make a plot of the error
-#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
-
 fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
@@ -196,20 +191,28 @@ df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 # plot_fibers_clustered(df_gmm, 'GMM')
 # plot_fibers_clustered(df_agg, 'Agglomerative')
 
-# Make score plot for all pre-defined cluster methods
+# Make CH score plot for all pre-defined cluster methods, as well as aic and bic for gmm and sse for k-means 
 
 # plot_score(fiber_sum, n_clusters)
 # plot_sse_k(fiber_sum, n_clusters)
 # plot_aic_bic_gmm(fiber_sum, n_clusters)
+#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
+#fig_k_error = sse_plot_k(fiber_sum)
 
 # neighbors(df) 
 
-ks_x, ks_y = ks_global(df)
-ks_x_stat = ks_x.statistic
-ks_x_p = ks_x.pvalue
-ks_y_stat = ks_y.statistic
-ks_y_p = ks_y.pvalue
+ks_x_cd, ks_y_cd = ks_global(df)  # original (finite diff vs ellipse)
+
+# Central difference vs ellipse
+ks_x_cd_stat = ks_2samp(df["angle_x_deg"].dropna(), df["EllipseXTilt"].dropna())
+ks_y_cd_stat = ks_2samp(df["angle_y_deg"].dropna(), df["EllipseYTilt"].dropna())
+
+# Synthetic vs ellipse
+ks_x_syn = ks_2samp(sim_df["angle_x_deg"].dropna(), df["angle_x_deg"].dropna())
+ks_y_syn = ks_2samp(sim_df["angle_y_deg"].dropna(), df["angle_y_deg"].dropna())
 
 with open("Output.txt", "a") as text_file:
-    text_file.write(f"\nKS Test (X): statistic={ks_x.statistic:.4f}, p={ks_x.pvalue:.4e}\n")
-    text_file.write(f"KS Test (Y): statistic={ks_y.statistic:.4f}, p={ks_y.pvalue:.4e}\n")
+    text_file.write(f"\nKS Test Central Diff (X): statistic={ks_x_cd.statistic:.4f}, p={ks_x_cd.pvalue:.4e}\n")
+    text_file.write(f"KS Test Central Diff (Y): statistic={ks_y_cd.statistic:.4f}, p={ks_y_cd.pvalue:.4e}\n")
+    text_file.write(f"\nKS Test Synthetic (X): statistic={ks_x_syn.statistic:.4f}, p={ks_x_syn.pvalue:.4e}\n")
+    text_file.write(f"KS Test Synthetic (Y): statistic={ks_y_syn.statistic:.4f}, p={ks_y_syn.pvalue:.4e}\n")
