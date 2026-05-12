@@ -4,7 +4,6 @@ from tangent import*
 from copula import*
 from clustering import*
 from plot import *
-from layer_clustering import *
 import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
@@ -90,8 +89,8 @@ for z in zz:
     for i in range(len(cop_models)):
         data_sim_arr_og[i,0] = data_sim_arr_og[i,1]
         
-for cops in cop_lst_og:
-    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+# for cops in cop_lst_og:
+#     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
 #----------------------------------------------------
 
@@ -123,8 +122,8 @@ for z in zz:    #Iterate by layer
             cop_lst[i].append(cop)  #Add the copula to the list
     df_zp = df_z #Update the variable for the previous layer tilt
 
-for cops in cop_lst:
-    print(f'Mean of {cops[0].family} AIC with depth memory: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+# for cops in cop_lst:
+#     print(f'Mean of {cops[0].family} AIC with depth memory: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
 sim_df_dm   = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 sim_df_og = reconstruct(data_clean,data_sim_arr_og[1],zz_complete,n_fibers)
@@ -153,7 +152,7 @@ plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 plot_synthetic_data_og(par_1,par_2,mean_arr,std_arr,df,data_sim_arr_og[1],[30,60])
 
 plot_alpha_z(df,data_sim_arr,cop_models)
-plot_theta_z(df,sim_df_dm,sim_df)
+plot_theta_z(df,sim_df_dm,sim_df_dm)
 
 chi_squared_2d(df,data_sim_arr,cop_models)
 chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
@@ -227,8 +226,8 @@ ks_x_cd_stat = ks_2samp(df["angle_x_deg"].dropna(), df["EllipseXTilt"].dropna())
 ks_y_cd_stat = ks_2samp(df["angle_y_deg"].dropna(), df["EllipseYTilt"].dropna())
 
 # Synthetic vs ellipse
-ks_x_syn = ks_2samp(sim_df["angle_x_deg"].dropna(), df["angle_x_deg"].dropna())
-ks_y_syn = ks_2samp(sim_df["angle_y_deg"].dropna(), df["angle_y_deg"].dropna())
+ks_x_syn = ks_2samp(sim_df_dm["angle_x_deg"].dropna(), df["angle_x_deg"].dropna())
+ks_y_syn = ks_2samp(sim_df_dm["angle_y_deg"].dropna(), df["angle_y_deg"].dropna())
 
 with open("Output.txt", "a") as text_file:
     text_file.write(f"\nKS Test Central Diff (X): statistic={ks_x_cd.statistic:.4f}, p={ks_x_cd.pvalue:.4e}\n")
