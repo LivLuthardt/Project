@@ -166,11 +166,15 @@ def sse_plot_kmeans_pca(df, n_components=3):
     #fig.show()
 
 def plot_fibers(df,title):
-    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    """
+    uses a dataframe and title to make a 3D plot of all fibers in the dataframe
+    """
+    #df = df[df['fibre_id'] < 300]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
-        x='x', y='y', z='z', 
-        color='fibre_id',
+        x='x', y='y', z='z',
+        line_group='fibre_id',
         title=title
     )
     fig.update_layout(
@@ -180,7 +184,7 @@ def plot_fibers(df,title):
     #fig.show()
 
 def plot_fibers_clustered(df,title):
-    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
     fig = px.line_3d(
         df, 
         x='x', y='y', z='z', 
