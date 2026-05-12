@@ -12,7 +12,8 @@ data_clean = data_cleaned(raw_df)
 df = tangent_angles_backwards(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-#ellipse
+#-------------------------------------------------------------Ellipse-------------------------------------------------------------
+
 xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(df)
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
 df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
@@ -44,6 +45,8 @@ with open("Output.txt", "w") as text_file:
 
     text_file.write(f"Finite Difference Mean (x, y): {fmean_x}, {fmean_y}\n")
     text_file.write(f"Ellipse Method Mean (x, y): {emean_x}, {emean_y}\n")
+
+#-------------------------------------------------------------Copulas-------------------------------------------------------------
 
 #copulas
 zz = np.arange(1,128)
@@ -86,7 +89,7 @@ for z in zz:
 for z in zz:    #Iterate by layer
     df_z = sort(df,z,par_1,par_2) #Nested list of x, y tilts for the layer
     for i,model in enumerate(cop_models): #Iterate by copula model
-        if i != 1 or i == 1 and z == 1:
+        if i != 1 or (i == 1 and z == 1):
             data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         elif z > 1 and i==1:    
             cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
@@ -104,26 +107,20 @@ for cops in cop_lst:
 sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
 
 # Plot synthetic fibers
-fig = px.line_3d(sim_df[sim_df['fibre_id'] < 300],
-                x="x", y="y", z="z",
-                color="fibre_id",
-                title=f'Synthetic Fibers')
-fig.update_layout(
-    scene=dict(aspectmode="manual",
-            aspectratio=dict(x=15, y=7.5, z=1))
-)
-fig.show()
+plot_fibers(sim_df,'Synthetic Fibers')
 
 ### Plot copulas parameters
-cop_fig, (ax5,ax6) = plt.subplots(1,2)
+fig, (ax1,ax2) = plt.subplots(1,2)
 
+# TODO this function is now broken
+""" 
 for cops in cop_lst:
-    plot_cop_parameters(cops,ax5,ax6)
+    plot_cop_parameters(cops,ax1,ax2)
+"""
+ax1.plot(zz,cov_arr,label='Actual correlation')
 
-ax5.plot(zz,cov_arr,label='Actual correlation')
-
-cop_fig.tight_layout()
-cop_fig.savefig(fname='Copula_correlation',dpi=200)
+fig.tight_layout()
+fig.savefig(fname='Copula_correlation',dpi=200)
 print(f'Copula Correlation plot saved')
 plt.close('all')
 
@@ -131,8 +128,10 @@ plt.close('all')
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
+plot_theta_z(df,data_sim_arr,cop_models)
+
 chi_squared_2d(df,data_sim_arr,cop_models)
-chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models)
+chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
@@ -144,6 +143,8 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
 
 # Save the new simulated date to file
 sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
+
+#-------------------------------------------------------------Clustering (old)-------------------------------------------------------------
 
 delaunay_fig = delaunay_triangulation(df)
 
@@ -157,8 +158,6 @@ n_clusters = range(2,16)
 #K-means clustering
 fiber_summary_k,_,_ = perform_kmeans_clustering(fiber_sum.copy(),n)
 df_k = df.merge(fiber_summary_k[['fibre_id', 'cluster_id']], on='fibre_id')
-# Make a plot of the error
-#fig_k_error = sse_plot_k(fiber_sum)
 
 # K-means clustering with PCA
 fiber_summary_k_pca,_,_,_ = perform_kmeans_clustering_with_pca(
@@ -177,25 +176,24 @@ df_hdbscan = df.merge(fiber_summary_hdbscan[['fibre_id', 'cluster_id']], on='fib
 fiber_summary_gmm,_,_,_ = perform_gmm_clustering(fiber_sum.copy(),n)
 df_gmm = df.merge(fiber_summary_gmm[['fibre_id', 'cluster_id']], on='fibre_id')
 
-# Make a plot of the error
-#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
-
 fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
-# plot_fibers(df_k, 'K-means')
-# plot_fibers(df_k_pca, 'K-means with PCA')
-# plot_fibers(df_dbscan, 'DBSCAN')
-# plot_fibers(df_hdbscan, 'HDBSCAN')
-# plot_fibers(df_gmm, 'GMM')
-# plot_fibers(df_agg, 'Agglomerative')
+# plot_fibers_clustered(df_k, 'K-means')
+# plot_fibers_clustered(df_k_pca, 'K-means with PCA')
+# plot_fibers_clustered(df_dbscan, 'DBSCAN')
+# plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
+# plot_fibers_clustered(df_gmm, 'GMM')
+# plot_fibers_clustered(df_agg, 'Agglomerative')
 
-# Make score plot for all pre-defined cluster methods
+# Make CH score plot for all pre-defined cluster methods, as well as aic and bic for gmm and sse for k-means 
 
 # plot_score(fiber_sum, n_clusters)
 # plot_sse_k(fiber_sum, n_clusters)
 # plot_aic_bic_gmm(fiber_sum, n_clusters)
+#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
+#fig_k_error = sse_plot_k(fiber_sum)
 
 # neighbors(df) 
 

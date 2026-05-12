@@ -7,7 +7,7 @@ from scipy.stats import norm
 
 def sort(data,n,x1='angle_x_deg',x2='angle_y_deg'):
     """  
-    Sort pd dataframe by taking 2 parameters for a particular z_idx value
+    Sort pd dataframe by taking 2 parameters for a particular z_idx value and convert to numpy
     """
     return data[data['z_idx'] == n][[x1,x2]].to_numpy()
 
@@ -103,7 +103,18 @@ def plot_cop_parameters(cop_lst,ax1,ax2):
         ax.legend()
         ax.set_title(f'Parameter {i}')
 
-    return
+    fig, (ax1,ax2) = plt.subplots(1,2)
+
+    for cops in cop_lst:
+        plot_cop_parameters(cops,ax1,ax2)
+
+    # ax1.plot(zz,cov_arr,label='Actual correlation')
+
+    fig.tight_layout()
+    fig.savefig(fname='Copula_correlation',dpi=200)
+    print(f'Copula Correlation plot saved')
+    plt.close('all')
+
 
 def get_L_and_phi(df_cleaned):
     df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
@@ -171,24 +182,25 @@ def chi_squared_2d(df,df_sim,cop_lst,bins=3,z=30):
         print(f'2-dimensional chi-squared for {model_name}: {chisq}')
 
 
-def chi_squared_1d(x1,x2,df,df_sim,cop_lst,bins=5,z=30):
+def chi_squared_1d(x1,x2,df,df_sim,cop_lst,zz,bins=5):
 
-    df = sort(df,z)
+    chi_arr = np.empty((len(cop_lst),len(zz),2))
 
-    for i,model in enumerate(cop_lst):
-        obs_counts_x1,edges = np.histogram(df_sim[i,z,:,0].flatten(),bins=bins)
-        sim_counts_x1,_     = np.histogram(df[:,0],bins=edges)
+    for z in zz:
+        df_z = sort(df,z)
 
-        if sim_counts_x1.sum() > 0: # Prevent divide-by-zero if simulation is empty
-            sim_counts_x1 = sim_counts_x1 * (obs_counts_x1.sum() / sim_counts_x1.sum())
+        for i,model in enumerate(cop_lst):
+            for j in range(2):
+                obs_counts,edges = np.histogram(df_sim[i,z,:,j].flatten(),bins=bins)
+                sim_counts,_     = np.histogram(df_z[:,j],bins=edges)
 
-        obs_counts_x2,edges = np.histogram(df_sim[i,z,:,1].flatten(),bins=bins)
-        sim_counts_x2,_     = np.histogram(df[:,1],bins=edges)
+                if sim_counts.sum() > 0: # Prevent divide-by-zero if simulation is empty
+                    sim_counts = sim_counts * (obs_counts.sum() / sim_counts.sum())
 
-        if sim_counts_x2.sum() > 0: # Prevent divide-by-zero if simulation is empty
-            sim_counts_x2 = sim_counts_x2 * (obs_counts_x2.sum() / sim_counts_x2.sum())
+                chisq,p_val = sp.stats.chisquare(obs_counts.flatten(),sim_counts.flatten())
+                chi_arr[i,z-1,j] = chisq
 
-        chisq_x1 = sp.stats.chisquare(obs_counts_x1.flatten(),sim_counts_x1.flatten())
-        chisq_x2 = sp.stats.chisquare(obs_counts_x2.flatten(),sim_counts_x2.flatten())
 
-        print(f'1-dimensional chi-squared for {model}:\n{x1} = {chisq_x1}\n{x2} = {chisq_x2}')
+    # plt.close('all')
+    # plt.plot(chi_arr[1,:,0])
+    # plt.show()

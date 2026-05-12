@@ -5,6 +5,7 @@ import numpy as np
 import plotly.express as px
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
+from copula import sort
 
 def plot_ellipse(df,z):
 
@@ -90,7 +91,7 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.savefig(fname=f'Real_synthetic_scatterplot_z_{z}',dpi=200)
         print('Real and Synthetic scatterplot saved')
-        plt.close()
+        plt.close('all')
 
         plt.subplot(2,2,1)
         plt.hist(x1_df,label='Actual Data',bins=150)
@@ -165,16 +166,34 @@ def sse_plot_kmeans_pca(df, n_components=3):
 
     #fig.show()
 
-def plot_fibers(clustered,title):
-    fig_3d = px.line_3d(
-        clustered, 
+def plot_fibers(df,title):
+    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    fig = px.line_3d(
+        df, 
+        x='x', y='y', z='z', 
+        color='fibre_id',
+        title=title
+    )
+    fig.update_layout(
+    scene=dict(aspectmode="manual",
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
+    )
+    #fig.show()
+
+def plot_fibers_clustered(df,title):
+    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    fig = px.line_3d(
+        df, 
         x='x', y='y', z='z', 
         color='cluster_id',
         line_group='fibre_id',
         title=title
     )
-    #fig_3d.show()
-    print(f'Plot {title} finished')
+    fig.update_layout(
+    scene=dict(aspectmode="manual",
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
+    )
+    #fig.show()
 
 def plot_score(df, n_clusters):
     score_list_k = []
@@ -274,7 +293,7 @@ def One_D_ellipse_tilt_hist(df):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
     plt.savefig(fname="XTiltHist.png")
-    plt.close()
+    plt.close('all')
     plt.figure()
     ax = plt.gca()
     ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
@@ -284,10 +303,36 @@ def One_D_ellipse_tilt_hist(df):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
     plt.savefig(fname="YTiltHist.png")
-    plt.close()
+    plt.close('all')
 
 def Two_D_hex_plot(df):
     ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
     plt.savefig(fname="EllipseTiltHex.png")
     ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
     plt.savefig(fname="FiniteTiltHex.png")
+
+def plot_theta_z(data_raw,data_sim_arr,cop_models):
+    """ 
+    Take raw data and simulated data and plot the absolute mean of
+    fiber angle projected on xy-plane (theta in literature) 
+    """
+    theta_z_sim = np.degrees(np.atan2(np.radians(data_sim_arr[:,:,:,0]),np.radians(data_sim_arr[:,:,:,1])))
+    theta_z_sim = np.mean(theta_z_sim,axis=2)
+    theta_z_sim = np.abs(theta_z_sim)
+
+    theta_z_raw = np.empty(129)
+    for z in range(129):
+        data_z = sort(data_raw,z)
+        theta_z = np.degrees(np.atan2(np.radians(data_z[:,0]),np.radians(data_z[:,1])))
+        theta_z_raw[z] = np.mean(theta_z)
+    # theta_z = np.atan2(data_raw[:,0],data_raw[:,1])
+    # theta_z_sim = np.mean()
+    
+    plt.close('all')
+    for i,model in enumerate(cop_models):
+        plt.plot(theta_z_sim[i],label=f'{model}')
+    plt.plot(theta_z_raw,label='Raw fibers')
+    plt.legend()
+    plt.xlabel('z index'), plt.ylabel(rf'$\theta_z$')
+    plt.show()
+    plt.close('all')
