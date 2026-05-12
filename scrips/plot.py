@@ -180,19 +180,19 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+     #change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
         x='x', y='y', z='z', 
-        color='fibre_id',
-        title=title
+        line_group='fibre_id',
+        title=title,  
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
-    #fig.show()
+    fig.show()
 
 def plot_fibers_clustered(df,title):
     """
@@ -285,22 +285,24 @@ def plot_sse_k(df, n_clusters):
 
 def plot_aic_bic_gmm(df, n_clusters):
     """
-    Resume here
+    gets a dataframe and range of number of clusters to plot the AIC and BIC for gmm clustering
     """
     aic_vals = []
     bic_vals = []
+    # get the AIC and BIC
     for k in n_clusters:
         _ , aic , bic, _ = perform_gmm_clustering(df,n_clusters=k)
         aic_vals.append(aic)
         bic_vals.append(bic)
 
-    # Create a DataFrame for plotting
+    #create a dataframe for plotting
     plot_df = pd.DataFrame({
         'Number of Clusters': list(n_clusters) * 2,
         'Criterion': ['AIC'] * len(n_clusters) + ['BIC'] * len(n_clusters),
         'Value': aic_vals + bic_vals
     })
 
+    #plot a 2D plot of the AIC and BIC per number of clusters
     fig = px.line(
         plot_df, 
         x='Number of Clusters', 
