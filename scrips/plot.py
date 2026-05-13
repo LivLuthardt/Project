@@ -69,7 +69,7 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.xlim(pltlims), plt.ylim(pltlims)
         plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
-        plt.title(f'Scatterplot at z = {z}')
+        plt.title(f'Scatterplot at z = {z} with Depth Memory')
         plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
         plt.tight_layout()
 
@@ -122,6 +122,52 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
+
+def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
+    for z in z_values:
+        plt.close('all')
+
+        # Take approriate data to plot
+        df_z = df[df['z_idx'] == z]
+        x1_df = df_z[[x1]].to_numpy()
+        x2_df = df_z[[x2]].to_numpy()
+
+        # Calulate mean and std from sim data
+        sim_std_arr = np.std(arr_sim[z],axis=0)
+        sim_mean_arr = np.mean(arr_sim[z])
+
+        # Set the limits of the plot to be square based on the largest value in all sim and real data
+        pltlims = max(np.abs(x1_df).max(),np.abs(x2_df).max(),np.abs(arr_sim).max())
+        pltlims = (-pltlims*1.1,pltlims*1.1)
+
+        plt.scatter(x1_df,x2_df,label='Actual Data',alpha=.3,edgecolors=None)
+        plt.scatter(arr_sim[z,:,0],arr_sim[z,:,1],label='Synthetic',alpha=.3,edgecolors=None)
+        plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
+
+        plt.xlim(pltlims), plt.ylim(pltlims)
+        plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
+        plt.title(f'Scatterplot at z = {z} without Depth Memory')
+        plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
+        plt.tight_layout()
+
+        
+        plt_str = (
+            rf"Real: $\sigma_x = {std_arr[z,0]:.3f} \quad \sigma_y = {std_arr[z,1]:.3f}$" "\n"
+            rf"Synthetic: $\sigma_x = {sim_std_arr[0]:.3f} \quad \sigma_y = {sim_std_arr[1]:.3f}$"
+                    )
+        
+        text_box = AnchoredText(plt_str, loc='lower left', frameon=True, borderpad=0.0)
+
+        text_box.patch.set_facecolor('white')
+        text_box.patch.set_edgecolor('black')
+        text_box.patch.set_alpha(1.0)
+        # text_box.patch.set_boxstyle("square") # Keeps the internal padding around the text
+
+        plt.gca().add_artist(text_box)
+
+        plt.savefig(fname=f'OG_Real_synthetic_scatterplot_z_{z}',dpi=200)
+        print('Real and Synthetic scatterplot saved')
+        plt.close('all')
 
 def single_fiber_plot(df,id):
     """
@@ -180,19 +226,19 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[df['fibre_id'] < 300]#change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
-        x='x', y='y', z='z', 
-        color='fibre_id',
+        x='x', y='y', z='z',
+        line_group='fibre_id',
         title=title
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
-    #fig.show()
+    fig.show()
 
 def plot_fibers_clustered(df,title):
     """
@@ -285,22 +331,24 @@ def plot_sse_k(df, n_clusters):
 
 def plot_aic_bic_gmm(df, n_clusters):
     """
-    Resume here
+    gets a dataframe and range of number of clusters to plot the AIC and BIC for gmm clustering
     """
     aic_vals = []
     bic_vals = []
+    # get the AIC and BIC
     for k in n_clusters:
         _ , aic , bic, _ = perform_gmm_clustering(df,n_clusters=k)
         aic_vals.append(aic)
         bic_vals.append(bic)
 
-    # Create a DataFrame for plotting
+    #create a dataframe for plotting
     plot_df = pd.DataFrame({
         'Number of Clusters': list(n_clusters) * 2,
         'Criterion': ['AIC'] * len(n_clusters) + ['BIC'] * len(n_clusters),
         'Value': aic_vals + bic_vals
     })
 
+    #plot a 2D plot of the AIC and BIC per number of clusters
     fig = px.line(
         plot_df, 
         x='Number of Clusters', 
@@ -342,28 +390,59 @@ def Two_D_hex_plot(df):
     ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
     plt.savefig(fname="FiniteTiltHex.png")
 
-def plot_theta_z(data_raw,data_sim_arr,cop_models):
+def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     """ 
     Take raw data and simulated data and plot the absolute mean of
-    fiber angle projected on xy-plane (theta in literature) 
+    fiber angle projected on xy-plane (alpha in literature) 
     """
     theta_z_sim = np.degrees(np.atan2(np.radians(data_sim_arr[:,:,:,0]),np.radians(data_sim_arr[:,:,:,1])))
-    theta_z_sim = np.mean(theta_z_sim,axis=2)
-    theta_z_sim = np.abs(theta_z_sim)
+    theta_z_sim_mean = np.abs(np.mean(theta_z_sim,axis=2))
+    
+    theta_z_raw_mean = np.empty(129)
 
-    theta_z_raw = np.empty(129)
     for z in range(129):
         data_z = sort(data_raw,z)
-        theta_z = np.degrees(np.atan2(np.radians(data_z[:,0]),np.radians(data_z[:,1])))
-        theta_z_raw[z] = np.mean(theta_z)
-    # theta_z = np.atan2(data_raw[:,0],data_raw[:,1])
-    # theta_z_sim = np.mean()
-    
+        theta_z_raw = np.degrees(np.atan2(np.radians(data_z[:,0]),np.radians(data_z[:,1])))
+        theta_z_raw_mean[z] = np.abs(np.mean(theta_z_raw))
+
     plt.close('all')
-    for i,model in enumerate(cop_models):
-        plt.plot(theta_z_sim[i],label=f'{model}')
-    plt.plot(theta_z_raw,label='Raw fibers')
+
+    plt.plot(np.arange(129)*500/128,theta_z_sim_mean[1],label=f'Student Copula with Depth Memory')
+    plt.plot(np.arange(129)*500/128,theta_z_sim_mean[2],label=f'Student Copula without Depth Memory')
+
+    plt.plot(np.arange(129)*500/128,theta_z_raw_mean,label='Raw fibers')
     plt.legend()
-    plt.xlabel('z index'), plt.ylabel(rf'$\theta_z$')
-    plt.show()
+    plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
+    plt.grid()
+    plt.savefig(fname='mean_alpha_z',dpi=200)
+    plt.close('all')
+
+def plot_theta_z(data_raw,data_sim_dm,data_sim):
+    """ 
+    Take raw data and simulated data and plot the absolute mean of
+    fiber angle projected on xy-plane (alpha in literature) 
+    """
+
+    plt.close('all')
+    z_scale = 500/128
+
+
+    for df in (data_raw,data_sim_dm,data_sim):
+        df['r'] = np.hypot(df['x'],df['y'])
+        df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
+
+    raw_mean_theta_z = data_raw.groupby('z')['theta_z'].mean()
+    sim_dm_mean_theta_z = data_sim_dm.groupby('z')['theta_z'].mean()
+    sim_mean_theta_z = data_sim.groupby('z')['theta_z'].mean()
+
+    # plt.plot(np.arange(129)*z_scale,df['theta_z'])
+    plt.plot(raw_mean_theta_z,label='Raw')
+    plt.plot(sim_dm_mean_theta_z,label='Depth mem')
+    plt.plot(sim_mean_theta_z,label='No depth')
+    
+    plt.ylim(.4,.7)
+    plt.legend()
+    plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
+    plt.grid()
+    plt.savefig(fname='mean_theta_z',dpi=200)
     plt.close('all')

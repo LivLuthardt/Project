@@ -4,7 +4,6 @@ from tangent import*
 from copula import*
 from clustering import*
 from plot import *
-from layer_clustering import *
 import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
@@ -12,6 +11,7 @@ data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
+plot_fibers(df,'Original Fibers')
 #-------------------------------------------------------------Ellipse-------------------------------------------------------------
 
 xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(data_clean)
@@ -65,7 +65,7 @@ cov_series = df_grouped.apply(
     include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
-cop_models = [pv.gaussian,pv.student,pv.frank]
+cop_models = [pv.gaussian,pv.student,pv.student,pv.frank]
 
 ### Plot original data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
@@ -74,6 +74,25 @@ cop_models = [pv.gaussian,pv.student,pv.frank]
 # n_fibers is the amount of unique fibers
 # 2 is the amount of parameters we can put in our copula
 data_sim_arr = np.empty((len(cop_models),129,n_fibers,2))
+data_sim_arr_og = np.empty((len(cop_models),129,n_fibers,2))
+
+# OG Copula -----------------------------------------
+# list to contain copulas 
+# Generate a list with lists inside it
+cop_lst_og = [[] for _ in range(len(cop_models))]
+
+for z in zz:
+    df_z = sort(df,z,par_1,par_2)
+    for i,model in enumerate(cop_models):
+        data_sim_arr_og[i,z], cop = bivariate_copula(df_z,n_fibers,model=model)
+        cop_lst_og[i].append(cop)
+    for i in range(len(cop_models)):
+        data_sim_arr_og[i,0] = data_sim_arr_og[i,1]
+        
+# for cops in cop_lst_og:
+#     print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
+
+#----------------------------------------------------
 
 # list to contain copulas 
 # Generate a list with lists inside it
@@ -92,22 +111,25 @@ for z in zz:    #Iterate by layer
         if i != 1 or (i == 1 and z == 1):
             data_sim_arr[i,z], cop = bivariate_copula(df_z,n_fibers,model=model) #Construct a copula for layer tilts      
         elif z > 1 and i==1:    
-            cor = (pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')) #Get Spearman's rho betweens layers
-            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), cor) #Set tilt angles using depth memory
+            cor = np.array([pv.wdm(df_zp[:,0], df_z[:,0], 'rho'), pv.wdm(df_zp[:,1], df_z[:,1], 'rho')]) #Get Spearman's rho betweens layers
+            rho_g = 2 * np.sin(np.pi / 6 * cor) #Adapt rho for the z-domain
+            data_sim_arr[i,z], u_lst[z] = depth_mem(df_z, (u_lst[z-1], u_lst[z]), rho_g) #Set tilt angles using depth memory
         if z==1:
             data_sim_arr[i,0] = data_sim_arr[i,1] #Backwards fill data to initial layer
+        if z==127:
+            data_sim_arr[i,128] = data_sim_arr[i,127] #Forward fill data to last layer
         if i != 1:
             cop_lst[i].append(cop)  #Add the copula to the list
     df_zp = df_z #Update the variable for the previous layer tilt
 
+# for cops in cop_lst:
+#     print(f'Mean of {cops[0].family} AIC with depth memory: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
-for cops in cop_lst:
-    print(f'Mean of {cops[0].family} AIC: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
-
-sim_df = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
+sim_df_dm   = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
+sim_df_og = reconstruct(data_clean,data_sim_arr_og[1],zz_complete,n_fibers)
 
 # Plot synthetic fibers
-plot_fibers(sim_df,'Synthetic Fibers')
+plot_fibers(sim_df_dm,'Synthetic Fibers')
 
 ### Plot copulas parameters
 fig, (ax1,ax2) = plt.subplots(1,2)
@@ -127,8 +149,10 @@ plt.close('all')
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
+plot_synthetic_data_og(par_1,par_2,mean_arr,std_arr,df,data_sim_arr_og[1],[30,60])
 
-plot_theta_z(df,data_sim_arr,cop_models)
+plot_alpha_z(df,data_sim_arr,cop_models)
+plot_theta_z(df,sim_df_dm,sim_df_dm)
 
 chi_squared_2d(df,data_sim_arr,cop_models)
 chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
@@ -136,13 +160,13 @@ chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
 # apparently if we dont do this the objects cause everything to break (making floats)
-sim_df[['x', 'y', 'z']] = sim_df[['x', 'y', 'z']].apply(pd.to_numeric)
+sim_df_dm[['x', 'y', 'z']] = sim_df_dm[['x', 'y', 'z']].apply(pd.to_numeric)
 
-sim_df = tangent_angles_central(sim_df)
-sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df)
+sim_df_dm = tangent_angles_central(sim_df_dm)
+sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df_dm)
 
 # Save the new simulated date to file
-sim_df[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
+sim_df_dm[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #-------------------------------------------------------------Global clustering (not used anymore)-------------------------------------------------------------
 
@@ -202,8 +226,8 @@ ks_x_cd_stat = ks_2samp(df["angle_x_deg"].dropna(), df["EllipseXTilt"].dropna())
 ks_y_cd_stat = ks_2samp(df["angle_y_deg"].dropna(), df["EllipseYTilt"].dropna())
 
 # Synthetic vs ellipse
-ks_x_syn = ks_2samp(sim_df["angle_x_deg"].dropna(), df["angle_x_deg"].dropna())
-ks_y_syn = ks_2samp(sim_df["angle_y_deg"].dropna(), df["angle_y_deg"].dropna())
+ks_x_syn = ks_2samp(sim_df_dm["angle_x_deg"].dropna(), df["angle_x_deg"].dropna())
+ks_y_syn = ks_2samp(sim_df_dm["angle_y_deg"].dropna(), df["angle_y_deg"].dropna())
 
 with open("Output.txt", "a") as text_file:
     text_file.write(f"\nKS Test Central Diff (X): statistic={ks_x_cd.statistic:.4f}, p={ks_x_cd.pvalue:.4e}\n")
