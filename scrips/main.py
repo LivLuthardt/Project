@@ -54,7 +54,7 @@ zz_complete = np.arange(129)
 
 ### Choose parameters to plot and predict with copula
 par_1,par_2 = 'angle_x_deg','angle_y_deg'
-df_grouped = df.groupby('z')
+df_grouped = df.groupby('z_idx')
 
 mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
 std_arr = df_grouped.std()[[par_1,par_2]].to_numpy()
@@ -125,26 +125,12 @@ for z in zz:    #Iterate by layer
 # for cops in cop_lst:
 #     print(f'Mean of {cops[0].family} AIC with depth memory: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
-sim_df_dm   = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers)
-sim_df_og = reconstruct(data_clean,data_sim_arr_og[1],zz_complete,n_fibers)
+sim_df_dm   = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers,par_1,par_2)
+sim_df_og = reconstruct(data_clean,data_sim_arr_og[1],zz_complete,n_fibers,par_1,par_2)
 
 # Plot synthetic fibers
 plot_fibers(sim_df_dm,'Synthetic Fibers')
 
-### Plot copulas parameters
-fig, (ax1,ax2) = plt.subplots(1,2)
-
-# TODO this function is now broken
-""" 
-for cops in cop_lst:
-    plot_cop_parameters(cops,ax1,ax2)
-"""
-ax1.plot(zz,cov_arr,label='Actual correlation')
-
-fig.tight_layout()
-fig.savefig(fname='Copula_correlation',dpi=200)
-print(f'Copula Correlation plot saved')
-plt.close('all')
 
 ### Plot og and synthetic data
 # plot_og_data(par_1,par_2,mean_arr,df,[67])
@@ -153,6 +139,10 @@ plot_synthetic_data_og(par_1,par_2,mean_arr,std_arr,df,data_sim_arr_og[1],[30,60
 
 plot_alpha_z(df,data_sim_arr,cop_models)
 plot_theta_z(df,sim_df_dm,sim_df_dm)
+plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df_og),
+                 labels=['Raw Data',
+                         'Simulated with DM',
+                         'Simulated w/o DM'])
 
 chi_squared_2d(df,data_sim_arr,cop_models)
 chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)

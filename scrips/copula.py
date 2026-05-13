@@ -79,50 +79,13 @@ def vine_copula(x,n): #n is number of fibers in a layer
     return data_sim
 
 
-def plot_cop_parameters(cop_lst,ax1,ax2):
-    """ 
-    Plot copula parameters as a function of Z
-    Put in ax1 and ax2 to be able to plot parameters for different copula collections
-    """
-
-    zz = np.arange(len(cop_lst))
-    model_lst = [cop.family for cop in cop_lst]
-
-    # Check if all the copulas are of the same family, making it possible to plot them
-    assert len(set(model_lst)) == 1, "Can't plot if more than 1 unique family"
-    
-    ax1.plot(zz,[cop.parameters[0] for cop in cop_lst],label=model_lst[0])
-
-    if model_lst[0] in pv.two_par: 
-        ax2.plot(zz,[cop.parameters[1] for cop in cop_lst],label=model_lst[0])
-
-    for i,ax in enumerate((ax1,ax2)):
-        ax.set_xlabel('Z (micrometer)')
-        ax.grid()
-        ax.set_xlim(zz[0],zz[-1])
-        ax.legend()
-        ax.set_title(f'Parameter {i}')
-
-    fig, (ax1,ax2) = plt.subplots(1,2)
-
-    for cops in cop_lst:
-        plot_cop_parameters(cops,ax1,ax2)
-
-    # ax1.plot(zz,cov_arr,label='Actual correlation')
-
-    fig.tight_layout()
-    fig.savefig(fname='Copula_correlation',dpi=200)
-    print(f'Copula Correlation plot saved')
-    plt.close('all')
-
-
 def get_L_and_phi(df_cleaned):
     df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
     df['L'] = np.sqrt(df['dx']**2 + df['dy']**2 + df['dz']**2)
     df['phi'] = np.arctan2(df['dy'], df['dx'])
     return df
 
-def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
+def reconstruct(df_clean,arr_sim,zz_complete,n_fibers,par_1,par_2):
     """ 
     Reconstruct synthetic fibers from initial starting points and dx and dy arrays
     Stack data in the same manner that it was in clean_df
@@ -138,7 +101,7 @@ def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
 
 
     # Cummulatively sum the dx and dy values anb convert angles to distance
-    sim_fibers[1:] += np.cumsum(np.tan(np.radians(df_sim[1:]))*z_scale,axis=0)
+    sim_fibers[1:] += np.cumsum(np.tan(np.radians(arr_sim[1:]))*z_scale,axis=0)
 
 
     # Stack the arrays to get data back in original shape
@@ -149,9 +112,11 @@ def reconstruct(df_clean,df_sim,zz_complete,n_fibers):
     # Create array in the format 0,0,0...,1,1,1,1..2,2,2,2 where each numbers repeats as many times as there are fibers
     zz_arr = np.repeat(zz_complete,n_fibers)
 
-    df_columns = ['fibre_id','z_idx','x','y']
+    # df_columns = ['fibre_id','z_idx','x','y']
 
-    sim_df = pd.DataFrame(columns=df_columns)
+    sim_df = pd.DataFrame()
+    sim_df[par_1] = arr_sim[:,:,0].flatten()
+    sim_df[par_2] = arr_sim[:,:,1].flatten()
     sim_df['x'] = stacked_sim_fibers[:,0]
     sim_df['y'] = stacked_sim_fibers[:,1]
     sim_df['z_idx'] = zz_arr
