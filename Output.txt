@@ -1,12 +1,12 @@
 Finite Difference Standard Deviations (x, y): (angle_x_deg    1.213568
 dtype: float64, angle_y_deg    1.301479
-dtype: float64)Ellipse Method Standard Deviations (x, y): (EllipseXTilt    4.759033
-dtype: float64, EllipseYTilt    5.167857
+dtype: float64)Ellipse Method Standard Deviations (x, y): (EllipseXTilt    1.233904
+dtype: float64, EllipseYTilt    1.342466
 dtype: float64)Finite Difference Mean (x, y): 0.39249320962525364, 0.04725565593883253
-Ellipse Method Mean (x, y): 1.5190743386688494, 0.18548038311233428
+Ellipse Method Mean (x, y): 0.3920267584524051, 0.047774192891240186
 
-KS Test Central Diff (X): statistic=0.3400, p=0.0000e+00
-KS Test Central Diff (Y): statistic=0.2815, p=0.0000e+00
+KS Test Central Diff (X): statistic=0.0042, p=1.3872e-02
+KS Test Central Diff (Y): statistic=0.0063, p=2.5175e-05
 
-KS Test Synthetic (X): statistic=0.0078, p=3.8179e-08
-KS Test Synthetic (Y): statistic=0.0063, p=2.2069e-05
+KS Test Synthetic (X): statistic=0.0077, p=5.5478e-08
+KS Test Synthetic (Y): statistic=0.0104, p=3.8763e-14
