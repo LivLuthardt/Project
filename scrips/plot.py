@@ -478,6 +478,7 @@ def plot_theta_z(df,data_sim_dm):
     """
 
     plt.close('all')
+    z_scale = 500/128
     
     data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
     data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
