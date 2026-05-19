@@ -128,7 +128,7 @@ for item in layer_0_results_a:
 mean_scores_0_a = np.mean(scores_0_a)
 std_scores_0_a = np.std(scores_0_a)
 #Threshold
-n_std_a = -2
+n_std_a = 2
 threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
 # Plot histogram
 plt.figure()
@@ -253,52 +253,15 @@ plt.title("Cluster plot")
 plt.savefig(f'Cluster plot.png')
 #plt.show()
 plt.close('all')
+
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
-
-# Better: iterate over clusters directly
-# Draw the cluster plot
-nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, 
-        with_labels=False, node_color=node_colors)
-
-# Create a legend patch for each cluster
-unique_colors = list(set(node_colors))  # depends on how node_colors is structured
-
-# Better: iterate over clusters directly
-legend_patches = [
-    mpatches.Patch(color=node_colors[list(cluster)[0]], label=f'Cluster {cluster_idx}')
-    for cluster_idx, cluster in enumerate(clusters)
-]
-
-plt.legend(handles=legend_patches, 
-           loc='center left', 
-           bbox_to_anchor=(1, 0.5),  # places legend to the right of the plot
-           title="Clusters",
-           fontsize=7,
-           title_fontsize=8)
-
-plt.title("Cluster plot")
-plt.tight_layout()  # prevents legend from being cut off
-plt.savefig('Cluster plot.png', bbox_inches='tight')  # bbox_inches='tight' is important!
-plt.close('all')
-
-
-
-nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False, node_color=node_colors)
-plt.title("Combined distance + angle graph")
-plt.show()
 
 
 """Iteration through layers"""
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
-
-print("Combined graph nodes:", G_both.number_of_nodes())
-print("Combined graph edges:", G_both.number_of_edges())
-print("Isolated nodes:", len(list(nx.isolates(G_both))))
-print("Amount of clusters:", len(clusters))
-print("Cluster sizes:", [len(c) for c in clusters])
