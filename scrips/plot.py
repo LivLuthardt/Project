@@ -6,6 +6,7 @@ import plotly.express as px
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 from copula import sort
+import pyvinecopulib as pv
 
 def plot_ellipse(df,z):
     """
@@ -231,7 +232,7 @@ def plot_fibers(df,title):
     fig = px.line_3d(
         df, 
         x='x', y='y', z='z',
-        line_group='fibre_id',
+        color='fibre_id',
         title=title
     )
     fig.update_layout(
@@ -445,4 +446,33 @@ def plot_theta_z(data_raw,data_sim_dm,data_sim):
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
     plt.savefig(fname='mean_theta_z',dpi=200)
+    plt.close('all')
+
+def plot_correlation(zz,x1,x2,dfs,labels):
+    """ 
+    Plot copula parameters as a function of Z
+    Put in ax1 and ax2 to be able to plot parameters for different copula collections
+    """
+
+    fig,ax = plt.subplots() 
+
+    # Calculate the correlation for each dataframe
+    # Given that we have 3 dataframes (raw, with dm, without dm) we need to loop
+    for i,df in enumerate(dfs):
+        df_grouped = df.groupby('z_idx')
+        corr_series = df_grouped.apply(
+        lambda group: group[x1].corr(group[x2]),
+        include_groups=False)
+
+        corr_arr = corr_series.reindex(zz).to_numpy()
+        ax.plot(zz*(500/128),corr_arr,label=labels[i])
+
+    ax.set_ylabel('Correlation')
+    ax.set_xlabel(rf'z ($\mu m$)')
+    ax.grid()
+    # ax.set_xlim(zz[0],zz[-1])
+    ax.legend()
+
+    fig.tight_layout()
+    fig.savefig(fname='Copula_correlation',dpi=200)
     plt.close('all')
