@@ -290,7 +290,7 @@ def plot_fibers(df,title):
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
-            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
+            aspectratio=dict(x=1, y=1, z=0.4)) #change these values if you want to change the aspect ratio of the image
     )
     #fig.show()
 
@@ -471,7 +471,7 @@ def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     plt.savefig(fname='mean_alpha_z',dpi=200)
     plt.close('all')
 
-def plot_theta_z(data_raw,data_sim_dm,data_sim):
+def plot_theta_z(data_sim_dm):
     """ 
     Take raw data and simulated data and plot the absolute mean of
     fiber angle projected on xy-plane (alpha in literature) 
@@ -479,26 +479,22 @@ def plot_theta_z(data_raw,data_sim_dm,data_sim):
 
     plt.close('all')
     z_scale = 500/128
-
-
-    for df in (data_raw,data_sim_dm,data_sim):
-        df['r'] = np.hypot(df['x'],df['y'])
-        df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
-
-    raw_mean_theta_z = data_raw.groupby('z')['theta_z'].mean()
-    sim_dm_mean_theta_z = data_sim_dm.groupby('z')['theta_z'].mean()
-    sim_mean_theta_z = data_sim.groupby('z')['theta_z'].mean()
-
-    # plt.plot(np.arange(129)*z_scale,df['theta_z'])
-    plt.plot(raw_mean_theta_z,label='Raw')
-    plt.plot(sim_dm_mean_theta_z,label='Depth mem')
-    plt.plot(sim_mean_theta_z,label='No depth')
     
-    plt.ylim(.4,.7)
+    data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
+    data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
+
+    sim_dm_mean_theta_z = data_sim_dm.groupby('z')['theta_z'].mean()
+    sim_dm_std_theta_z = data_sim_dm.groupby('z')['theta_z'].std()
+    
+    x = np.arange(129)*500/128
+
+    plt.plot(sim_dm_mean_theta_z,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, sim_dm_mean_theta_z - 1.5*sim_dm_std_theta_z, sim_dm_mean_theta_z + 1.5*sim_dm_std_theta_z, color='orangered', alpha=0.2)
+    
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
-    plt.savefig(fname='mean_theta_z',dpi=200)
+    plt.savefig(fname='mean_theta_z',dpi=250)
     plt.close('all')
 
 def plot_correlation(zz,x1,x2,dfs,labels):
