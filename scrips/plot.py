@@ -372,30 +372,92 @@ def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     plt.savefig(fname='mean_alpha_z',dpi=200)
     plt.close('all')
 
-def plot_theta_z(data_sim_dm):
+def plot_theta_z(df,data_sim_dm):
     """ 
     Take raw data and simulated data and plot the absolute mean of
     fiber angle projected on xy-plane (alpha in literature) 
     """
 
     plt.close('all')
-    z_scale = 500/128
     
     data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
     data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
+    df['r'] = np.hypot(df['angle_x_deg'],df['angle_y_deg'])
+    df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
 
-    sim_dm_mean_theta_z = data_sim_dm.groupby('z')['theta_z'].mean()
-    sim_dm_std_theta_z = data_sim_dm.groupby('z')['theta_z'].std()
+    mean = data_sim_dm.groupby('z')['theta_z'].mean()
+    std = data_sim_dm.groupby('z')['theta_z'].std()
+    mean_og = df.groupby('z')['angle_x_deg'].mean()
+    std_og = df.groupby('z')['angle_x_deg'].std()
     
     x = np.arange(129)*500/128
+    x_og = np.arange(1,128)*500/128
 
-    plt.plot(sim_dm_mean_theta_z,label='Simulated with Depth Memory',color='orangered')
-    plt.fill_between(x, sim_dm_mean_theta_z - 1.5*sim_dm_std_theta_z, sim_dm_mean_theta_z + 1.5*sim_dm_std_theta_z, color='orangered', alpha=0.2)
+    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
+    plt.plot(mean_og,label='Original Data',color='blue')
+    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
     
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
     plt.savefig(fname='mean_theta_z',dpi=250)
+    plt.close('all')
+    
+def plot_theta_x(df,data_sim_dm):
+    """ 
+    Take raw data and simulated data and plot the absolute mean of
+    fiber angle projected on xy-plane (alpha in literature) 
+    """
+
+    plt.close('all')
+
+    mean = data_sim_dm.groupby('z')['angle_x_deg'].mean()
+    std = data_sim_dm.groupby('z')['angle_x_deg'].std()
+
+    mean_og = df.groupby('z')['angle_x_deg'].mean()
+    std_og = df.groupby('z')['angle_x_deg'].std()
+    
+    x = np.arange(129)*500/128
+    x_og = np.arange(1,128)*500/128
+
+    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
+    plt.plot(mean_og,label='Original Data',color='blue')
+    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    
+    plt.legend()
+    plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_x$ [deg]''')
+    plt.grid()
+    plt.savefig(fname='mean_theta_x',dpi=250)
+    plt.close('all')
+
+def plot_theta_y(df,data_sim_dm):
+    """ 
+    Take raw data and simulated data and plot the absolute mean of
+    fiber angle projected on xy-plane (alpha in literature) 
+    """
+
+    plt.close('all')
+
+    mean = data_sim_dm.groupby('z')['angle_y_deg'].mean()
+    std = data_sim_dm.groupby('z')['angle_y_deg'].std()
+
+    mean_og = df.groupby('z')['angle_y_deg'].mean()
+    std_og = df.groupby('z')['angle_y_deg'].std()
+    
+    x = np.arange(129)*500/128
+    x_og = np.arange(1,128)*500/128
+
+    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
+    plt.plot(mean_og,label='Original Data',color='blue')
+    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    
+    plt.legend()
+    plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_y$ [deg]''')
+    plt.grid()
+    plt.savefig(fname='mean_theta_y',dpi=250)
     plt.close('all')
 
 def plot_correlation(zz,x1,x2,dfs,labels):

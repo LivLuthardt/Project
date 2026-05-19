@@ -124,7 +124,9 @@ sim_df = reconstruct(data_clean,data_sim_arr[2],zz_complete,n_fibers,par_1,par_2
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
 plot_alpha_z(df,data_sim_arr,cop_models)
-plot_theta_z(sim_df_dm)
+plot_theta_z(df,sim_df_dm)
+plot_theta_x(df,sim_df_dm)
+plot_theta_y(df,sim_df_dm)
 plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df),
                  labels=['Raw Data',
                          'Simulated with Depth Memory',
