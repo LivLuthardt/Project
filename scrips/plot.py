@@ -437,11 +437,11 @@ def plot_theta_z(data_raw,data_sim_dm,data_sim):
     sim_mean_theta_z = data_sim.groupby('z')['theta_z'].mean()
 
     # plt.plot(np.arange(129)*z_scale,df['theta_z'])
-    plt.plot(raw_mean_theta_z,label='Raw')
-    plt.plot(sim_dm_mean_theta_z,label='Depth mem')
-    plt.plot(sim_mean_theta_z,label='No depth')
+    plt.plot(raw_mean_theta_z,label='Raw Fibers')
+    plt.plot(sim_dm_mean_theta_z,label='Simulated with Depth Memory',color='r')
+    plt.plot(sim_mean_theta_z,label='Simulated without Depth Memory',color='g',linestyle=(0,(5,5)))
     
-    plt.ylim(.4,.7)
+    plt.ylim(.6,.7)
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
