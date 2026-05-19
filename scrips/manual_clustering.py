@@ -277,13 +277,16 @@ for clust in clusters:
     #List to store iteration thresholds
     threshold_lst = np.array()
 
-    #Define initial layer centroid
+    #Define initial layer centroids
     num_x = 0
     num_y = 0
     for 'fibre_id' in clust:
         num_x += cleaned_data[0]['fibre_id'][1]
         num_y += cleaned_data[0]['fibre_id'][2]
-        
+    C_x = num_x / len(clust)
+    C_y = num_y / len(clust)
+
+    #Iterate through fibers 
 
 
 
