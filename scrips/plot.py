@@ -124,52 +124,6 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
 
-def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
-    for z in z_values:
-        plt.close('all')
-
-        # Take approriate data to plot
-        df_z = df[df['z_idx'] == z]
-        x1_df = df_z[[x1]].to_numpy()
-        x2_df = df_z[[x2]].to_numpy()
-
-        # Calulate mean and std from sim data
-        sim_std_arr = np.std(arr_sim[z],axis=0)
-        sim_mean_arr = np.mean(arr_sim[z])
-
-        # Set the limits of the plot to be square based on the largest value in all sim and real data
-        pltlims = max(np.abs(x1_df).max(),np.abs(x2_df).max(),np.abs(arr_sim).max())
-        pltlims = (-pltlims*1.1,pltlims*1.1)
-
-        plt.scatter(x1_df,x2_df,label='Actual Data',alpha=.3,edgecolors=None)
-        plt.scatter(arr_sim[z,:,0],arr_sim[z,:,1],label='Synthetic',alpha=.3,edgecolors=None)
-        plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
-
-        plt.xlim(pltlims), plt.ylim(pltlims)
-        plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
-        plt.title(f'Scatterplot at z = {z} without Depth Memory')
-        plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
-        plt.tight_layout()
-
-        
-        plt_str = (
-            rf"Real: $\sigma_x = {std_arr[z,0]:.3f} \quad \sigma_y = {std_arr[z,1]:.3f}$" "\n"
-            rf"Synthetic: $\sigma_x = {sim_std_arr[0]:.3f} \quad \sigma_y = {sim_std_arr[1]:.3f}$"
-                    )
-        
-        text_box = AnchoredText(plt_str, loc='lower left', frameon=True, borderpad=0.0)
-
-        text_box.patch.set_facecolor('white')
-        text_box.patch.set_edgecolor('black')
-        text_box.patch.set_alpha(1.0)
-        # text_box.patch.set_boxstyle("square") # Keeps the internal padding around the text
-
-        plt.gca().add_artist(text_box)
-
-        plt.savefig(fname=f'OG_Real_synthetic_scatterplot_z_{z}',dpi=200)
-        print('Real and Synthetic scatterplot saved')
-        plt.close('all')
-
 def single_fiber_plot(df,id):
     """
     plots the projection of a single fiber onto the xy plane to show the misalignment
@@ -227,7 +181,7 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    #df = df[df['fibre_id'] < 300]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    df = df[df['fibre_id'] < 100]#change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
@@ -237,7 +191,7 @@ def plot_fibers(df,title):
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
-            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
+            aspectratio=dict(x=1, y=1, z=0.4)) #change these values if you want to change the aspect ratio of the image
     )
     fig.show()
 

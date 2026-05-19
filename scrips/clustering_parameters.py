@@ -253,7 +253,7 @@ def manual_clust(pct_d, pct_a):
     
     return len(list(nx.isolates(G_both))),len(clusters)
 
-pct_d = [50]
+pct_d = [10]
 pct_a = [99]
 n_clusters = []
 n_isolated = []

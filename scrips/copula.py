@@ -61,29 +61,7 @@ def depth_mem(data, u, rho):
     data_sim = np.transpose(data_sim) #Reshape
     return data_sim, u2
 
-def vine_copula(x,n): #n is number of fibers in a layer
-    # Do PIT
-    u = pv.to_pseudo_obs(x)
 
-    # automatically fit best copula model
-    cop = pv.Vinecop.from_data(data=u)
-
-    # What does this do??
-    pv.pairs_copula_data(u, scatter_size=0.5)
-
-    u_sim = cop.simulate(n, seeds=[1, 2, 3, 4])
-
-    # Reverse pit to get actual values
-    data_sim = np.asarray([np.quantile(x[:, i], u_sim[:, i]) for i in range(0, 2)])
-    data_sim = np.transpose(data_sim)
-    return data_sim
-
-
-def get_L_and_phi(df_cleaned):
-    df = df_cleaned.sort_values(['fibre_id', 'z']).copy()
-    df['L'] = np.sqrt(df['dx']**2 + df['dy']**2 + df['dz']**2)
-    df['phi'] = np.arctan2(df['dy'], df['dx'])
-    return df
 
 def reconstruct(df_clean,arr_sim,zz_complete,n_fibers,par_1,par_2):
     """ 
