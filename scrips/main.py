@@ -109,6 +109,11 @@ for z in zz:    #Iterate by layer
 sim_df_dm = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers,par_1,par_2)
 sim_df = reconstruct(data_clean,data_sim_arr[2],zz_complete,n_fibers,par_1,par_2)
 
+# Copula contour plots
+# plt.close('all')
+# cop_lst[2][30].plot(type='contour',margin_type='unif')
+# cop_lst[2][30].plot(type='contour',margin_type='norm')
+
 # Plot synthetic fibers
 #plot_fibers(sim_df_dm,'Synthetic Fibers with Depth Memory')
 #plot_fibers(sim_df,'Synthetic Fibers without Depth Memory')
