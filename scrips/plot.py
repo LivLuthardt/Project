@@ -482,13 +482,13 @@ def plot_theta_z(df,data_sim_dm):
     
     data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
     data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
-    df['r'] = np.hypot(df['angle_x_deg'],df['angle_y_deg'])
+    df['r'] = np.hypot(df['x'],df['y'])
     df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
 
     mean = data_sim_dm.groupby('z')['theta_z'].mean()
     std = data_sim_dm.groupby('z')['theta_z'].std()
-    mean_og = df.groupby('z')['angle_x_deg'].mean()
-    std_og = df.groupby('z')['angle_x_deg'].std()
+    mean_og = df.groupby('z')['theta_z'].mean()
+    std_og = df.groupby('z')['theta_z'].std()
     
     x = np.arange(129)*500/128
     x_og = np.arange(1,128)*500/128
