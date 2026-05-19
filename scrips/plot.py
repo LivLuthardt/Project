@@ -227,7 +227,7 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    #df = df[df['fibre_id'] < 300]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    df = df[(df['x'] < 100) & (df['y'] > -100)]#change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
