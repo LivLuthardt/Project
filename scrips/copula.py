@@ -121,8 +121,8 @@ def chi_squared_2d(df,df_sim,cop_lst,bins=3,z=30):
         sim_flat = sim_counts.flatten()
 
         # chisq = sp.stats.chisquare(obs_flat,sim_flat)
-        chisq = sp.stats.chisquare(obs_flat,sim_flat)
-        print(f'2-dimensional chi-squared for {model_name}: {chisq}')
+        chisq,p_val = sp.stats.chisquare(obs_flat,sim_flat)
+        print(f'2-dimensional chi-squared for {model_name}: {chisq}, p = {p_val}')
 
 
 def chi_squared_1d(x1,x2,df,df_sim,cop_lst,zz,bins=5):
@@ -142,6 +142,7 @@ def chi_squared_1d(x1,x2,df,df_sim,cop_lst,zz,bins=5):
 
                 chisq,p_val = sp.stats.chisquare(obs_counts.flatten(),sim_counts.flatten())
                 chi_arr[i,z-1,j] = chisq
+                # print(f'1-dimensional chi-squared for {model}: {chisq}, p = {p_val}')
 
 
     # plt.close('all')
