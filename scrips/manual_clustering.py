@@ -223,22 +223,22 @@ for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
 
 
-## Create a dictionary to map each node to its cluster
+#Create a dictionary to map each node to its cluster
 node_to_cluster = {}
 for cluster_id, cluster in enumerate(clusters):
     for node in cluster:
         node_to_cluster[node] = cluster_id
 
-# Assign isolated nodes to a default cluster (e.g., -1)
+#Assign isolated nodes to a default cluster (e.g., -1)
 isolated_nodes = list(nx.isolates(G_both))
 for node in isolated_nodes:
     node_to_cluster[node] = -1  # Default cluster for isolated nodes
 
-# Assign a color to each cluster (including the default cluster)
+#Assign a color to each cluster (including the default cluster)
 num_clusters = len(clusters)
 colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default cluster
 
-# Create a list of node colors based on their cluster
+#Create a list of node colors based on their cluster
 node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
@@ -265,3 +265,26 @@ print("Cluster sizes:", [len(c) for c in clusters])
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
+
+#Define counter list for each fiber
+number_fibers = 2267
+fiber_counter = np.array()
+for fib_counter in range(number_fibers):
+    fiber_counter.append([fib_counter, 0])
+
+#Iterate through clusters
+for clust in clusters:
+    #List to store iteration thresholds
+    threshold_lst = np.array()
+
+    #Define initial layer centroid
+    num_x = 0
+    num_y = 0
+    for 'fibre_id' in clust:
+        num_x += cleaned_data[0]['fibre_id'][1]
+        num_y += cleaned_data[0]['fibre_id'][2]
+        
+
+
+
+
