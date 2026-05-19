@@ -392,14 +392,14 @@ def plot_theta_z(data_raw,data_sim_dm,data_sim):
 
     # plt.plot(np.arange(129)*z_scale,df['theta_z'])
     plt.plot(raw_mean_theta_z,label='Raw Fibers')
-    plt.plot(sim_dm_mean_theta_z,label='Simulated with Depth Memory',color='r')
-    plt.plot(sim_mean_theta_z,label='Simulated without Depth Memory',color='g',linestyle=(0,(5,5)))
+    plt.plot(sim_dm_mean_theta_z,label='Simulated with Depth Memory',color='orangered')
+    plt.plot(sim_mean_theta_z,label='Simulated w/o Depth Memory',color='limegreen',linestyle=(0,(5,5)))
     
     plt.ylim(.6,.7)
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
-    plt.savefig(fname='mean_theta_z',dpi=200)
+    plt.savefig(fname='mean_theta_z',dpi=250)
     plt.close('all')
 
 def plot_correlation(zz,x1,x2,dfs,labels):

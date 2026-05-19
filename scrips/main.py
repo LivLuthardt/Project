@@ -122,8 +122,8 @@ plot_alpha_z(df,data_sim_arr,cop_models)
 plot_theta_z(df,sim_df_dm,sim_df_dm)
 plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df),
                  labels=['Raw Data',
-                         'Simulated with DM',
-                         'Simulated w/o DM'])
+                         'Simulated with Depth Memory',
+                         'Simulated w/o Depth Memory '])
 
 chi_squared_2d(df,data_sim_arr,cop_models)
 chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
