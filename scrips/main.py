@@ -22,7 +22,8 @@ df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 plot_ellipse(df,1)
 
 #Single fiber projection plot
-single_fiber_plot(df,5)
+single_fiber_plot(df,5,'normal')
+single_fiber_plot(raw_df,129,'highly misaligned')
 
 #Make 1D histograms of ellipsetilt vs angle 
 One_D_ellipse_tilt_hist(df)
