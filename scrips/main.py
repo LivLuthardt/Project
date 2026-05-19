@@ -11,7 +11,7 @@ data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
-plot_fibers(df,'Original Fibers')
+#plot_fibers(df,'Original Fibers')
 #-------------------------------------------------------------Ellipse-------------------------------------------------------------
 
 xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(data_clean)
@@ -106,10 +106,12 @@ for z in zz:    #Iterate by layer
 # for cops in cop_lst:
 #     print(f'Mean of {cops[0].family} AIC with depth memory: {sum(cop.aic() for cop in cops)/len(cops):.2f}')
 
-sim_df_dm   = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers,par_1,par_2)
+sim_df_dm = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers,par_1,par_2)
+sim_df = reconstruct(data_clean,data_sim_arr[2],zz_complete,n_fibers,par_1,par_2)
 
 # Plot synthetic fibers
-plot_fibers(sim_df_dm,'Synthetic Fibers')
+#plot_fibers(sim_df_dm,'Synthetic Fibers with Depth Memory')
+#plot_fibers(sim_df,'Synthetic Fibers without Depth Memory')
 
 
 ### Plot og and synthetic data
@@ -118,10 +120,10 @@ plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
 plot_alpha_z(df,data_sim_arr,cop_models)
 plot_theta_z(df,sim_df_dm,sim_df_dm)
-plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df_og),
+plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df),
                  labels=['Raw Data',
-                         'Simulated with DM',
-                         'Simulated w/o DM'])
+                         'Simulated with Depth Memory',
+                         'Simulated w/o Depth Memory '])
 
 chi_squared_2d(df,data_sim_arr,cop_models)
 chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
