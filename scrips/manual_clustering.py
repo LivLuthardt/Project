@@ -26,12 +26,13 @@ cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
 #For all other layers create dataframe
 cleaned_data_i = []
-for layer_i in range(1, 130):
+unique_layers = sorted(df['z_idx'].unique())
+for layer_i in unique_layers[1:]:
     current_layer = df[df['z_idx'] == layer_i]
     current_layer = current_layer.reset_index(drop=True)
-    layer_features = current_layer[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
-    layer_array = np.column_stack((current_layer['fibre_id'].values, layer_features))
-    cleaned_data_i.append(layer_array)
+    layer_features = current_layer[['fibre_id','x', 'y', 'angle_x_deg', 'angle_y_deg']]
+    cleaned_data_i.append(layer_features)
+
 
 """ --- Optimal n_neighbors (Elbow Method) --- """
 X_eval = cleaned_data[:, 1:] # Exclude fibre_id
@@ -278,7 +279,8 @@ failure_limit = failure_fraction_allowed * number_of_layers
 number_of_fibres = G_both.number_of_nodes()
 clusters_updated = []
 
-remove_arr = set() #Storage of removed fibers after iteration
+#Storage of removed fibers after iteration
+remove_arr = set() 
 
 thresholds = {}
 
@@ -313,40 +315,43 @@ for clust in clusters:
     #Determine thresholds for layer 0
     for fibre_id in clust:
         fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
+
         x = fibre_row[1]
         y = fibre_row[2]
 
         distance_centroid_0 = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
 
         #Threshold = distance + 5%
-        thresholds[fibre_id] = distance_centroid_0 * threshold_multiplier
+        thresholds[fibre_id] = (distance_centroid_0 * threshold_multiplier)
 
     #Iterate through layers
     for layer_idx, current_layer in enumerate(cleaned_data_i):
 
         for fibre_id in clust:
-            #Find row belonging to this fibre
-            fibre_row = current_layer[current_layer[:,0] == fibre_id][0]
 
-            x = fibre_row[1]
-            y = fibre_row[2]
+            #Find row belonging to this fibre
+            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
+
+            x = fibre_row['x']
+            y = fibre_row['y']
 
             #Distance to previous centroid
             distance = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
 
-            #Compare against threshold, if greater, for that layer does not fit in cluster and counter goes up by 1
+            #Compare against threshold
             if distance > thresholds[fibre_id]:
                 fibre_counter[fibre_id] += 1
-
 
         #Update centroids to pass onto next layer
         sum_x = 0
         sum_y = 0
-        for fibre_id in clust:
-            fibre_row = current_layer[current_layer[:,0] == fibre_id][0]
 
-            x = fibre_row[1]
-            y = fibre_row[2]
+        for fibre_id in clust:
+
+            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
+
+            x = fibre_row['x']
+            y = fibre_row['y']
 
             sum_x += x
             sum_y += y
@@ -356,26 +361,29 @@ for clust in clusters:
 
         #Update thresholds to pass onto next layer
         for fibre_id in clust:
-            fibre_row = current_layer[current_layer[:,0] == fibre_id][0]
 
-            x = fibre_row[1]
-            y = fibre_row[2]
+            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
+
+            x = fibre_row['x']
+            y = fibre_row['y']
 
             distance_i = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
 
-            thresholds[fibre_id] = distance_i * threshold_multiplier
-
+            thresholds[fibre_id] = (distance_i * threshold_multiplier)
 
     current_remove = []
 
     for fibre_id in clust:
+
         if fibre_counter[fibre_id] > failure_limit:
             remove_arr.add(fibre_id)
             current_remove.append(fibre_id)
 
     #Created new updated clusters
     new_clust = []
+
     for fibre_id in clust:
+
         if fibre_id not in current_remove:
             new_clust.append(fibre_id)
 
@@ -383,3 +391,10 @@ for clust in clusters:
 
 #Add one final cluster containing all outliers
 clusters_updated.append(list(remove_arr))
+
+print(clusters_updated)
+counter = 0
+for kaas in clusters_updated:
+    print(len(kaas))
+    counter += 1
+print(counter)
