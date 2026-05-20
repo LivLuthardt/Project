@@ -266,27 +266,28 @@ print("Cluster sizes:", [len(c) for c in clusters])
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
 
-#Define counter list for each fiber
-number_fibers = 2267
-fiber_counter = np.array()
-for fib_counter in range(number_fibers):
-    fiber_counter.append([fib_counter, 0])
+#Define constants
+number_of_layers = 130
+failure_fraction_allowed = 0.95
+threshold_multiplier = 1.05
+failure_limit = failure_fraction_allowed * number_of_layers
+number_of_fibres = G_both.number_of_nodes()
+
+#Storage containers for fibers and clusters through layers
+fibre_counter = {}
+for fibre_id in range(number_of_fibres):
+    fibre_counter[fibre_id] = 0 
+
+remove_arr = set() #Storage of removed fibers after iteration
+
+threshold = {}
+
+previous_centroid = {"x": 0.0, "y": 0.0}
 
 #Iterate through clusters
 for clust in clusters:
-    #List to store iteration thresholds
-    threshold_lst = np.array()
-
-    #Define initial layer centroids
-    num_x = 0
-    num_y = 0
-    for 'fibre_id' in clust:
-        num_x += cleaned_data[0]['fibre_id'][1]
-        num_y += cleaned_data[0]['fibre_id'][2]
-    C_x = num_x / len(clust)
-    C_y = num_y / len(clust)
-
-    #Iterate through fibers 
+    cluster_fibre_id = clust
+    
 
 
 
