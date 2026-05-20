@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 from kneed import KneeLocator
 import matplotlib.patches as mpatches
+
 """Import data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
@@ -20,14 +21,17 @@ layer_0 = layer_0.reset_index(drop=True)
 
 features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
 
-"""
-scaler = StandardScaler()
-scaled_data = scaler.fit_transform(layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
-scaled_data = np.column_stack((layer_0['fibre_id'].values, scaled_data))
-"""
-
 cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
+
+#For all other layers create dataframe
+cleaned_data_i = []
+for layer_i in range(1, 130):
+    current_layer = df[df['z_idx'] == layer_i]
+    current_layer = current_layer.reset_index(drop=True)
+    layer_features = current_layer[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
+    layer_array = np.column_stack((current_layer['fibre_id'].values, layer_features))
+    cleaned_data_i.append(layer_array)
 
 """ --- Optimal n_neighbors (Elbow Method) --- """
 X_eval = cleaned_data[:, 1:] # Exclude fibre_id
@@ -268,27 +272,114 @@ again both set thresholds to determine whether a fibre is clusterable throughout
 
 #Define constants
 number_of_layers = 130
-failure_fraction_allowed = 0.95
+failure_fraction_allowed = 0.05
 threshold_multiplier = 1.05
 failure_limit = failure_fraction_allowed * number_of_layers
 number_of_fibres = G_both.number_of_nodes()
-
-#Storage containers for fibers and clusters through layers
-fibre_counter = {}
-for fibre_id in range(number_of_fibres):
-    fibre_counter[fibre_id] = 0 
+clusters_updated = []
 
 remove_arr = set() #Storage of removed fibers after iteration
 
-threshold = {}
+thresholds = {}
 
 previous_centroid = {"x": 0.0, "y": 0.0}
 
 #Iterate through clusters
 for clust in clusters:
+    #Storage containers for fibers and clusters through layers
+    fibre_counter = {}
+    for fibre_id in clust:
+        fibre_counter[fibre_id] = 0 
+
     cluster_fibre_id = clust
-    
+
+    sum_x = 0 
+    sum_y = 0
+
+    #Loop through fibres in current cluster (layer 0)
+    for fibre_id in clust:
+        fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
+
+        x = fibre_row[1]
+        y = fibre_row[2]
+
+        sum_x += x
+        sum_y += y
+
+    #Compute centroid for layer 0
+    previous_centroid["x"] = sum_x / len(clust)
+    previous_centroid["y"] = sum_y / len(clust)
+
+    #Determine thresholds for layer 0
+    for fibre_id in clust:
+        fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
+        x = fibre_row[1]
+        y = fibre_row[2]
+
+        distance_centroid_0 = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
+
+        #Threshold = distance + 5%
+        thresholds[fibre_id] = distance_centroid_0 * threshold_multiplier
+
+    #Iterate through layers
+    for layer_idx, current_layer in enumerate(cleaned_data_i):
+
+        for fibre_id in clust:
+            #Find row belonging to this fibre
+            fibre_row = current_layer[current_layer[:,0] == fibre_id][0]
+
+            x = fibre_row[1]
+            y = fibre_row[2]
+
+            #Distance to previous centroid
+            distance = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
+
+            #Compare against threshold, if greater, for that layer does not fit in cluster and counter goes up by 1
+            if distance > thresholds[fibre_id]:
+                fibre_counter[fibre_id] += 1
 
 
+        #Update centroids to pass onto next layer
+        sum_x = 0
+        sum_y = 0
+        for fibre_id in clust:
+            fibre_row = current_layer[current_layer[:,0] == fibre_id][0]
+
+            x = fibre_row[1]
+            y = fibre_row[2]
+
+            sum_x += x
+            sum_y += y
+
+        previous_centroid["x"] = sum_x / len(clust)
+        previous_centroid["y"] = sum_y / len(clust)
+
+        #Update thresholds to pass onto next layer
+        for fibre_id in clust:
+            fibre_row = current_layer[current_layer[:,0] == fibre_id][0]
+
+            x = fibre_row[1]
+            y = fibre_row[2]
+
+            distance_i = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
+
+            thresholds[fibre_id] = distance_i * threshold_multiplier
 
 
+    current_remove = []
+
+    for fibre_id in clust:
+        if fibre_counter[fibre_id] > failure_limit:
+            remove_arr.add(fibre_id)
+            current_remove.append(fibre_id)
+
+    #Created new updated clusters
+    new_clust = []
+    for fibre_id in clust:
+        if fibre_id not in current_remove:
+            new_clust.append(fibre_id)
+
+    clusters_updated.append(new_clust)
+
+#Add one final cluster containing all outliers
+clusters_updated.append(list(remove_arr))
