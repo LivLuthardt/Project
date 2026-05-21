@@ -480,10 +480,8 @@ def plot_theta_z(df,data_sim_dm):
     plt.close('all')
     z_scale = 500/128
     
-    data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
-    data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
-    df['r'] = np.hypot(df['x'],df['y'])
-    df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
+    data_sim_dm['theta_z'] = np.hypot(data_sim_dm['angle_x_deg'],data_sim_dm['angle_y_deg'])
+    df['theta_z'] = np.hypot(df['angle_x_deg'],df['angle_y_deg'])
 
     mean = data_sim_dm.groupby('z')['theta_z'].mean()
     std = data_sim_dm.groupby('z')['theta_z'].std()
@@ -493,14 +491,16 @@ def plot_theta_z(df,data_sim_dm):
     x = np.arange(129)*500/128
     x_og = np.arange(1,128)*500/128
 
-    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
-    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
-    plt.plot(mean_og,label='Original Data',color='blue')
-    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    plt.plot(x,mean.values,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, (mean - 2*std).values, (mean + 2*std).values, color='orangered', alpha=0.2)
+    
+    plt.plot(x_og,mean_og.values,label='Original Data',color='blue')
+    plt.fill_between(x_og, (mean_og - 2*std_og).values, (mean_og + 2*std_og).values, color='blue', alpha=0.2)
     
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
+    plt.tight_layout()
     plt.savefig(fname='mean_theta_z',dpi=250)
     plt.close('all')
     
