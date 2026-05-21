@@ -409,3 +409,4 @@ total_fib = 0
 for bruhh in range(len(clusters_updated)):
     total_fib += len(clusters_updated[bruhh])
 print(total_fib)
+
