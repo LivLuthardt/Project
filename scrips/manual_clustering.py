@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 from kneed import KneeLocator
 import matplotlib.patches as mpatches
+
 """Import data and manipulate dataframe"""
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
@@ -20,14 +21,18 @@ layer_0 = layer_0.reset_index(drop=True)
 
 features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
 
-"""
-scaler = StandardScaler()
-scaled_data = scaler.fit_transform(layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']])
-scaled_data = np.column_stack((layer_0['fibre_id'].values, scaled_data))
-"""
-
 cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
+
+#For all other layers create dataframe
+cleaned_data_i = []
+unique_layers = sorted(df['z_idx'].unique())
+for layer_i in unique_layers[1:]:
+    current_layer = df[df['z_idx'] == layer_i]
+    current_layer = current_layer.reset_index(drop=True)
+    layer_features = current_layer[['fibre_id','x', 'y', 'angle_x_deg', 'angle_y_deg']]
+    cleaned_data_i.append(layer_features)
+
 
 """ --- Optimal n_neighbors (Elbow Method) --- """
 X_eval = cleaned_data[:, 1:] # Exclude fibre_id
@@ -223,22 +228,22 @@ for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
 
 
-## Create a dictionary to map each node to its cluster
+#Create a dictionary to map each node to its cluster
 node_to_cluster = {}
 for cluster_id, cluster in enumerate(clusters):
     for node in cluster:
         node_to_cluster[node] = cluster_id
 
-# Assign isolated nodes to a default cluster (e.g., -1)
+#Assign isolated nodes to a default cluster (e.g., -1)
 isolated_nodes = list(nx.isolates(G_both))
 for node in isolated_nodes:
     node_to_cluster[node] = -1  # Default cluster for isolated nodes
 
-# Assign a color to each cluster (including the default cluster)
+#Assign a color to each cluster (including the default cluster)
 num_clusters = len(clusters)
 colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default cluster
 
-# Create a list of node colors based on their cluster
+#Create a list of node colors based on their cluster
 node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
 
@@ -265,3 +270,128 @@ print("Cluster sizes:", [len(c) for c in clusters])
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
+
+#Define constants
+number_of_layers = 130
+failure_fraction_allowed = 0.05
+threshold_multiplier = 1.05 #1.05 removed 3 fibers only
+failure_limit = failure_fraction_allowed * number_of_layers
+number_of_fibres = G_both.number_of_nodes()
+clusters_updated = []
+
+#Storage of removed fibers after iteration
+remove_arr = set() 
+
+thresholds = {}
+
+previous_centroid = {"x": 0.0, "y": 0.0}
+
+#Iterate through clusters
+for clust in clusters:
+    #Storage containers for fibers and clusters through layers
+    fibre_counter = {}
+    for fibre_id in clust:
+        fibre_counter[fibre_id] = 0 
+
+    cluster_fibre_id = clust
+
+    sum_x = 0 
+    sum_y = 0
+
+    #Loop through fibres in current cluster (layer 0)
+    for fibre_id in clust:
+        fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
+
+        x = fibre_row[1]
+        y = fibre_row[2]
+
+        sum_x += x
+        sum_y += y
+
+    #Compute centroid for layer 0
+    previous_centroid["x"] = sum_x / len(clust)
+    previous_centroid["y"] = sum_y / len(clust)
+
+    #Determine thresholds for layer 0
+    for fibre_id in clust:
+        fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
+
+        x = fibre_row[1]
+        y = fibre_row[2]
+
+        distance_centroid_0 = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
+
+        #Threshold = distance + some percentage
+        thresholds[fibre_id] = (distance_centroid_0 * threshold_multiplier)
+
+    #Iterate through layers
+    for layer_idx, current_layer in enumerate(cleaned_data_i):
+
+        for fibre_id in clust:
+
+            #Find row belonging to this fibre
+            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
+
+            x = fibre_row['x']
+            y = fibre_row['y']
+
+            #Distance to previous centroid
+            distance = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
+
+            #Compare against threshold
+            if distance > thresholds[fibre_id]:
+                fibre_counter[fibre_id] += 1
+
+        #Update centroids to pass onto next layer
+        sum_x = 0
+        sum_y = 0
+
+        for fibre_id in clust:
+
+            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
+
+            x = fibre_row['x']
+            y = fibre_row['y']
+
+            sum_x += x
+            sum_y += y
+
+        previous_centroid["x"] = sum_x / len(clust)
+        previous_centroid["y"] = sum_y / len(clust)
+
+        #Update thresholds to pass onto next layer
+        for fibre_id in clust:
+
+            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
+
+            x = fibre_row['x']
+            y = fibre_row['y']
+
+            distance_i = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
+
+            thresholds[fibre_id] = (distance_i * threshold_multiplier)
+
+    current_remove = []
+
+    for fibre_id in clust:
+
+        if fibre_counter[fibre_id] > failure_limit:
+            remove_arr.add(fibre_id)
+            current_remove.append(fibre_id)
+
+    #Created new updated clusters
+    new_clust = []
+
+    for fibre_id in clust:
+
+        if fibre_id not in current_remove:
+            new_clust.append(fibre_id)
+
+    clusters_updated.append(new_clust)
+
+#Add one final cluster containing all outliers
+clusters_updated.append(list(remove_arr))
+
+print("Amount of updated clusters:", len(clusters_updated))
+print(clusters_updated)
+print("Updated cluster sizes:", [len(c) for c in clusters_updated])

@@ -3,6 +3,8 @@ from matplotlib.offsetbox import AnchoredText
 from matplotlib.patches import Ellipse
 import numpy as np
 import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 from copula import sort
@@ -124,29 +126,126 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
 
-def single_fiber_plot(df,id):
+def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
+    for z in z_values:
+        plt.close('all')
+
+        # Take approriate data to plot
+        df_z = df[df['z_idx'] == z]
+        x1_df = df_z[[x1]].to_numpy()
+        x2_df = df_z[[x2]].to_numpy()
+
+        # Calulate mean and std from sim data
+        sim_std_arr = np.std(arr_sim[z],axis=0)
+        sim_mean_arr = np.mean(arr_sim[z])
+
+        # Set the limits of the plot to be square based on the largest value in all sim and real data
+        pltlims = max(np.abs(x1_df).max(),np.abs(x2_df).max(),np.abs(arr_sim).max())
+        pltlims = (-pltlims*1.1,pltlims*1.1)
+
+        plt.scatter(x1_df,x2_df,label='Actual Data',alpha=.3,edgecolors=None)
+        plt.scatter(arr_sim[z,:,0],arr_sim[z,:,1],label='Synthetic',alpha=.3,edgecolors=None)
+        plt.scatter(mean_arr[z,0],mean_arr[z,1],color='k')
+
+        plt.xlim(pltlims), plt.ylim(pltlims)
+        plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
+        plt.title(f'Scatterplot at z = {z} without Depth Memory')
+        plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
+        plt.tight_layout()
+
+        
+        plt_str = (
+            rf"Real: $\sigma_x = {std_arr[z,0]:.3f} \quad \sigma_y = {std_arr[z,1]:.3f}$" "\n"
+            rf"Synthetic: $\sigma_x = {sim_std_arr[0]:.3f} \quad \sigma_y = {sim_std_arr[1]:.3f}$"
+                    )
+        
+        text_box = AnchoredText(plt_str, loc='lower left', frameon=True, borderpad=0.0)
+
+        text_box.patch.set_facecolor('white')
+        text_box.patch.set_edgecolor('black')
+        text_box.patch.set_alpha(1.0)
+        # text_box.patch.set_boxstyle("square") # Keeps the internal padding around the text
+
+        plt.gca().add_artist(text_box)
+
+        plt.savefig(fname=f'OG_Real_synthetic_scatterplot_z_{z}',dpi=200)
+        print('Real and Synthetic scatterplot saved')
+        plt.close('all')
+
+def single_fiber_plot(df,id,category): #category here means if its a normal or abnormal fiber, only used for the title
     """
     plots the projection of a single fiber onto the xy plane to show the misalignment
     """
     df = df[df['fibre_id'] == id] #get a dataframe of one fiber
 
-    #plot a 2D plot of the projection of the fiber onto the xy plane
-    fig = px.line( 
-        df, 
-        x='x', 
-        y='y', 
-        markers=True,
-        title=f"Fiber ID: {id}",
-        line_shape='linear'
+    # Create a subplot figure with 3 plots arranged horizontally
+    fig = make_subplots(
+        rows=1,
+        cols=3,
+        subplot_titles=(
+            f"X-Y plane projection",
+            f"X-Z plane projection",
+            f"Y-Z plane projection"
+        ),
+        # Specify the type of plot for each subplot
+        specs=[[{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}]]
+    )
+    # Add X-Y projection (original)
+    fig.add_trace(
+        go.Scatter(
+            x=df['x'],
+            y=df['y'],
+            mode='lines+markers',
+            marker=dict(size=2, color='red'),
+            line=dict(shape='linear', color='black'),
+        ),
+        row=1, col=1
+    )
+    # Add X-Z projection
+    fig.add_trace(
+        go.Scatter(
+            x=df['x'],
+            y=df['z'],
+            mode='lines+markers',
+            marker=dict(size=2, color='red'),
+            line=dict(shape='linear', color='black'),
+        ),
+        row=1, col=2
+    )
+    # Add Y-Z projection
+    fig.add_trace(
+        go.Scatter(
+            x=df['y'],
+            y=df['z'],
+            mode='lines+markers',
+            marker=dict(size=2, color='red'),
+            line=dict(shape='linear', color='black'),
+        ),
+        row=1, col=3
+    )
+    #update layout
+    fig.update_layout(
+        title_text=f"Projections of {category} fiber",
+        height=500,
+        width=1200,
+        showlegend=False,
+        plot_bgcolor='white',
+        # Ensure proper axis labels
+        xaxis=dict(title="X", showgrid=True, gridcolor='gray'),
+        yaxis=dict(title="Y", showgrid=True, gridcolor='gray'),
+        xaxis2=dict(title="X", showgrid=True, gridcolor='gray'),
+        yaxis2=dict(title="Z", showgrid=True, gridcolor='gray'),
+        xaxis3=dict(title="Y", showgrid=True, gridcolor='gray'),
+        yaxis3=dict(title="Z", showgrid=True, gridcolor='gray')
     )
 
     #fig.show()
-    fig.write_image(f"Fiber_xy_proj_plot.png")
+    fig.write_image(f"Fiber_{category}_proj_plot.png")
 
 def sse_plot_kmeans_pca(df, n_components=3):
     """
     uses the clustered dataframe and the number of principal component
-    to make a 3D-plot of the clustered fibers
+    to make a 3D plot of the clustered fibers
     """
     sse_pca = []
     n_clusters_range = range(1, 11)
@@ -181,7 +280,7 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    df = df[df['fibre_id'] < 100]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    df = df[(df['x'] < 70) & (df['y'] > -70)]#change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
@@ -193,13 +292,13 @@ def plot_fibers(df,title):
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=1, y=1, z=0.4)) #change these values if you want to change the aspect ratio of the image
     )
-    fig.show()
+    #fig.show()
 
 def plot_fibers_clustered(df,title):
     """
     uses a clustered dataframe and title to make a 3D plot of all clustered fibers in the dataframe
     """
-    #df[df['fibre_id'] < 300] #change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[(df['x'] < 70) & (df['y'] > -70)] #change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the clustered fibers per number of clusters
     fig = px.line_3d(
         df, 
@@ -372,7 +471,7 @@ def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     plt.savefig(fname='mean_alpha_z',dpi=200)
     plt.close('all')
 
-def plot_theta_z(data_raw,data_sim_dm,data_sim):
+def plot_theta_z(df,data_sim_dm):
     """ 
     Take raw data and simulated data and plot the absolute mean of
     fiber angle projected on xy-plane (alpha in literature) 
@@ -380,26 +479,85 @@ def plot_theta_z(data_raw,data_sim_dm,data_sim):
 
     plt.close('all')
     z_scale = 500/128
-
-
-    for df in (data_raw,data_sim_dm,data_sim):
-        df['r'] = np.hypot(df['x'],df['y'])
-        df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
-
-    raw_mean_theta_z = data_raw.groupby('z')['theta_z'].mean()
-    sim_dm_mean_theta_z = data_sim_dm.groupby('z')['theta_z'].mean()
-    sim_mean_theta_z = data_sim.groupby('z')['theta_z'].mean()
-
-    # plt.plot(np.arange(129)*z_scale,df['theta_z'])
-    plt.plot(raw_mean_theta_z,label='Raw Fibers')
-    plt.plot(sim_dm_mean_theta_z,label='Simulated with Depth Memory',color='orangered')
-    plt.plot(sim_mean_theta_z,label='Simulated w/o Depth Memory',color='limegreen',linestyle=(0,(5,5)))
     
-    plt.ylim(.6,.7)
+    data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
+    data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
+    df['r'] = np.hypot(df['x'],df['y'])
+    df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
+
+    mean = data_sim_dm.groupby('z')['theta_z'].mean()
+    std = data_sim_dm.groupby('z')['theta_z'].std()
+    mean_og = df.groupby('z')['theta_z'].mean()
+    std_og = df.groupby('z')['theta_z'].std()
+    
+    x = np.arange(129)*500/128
+    x_og = np.arange(1,128)*500/128
+
+    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
+    plt.plot(mean_og,label='Original Data',color='blue')
+    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
     plt.savefig(fname='mean_theta_z',dpi=250)
+    plt.close('all')
+    
+def plot_theta_x(df,data_sim_dm):
+    """ 
+    Take raw data and simulated data and plot the absolute mean of
+    fiber angle projected on xy-plane (alpha in literature) 
+    """
+
+    plt.close('all')
+
+    mean = data_sim_dm.groupby('z')['angle_x_deg'].mean()
+    std = data_sim_dm.groupby('z')['angle_x_deg'].std()
+
+    mean_og = df.groupby('z')['angle_x_deg'].mean()
+    std_og = df.groupby('z')['angle_x_deg'].std()
+    
+    x = np.arange(129)*500/128
+    x_og = np.arange(1,128)*500/128
+
+    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
+    plt.plot(mean_og,label='Original Data',color='blue')
+    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    
+    plt.legend()
+    plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_x$ [deg]''')
+    plt.grid()
+    plt.savefig(fname='mean_theta_x',dpi=250)
+    plt.close('all')
+
+def plot_theta_y(df,data_sim_dm):
+    """ 
+    Take raw data and simulated data and plot the absolute mean of
+    fiber angle projected on xy-plane (alpha in literature) 
+    """
+
+    plt.close('all')
+
+    mean = data_sim_dm.groupby('z')['angle_y_deg'].mean()
+    std = data_sim_dm.groupby('z')['angle_y_deg'].std()
+
+    mean_og = df.groupby('z')['angle_y_deg'].mean()
+    std_og = df.groupby('z')['angle_y_deg'].std()
+    
+    x = np.arange(129)*500/128
+    x_og = np.arange(1,128)*500/128
+
+    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
+    plt.plot(mean_og,label='Original Data',color='blue')
+    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    
+    plt.legend()
+    plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_y$ [deg]''')
+    plt.grid()
+    plt.savefig(fname='mean_theta_y',dpi=250)
     plt.close('all')
 
 def plot_correlation(zz,x1,x2,dfs,labels):

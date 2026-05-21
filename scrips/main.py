@@ -22,7 +22,8 @@ df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 plot_ellipse(df,1)
 
 #Single fiber projection plot
-single_fiber_plot(df,5)
+single_fiber_plot(df,5,'normal')
+single_fiber_plot(raw_df,129,'highly misaligned')
 
 #Make 1D histograms of ellipsetilt vs angle 
 One_D_ellipse_tilt_hist(df)
@@ -109,6 +110,11 @@ for z in zz:    #Iterate by layer
 sim_df_dm = reconstruct(data_clean,data_sim_arr[1],zz_complete,n_fibers,par_1,par_2)
 sim_df = reconstruct(data_clean,data_sim_arr[2],zz_complete,n_fibers,par_1,par_2)
 
+# Copula contour plots
+# plt.close('all')
+# cop_lst[2][30].plot(type='contour',margin_type='unif')
+# cop_lst[2][30].plot(type='contour',margin_type='norm')
+
 # Plot synthetic fibers
 #plot_fibers(sim_df_dm,'Synthetic Fibers with Depth Memory')
 #plot_fibers(sim_df,'Synthetic Fibers without Depth Memory')
@@ -119,7 +125,9 @@ sim_df = reconstruct(data_clean,data_sim_arr[2],zz_complete,n_fibers,par_1,par_2
 plot_synthetic_data(par_1,par_2,mean_arr,std_arr,df,data_sim_arr[1],[30,60])
 
 plot_alpha_z(df,data_sim_arr,cop_models)
-plot_theta_z(df,sim_df_dm,sim_df_dm)
+plot_theta_z(df,sim_df_dm)
+plot_theta_x(df,sim_df_dm)
+plot_theta_y(df,sim_df_dm)
 plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df),
                  labels=['Raw Data',
                          'Simulated with Depth Memory',
