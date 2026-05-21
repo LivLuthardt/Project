@@ -225,7 +225,7 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
     )
     #update layout
     fig.update_layout(
-        title_text=f"Projections of {category} fiber",
+        title_text=f"Projections of {category} fiber (ID: {id})",
         height=500,
         width=1200,
         showlegend=False,
@@ -280,7 +280,7 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    df = df[(df['x'] < 70) & (df['y'] > -70)]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[(df['x'] < 70) & (df['y'] > -70)] #change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
@@ -290,7 +290,7 @@ def plot_fibers(df,title):
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
-            aspectratio=dict(x=1, y=1, z=0.4)) #change these values if you want to change the aspect ratio of the image
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
     #fig.show()
 
