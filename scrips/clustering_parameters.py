@@ -125,7 +125,7 @@ def manual_clust(pct_d, pct_a):
     plt.hist(scores_0_a, bins=100)
     plt.axvline(threshold_angle)  
     plt.title("Angle Histogram")
-    #plt.show()
+    plt.show()
     plt.close()
     print("Threshold_Angle", threshold_angle)
 
