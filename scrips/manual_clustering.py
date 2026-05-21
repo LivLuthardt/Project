@@ -110,7 +110,7 @@ for item in layer_0_results_d:
 
 
 #Choose threshold percentile
-pct_d = 90
+pct_d = 95
 
 threshold_distance = np.percentile(scores_0_d, pct_d)
 
@@ -133,7 +133,7 @@ for item in layer_0_results_a:
     scores_0_a.append(item[2])
 
 #Choose a threshold
-pct_a = 90
+pct_a = 95
 
 threshold_angle    = np.percentile(scores_0_a, pct_a)
 
@@ -207,6 +207,11 @@ for i in range(len(indices_d)):
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
+#Create list for isolated nodes
+isolated_nodes = []
+for isol in nx.isolates(G_both):
+    isolated_nodes.append(isol)
+print(isolated_nodes)
 
 G_cluster = G_both.copy()
 
@@ -270,7 +275,7 @@ print("Cluster sizes:", [len(c) for c in clusters])
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
-"""
+
 #Define constants
 number_of_layers = 130
 failure_fraction_allowed = 0.05
@@ -390,8 +395,17 @@ for clust in clusters:
     clusters_updated.append(new_clust)
 
 #Add one final cluster containing all outliers
+for isol in isolated_nodes:
+    remove_arr.add(isol)
 clusters_updated.append(list(remove_arr))
 
 print("Amount of updated clusters:", len(clusters_updated))
-print(clusters_updated)
-print("Updated cluster sizes:", [len(c) for c in clusters_updated])"""
+for i, cluster in enumerate(clusters_updated, start=1):
+    print(f"Cluster {i}: {clusters_updated}")
+print("Updated cluster sizes:", [len(c) for c in clusters_updated])
+for bruh in range(len(clusters_updated[11])):
+    print("Dropout fibre cluster:", clusters_updated[11][bruh])
+total_fib = 0
+for bruhh in range(len(clusters_updated)):
+    total_fib += len(clusters_updated[bruhh])
+print(total_fib)
