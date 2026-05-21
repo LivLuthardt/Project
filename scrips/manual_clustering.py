@@ -274,7 +274,7 @@ again both set thresholds to determine whether a fibre is clusterable throughout
 #Define constants
 number_of_layers = 130
 failure_fraction_allowed = 0.05
-threshold_multiplier = 1.05
+threshold_multiplier = 1.05 #1.05 removed 3 fibers only
 failure_limit = failure_fraction_allowed * number_of_layers
 number_of_fibres = G_both.number_of_nodes()
 clusters_updated = []
@@ -321,7 +321,7 @@ for clust in clusters:
 
         distance_centroid_0 = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
 
-        #Threshold = distance + 5%
+        #Threshold = distance + some percentage
         thresholds[fibre_id] = (distance_centroid_0 * threshold_multiplier)
 
     #Iterate through layers
@@ -392,9 +392,6 @@ for clust in clusters:
 #Add one final cluster containing all outliers
 clusters_updated.append(list(remove_arr))
 
+print("Amount of updated clusters:", len(clusters_updated))
 print(clusters_updated)
-counter = 0
-for kaas in clusters_updated:
-    print(len(kaas))
-    counter += 1
-print(counter)
+print("Updated cluster sizes:", [len(c) for c in clusters_updated])
