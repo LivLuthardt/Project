@@ -110,7 +110,7 @@ for item in layer_0_results_d:
 mean_scores_0_d = np.mean(scores_0_d)
 std_scores_0_d = np.std(scores_0_d)
 #Threshold
-n_std_d = 1
+n_std_d = 2
 threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
 # Plot histogram
 plt.figure()
@@ -270,11 +270,11 @@ print("Cluster sizes:", [len(c) for c in clusters])
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
-
+"""
 #Define constants
 number_of_layers = 130
 failure_fraction_allowed = 0.05
-threshold_multiplier = 1.05 #1.05 removed 3 fibers only
+threshold_multiplier = 1.01 #1.05 removed 3 fibers only
 failure_limit = failure_fraction_allowed * number_of_layers
 number_of_fibres = G_both.number_of_nodes()
 clusters_updated = []
@@ -394,4 +394,4 @@ clusters_updated.append(list(remove_arr))
 
 print("Amount of updated clusters:", len(clusters_updated))
 print(clusters_updated)
-print("Updated cluster sizes:", [len(c) for c in clusters_updated])
+print("Updated cluster sizes:", [len(c) for c in clusters_updated])"""

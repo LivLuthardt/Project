@@ -108,7 +108,8 @@ def manual_clust(pct_d, pct_a):
     plt.hist(scores_0_d, bins=100)
     plt.axvline(threshold_distance) 
     plt.title("Distance Histogram") 
-    #plt.show()
+    plt.show()
+    plt.close()
     print("Threshold_Distance", threshold_distance)
     
     scores_0_a = []
@@ -124,7 +125,7 @@ def manual_clust(pct_d, pct_a):
     plt.hist(scores_0_a, bins=100)
     plt.axvline(threshold_angle)  
     plt.title("Angle Histogram")
-    #plt.show()
+    plt.show()
     plt.close()
     print("Threshold_Angle", threshold_angle)
 
@@ -253,8 +254,8 @@ def manual_clust(pct_d, pct_a):
     
     return len(list(nx.isolates(G_both))),len(clusters)
 
-pct_d = [10]
-pct_a = [99]
+pct_d = [95]
+pct_a = [95]
 n_clusters = []
 n_isolated = []
 for d in pct_d:
