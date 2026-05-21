@@ -110,7 +110,7 @@ for item in layer_0_results_d:
 
 
 #Choose threshold percentile
-pct_d = 95
+pct_d = 15
 
 threshold_distance = np.percentile(scores_0_d, pct_d)
 
@@ -133,7 +133,7 @@ for item in layer_0_results_a:
     scores_0_a.append(item[2])
 
 #Choose a threshold
-pct_a = 95
+pct_a = 15
 
 threshold_angle    = np.percentile(scores_0_a, pct_a)
 
