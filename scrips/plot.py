@@ -3,6 +3,8 @@ from matplotlib.offsetbox import AnchoredText
 from matplotlib.patches import Ellipse
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 from copula import sort
@@ -123,24 +125,75 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
 
-def single_fiber_plot(df,id):
+def single_fiber_plot(df,id,category):
     """
-    plots the projection of a single fiber onto the xy plane to show the misalignment
+    plots the projection of a single fiber onto the3 planes to show the misalignment
     """
     df = df[df['fibre_id'] == id] #get a dataframe of one fiber
 
-    #plot a 2D plot of the projection of the fiber onto the xy plane
-    fig = px.line( 
-        df, 
-        x='x', 
-        y='y', 
-        markers=True,
-        title=f"Fiber ID: {id}",
-        line_shape='linear'
+    # Create a subplot figure with 3 plots arranged horizontally
+    fig = make_subplots(
+        rows=1,
+        cols=3,
+        subplot_titles=(
+            f"X-Y plane projection",
+            f"X-Z plane projection",
+            f"Y-Z plane projection"
+        ),
+        # Specify the type of plot for each subplot
+        specs=[[{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}]]
+    )
+    # Add X-Y projection
+    fig.add_trace(
+        go.Scatter(
+            x=df['x'],
+            y=df['y'],
+            mode='lines+markers',
+            marker=dict(size=2, color='red'),
+            line=dict(shape='linear', color='black'),
+        ),
+        row=1, col=1
+    )
+    # Add X-Z projection
+    fig.add_trace(
+        go.Scatter(
+            x=df['x'],
+            y=df['z'],
+            mode='lines+markers',
+            marker=dict(size=2, color='red'),
+            line=dict(shape='linear', color='black'),
+        ),
+        row=1, col=2
+    )
+    # Add Y-Z projection
+    fig.add_trace(
+        go.Scatter(
+            x=df['y'],
+            y=df['z'],
+            mode='lines+markers',
+            marker=dict(size=2, color='red'),
+            line=dict(shape='linear', color='black'),
+        ),
+        row=1, col=3
+    )
+    #update layout
+    fig.update_layout(
+        title_text=f"Projections of {category} fiber",
+        height=500,
+        width=1200,
+        showlegend=False,
+        plot_bgcolor='white',
+        # Ensure proper axis labels
+        xaxis=dict(title="X", showgrid=True, gridcolor='gray'),
+        yaxis=dict(title="Y", showgrid=True, gridcolor='gray'),
+        xaxis2=dict(title="X", showgrid=True, gridcolor='gray'),
+        yaxis2=dict(title="Z", showgrid=True, gridcolor='gray'),
+        xaxis3=dict(title="Y", showgrid=True, gridcolor='gray'),
+        yaxis3=dict(title="Z", showgrid=True, gridcolor='gray')
     )
 
     #fig.show()
-    fig.write_image(f"Fiber_xy_proj_plot.png")
+    fig.write_image(f"Fiber_{category}_proj_plot.png")
 
 def sse_plot_kmeans_pca(df, n_components=3):
     """

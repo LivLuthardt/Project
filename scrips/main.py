@@ -4,7 +4,6 @@ from tangent import*
 from copula import*
 from clustering import*
 from plot import *
-from layer_clustering import *
 import matplotlib.pyplot as plt
 
 raw_df = pd.read_csv('raw_data.csv')
@@ -22,8 +21,10 @@ df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 #Ellipse plot
 plot_ellipse(df,1)
 
-#Single fiber projection plot
-single_fiber_plot(df,5)
+#Make 2D plot of fiber projection plot
+single_fiber_plot(df,5,'normal')
+single_fiber_plot(raw_df,129,'highly misaligned')
+plot_fibers(raw_df,'pluh')
 
 #Make 1D histograms of ellipsetilt vs angle 
 One_D_ellipse_tilt_hist(df)
