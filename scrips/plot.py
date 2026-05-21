@@ -3,8 +3,8 @@ from matplotlib.offsetbox import AnchoredText
 from matplotlib.patches import Ellipse
 import numpy as np
 import plotly.express as px
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 from copula import sort
@@ -174,7 +174,7 @@ def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,12
 
 def single_fiber_plot(df,id,category): #category here means if its a normal or abnormal fiber, only used for the title
     """
-    plots the projection of a single fiber onto the xy plane to show the misalignment
+    plots the projection of a single fiber onto the3 planes to show the misalignment
     """
     df = df[df['fibre_id'] == id] #get a dataframe of one fiber
 
@@ -190,13 +190,13 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
         # Specify the type of plot for each subplot
         specs=[[{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}]]
     )
-    # Add X-Y projection (original)
+    # Add X-Y projection
     fig.add_trace(
         go.Scatter(
             x=df['x'],
             y=df['y'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=1
@@ -207,7 +207,7 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
             x=df['x'],
             y=df['z'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=2
@@ -218,7 +218,7 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
             x=df['y'],
             y=df['z'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=3
