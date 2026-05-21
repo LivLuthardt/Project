@@ -21,7 +21,7 @@ df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 #Ellipse plot
 plot_ellipse(df,1)
 
-#Single fiber projection plot
+#Make 2D plot of fiber projection plot
 single_fiber_plot(df,5,'normal')
 single_fiber_plot(raw_df,129,'highly misaligned')
 

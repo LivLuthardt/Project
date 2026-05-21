@@ -3,8 +3,8 @@ from matplotlib.offsetbox import AnchoredText
 from matplotlib.patches import Ellipse
 import numpy as np
 import plotly.express as px
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 from copula import sort
@@ -174,7 +174,7 @@ def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,12
 
 def single_fiber_plot(df,id,category): #category here means if its a normal or abnormal fiber, only used for the title
     """
-    plots the projection of a single fiber onto the xy plane to show the misalignment
+    plots the projection of a single fiber onto the3 planes to show the misalignment
     """
     df = df[df['fibre_id'] == id] #get a dataframe of one fiber
 
@@ -190,13 +190,13 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
         # Specify the type of plot for each subplot
         specs=[[{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}]]
     )
-    # Add X-Y projection (original)
+    # Add X-Y projection
     fig.add_trace(
         go.Scatter(
             x=df['x'],
             y=df['y'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=1
@@ -207,7 +207,7 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
             x=df['x'],
             y=df['z'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=2
@@ -218,14 +218,14 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
             x=df['y'],
             y=df['z'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=3
     )
     #update layout
     fig.update_layout(
-        title_text=f"Projections of {category} fiber",
+        title_text=f"Projections of {category} fiber (ID: {id})",
         height=500,
         width=1200,
         showlegend=False,
@@ -280,7 +280,7 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    df = df[(df['x'] < 70) & (df['y'] > -70)]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[(df['x'] < 70) & (df['y'] > -70)] #change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
@@ -290,7 +290,7 @@ def plot_fibers(df,title):
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
-            aspectratio=dict(x=1, y=1, z=0.4)) #change these values if you want to change the aspect ratio of the image
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
     #fig.show()
 

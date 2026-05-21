@@ -9,7 +9,7 @@ from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
-#shsgs
+
 def manual_clust(pct_d, pct_a):
     """Ïmport data and manipulate dataframe"""
     raw_df = pd.read_csv('raw_data.csv')
@@ -51,7 +51,7 @@ def manual_clust(pct_d, pct_a):
     from kneed import KneeLocator
     kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
     optimal_k = kneedle.knee
-    #print(f"The optimal number of neighbors is: {optimal_k}")
+    print(f"The optimal number of neighbors is: {optimal_k}")
     """ ------------------------------------------ """
 
 
@@ -109,6 +109,7 @@ def manual_clust(pct_d, pct_a):
     plt.axvline(threshold_distance) 
     plt.title("Distance Histogram") 
     #plt.show()
+    plt.close()
     print("Threshold_Distance", threshold_distance)
     
     scores_0_a = []
@@ -124,7 +125,7 @@ def manual_clust(pct_d, pct_a):
     plt.hist(scores_0_a, bins=100)
     plt.axvline(threshold_angle)  
     plt.title("Angle Histogram")
-    #plt.show()
+    plt.show()
     plt.close()
     print("Threshold_Angle", threshold_angle)
 
@@ -161,7 +162,7 @@ def manual_clust(pct_d, pct_a):
     """"Build combined graph"""
     G_both = nx.Graph()
     G_both.add_nodes_from([int(fid) for fid in fibre_ids])
-    '''
+    
     knn_d = NearestNeighbors(n_neighbors=optimal_k, metric='precomputed')
     knn_d.fit(D_d)
 
@@ -181,19 +182,7 @@ def manual_clust(pct_d, pct_a):
                 combined_score = score_d + score_a
                 similarity = 1 / (combined_score + 1e-12)
                 G_both.add_edge(fid_i, fid_j, weight=similarity)
-           '''     
-    for i in range(len(fibre_ids)):
-        fid_i = int(fibre_ids[i])
-        for j in range(i + 1, len(fibre_ids)):
-            fid_j = int(fibre_ids[j])
-
-            score_d = D_d[i, j]
-            score_a = D_a[i, j]
-
-            if score_d <= threshold_distance and score_a <= threshold_angle:
-                combined_score = score_d + score_a
-                similarity = 1 / (combined_score + 1e-12)
-                G_both.add_edge(fid_i, fid_j, weight=similarity)
+            
     #print("Combined graph nodes:", G_both.number_of_nodes())
     #print("Combined graph edges:", G_both.number_of_edges())
     print("Isolated nodes:", len(list(nx.isolates(G_both))))
@@ -253,8 +242,8 @@ def manual_clust(pct_d, pct_a):
     
     return len(list(nx.isolates(G_both))),len(clusters)
 
-pct_d = [10]
-pct_a = [99]
+pct_d = [90]
+pct_a = [90]
 n_clusters = []
 n_isolated = []
 for d in pct_d:

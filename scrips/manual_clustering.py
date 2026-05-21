@@ -107,11 +107,14 @@ scores_0_d = []
 layer_0_results_d = good_neighbor_distance(cleaned_data)
 for item in layer_0_results_d:
     scores_0_d.append(item[2])
-mean_scores_0_d = np.mean(scores_0_d)
-std_scores_0_d = np.std(scores_0_d)
-#Threshold
-n_std_d = 1
-threshold_distance = mean_scores_0_d + n_std_d * std_scores_0_d
+
+
+#Choose threshold percentile
+pct_d = 90
+
+threshold_distance = np.percentile(scores_0_d, pct_d)
+
+
 # Plot histogram
 plt.figure()
 plt.hist(scores_0_d, bins=100)
@@ -122,19 +125,18 @@ plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Distance_Histogram')
 plt.close('all')
-print("Mean_Distance:", mean_scores_0_d)
-print("Std_Distance:", std_scores_0_d)
 print("Threshold_Distance", threshold_distance)
 
 scores_0_a = []
 layer_0_results_a = good_neighbor_angle(cleaned_data)
 for item in layer_0_results_a:
     scores_0_a.append(item[2])
-mean_scores_0_a = np.mean(scores_0_a)
-std_scores_0_a = np.std(scores_0_a)
-#Threshold
-n_std_a = 2
-threshold_angle = mean_scores_0_a + n_std_a * std_scores_0_a
+
+#Choose a threshold
+pct_a = 90
+
+threshold_angle    = np.percentile(scores_0_a, pct_a)
+
 # Plot histogram
 plt.figure()
 plt.hist(scores_0_a, bins=100)
@@ -145,8 +147,6 @@ plt.ylabel("Frequency")
 plt.legend()
 plt.savefig(fname = 'Angle_Histogram')
 plt.close('all')
-print("Mean_Angle:", mean_scores_0_a)
-print("Std_Angle:", std_scores_0_a)
 print("Threshold_Angle", threshold_angle)
 
 
@@ -270,11 +270,11 @@ print("Cluster sizes:", [len(c) for c in clusters])
 """Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
 that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
 again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
-
+"""
 #Define constants
 number_of_layers = 130
 failure_fraction_allowed = 0.05
-threshold_multiplier = 1.05 #1.05 removed 3 fibers only
+threshold_multiplier = 1.01 #1.05 removed 3 fibers only
 failure_limit = failure_fraction_allowed * number_of_layers
 number_of_fibres = G_both.number_of_nodes()
 clusters_updated = []
@@ -394,4 +394,4 @@ clusters_updated.append(list(remove_arr))
 
 print("Amount of updated clusters:", len(clusters_updated))
 print(clusters_updated)
-print("Updated cluster sizes:", [len(c) for c in clusters_updated])
+print("Updated cluster sizes:", [len(c) for c in clusters_updated])"""
