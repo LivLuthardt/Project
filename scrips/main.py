@@ -181,18 +181,18 @@ fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
-# plot_fibers_clustered(df_k, 'K-means')
-# plot_fibers_clustered(df_k_pca, 'K-means with PCA')
-# plot_fibers_clustered(df_dbscan, 'DBSCAN')
-# plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
-# plot_fibers_clustered(df_gmm, 'GMM')
-# plot_fibers_clustered(df_agg, 'Agglomerative')
+plot_fibers_clustered(df_k, 'K-means')
+plot_fibers_clustered(df_k_pca, 'K-means with PCA')
+plot_fibers_clustered(df_dbscan, 'DBSCAN')
+plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
+plot_fibers_clustered(df_gmm, 'GMM')
+plot_fibers_clustered(df_agg, 'Agglomerative')
 
 # Make CH score plot for all pre-defined cluster methods, as well as aic and bic for gmm and sse for k-means 
 
-# plot_score(fiber_sum, n_clusters)
-# plot_sse_k(fiber_sum, n_clusters)
-# plot_aic_bic_gmm(fiber_sum, n_clusters)
+#plot_score(fiber_sum, n_clusters)
+#plot_sse_k(fiber_sum, n_clusters)
+#plot_aic_bic_gmm(fiber_sum, n_clusters)
 #fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
 #fig_k_error = sse_plot_k(fiber_sum)
 
