@@ -110,7 +110,7 @@ for item in layer_0_results_d:
 
 
 #Choose threshold percentile
-pct_d = 15
+pct_d = 85
 
 threshold_distance = np.percentile(scores_0_d, pct_d)
 
@@ -186,7 +186,7 @@ G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
 #Build graph directly from thresholds
 #Maximum physical interaction radius
-max_radius = 25
+max_radius = 50
 
 for i in range(len(fibre_ids)):
     fid_i = int(fibre_ids[i])
@@ -253,7 +253,7 @@ G_cluster = G_both.copy()
 #G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
 #Creates clusters based on densely populated nodes
-communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight", cutoff=10)
+communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight", resolution=5, cutoff=10)
 clusters = [sorted(list(c)) for c in communities]
 
 #Remove tiny clusters
