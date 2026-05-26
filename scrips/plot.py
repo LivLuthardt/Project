@@ -422,7 +422,7 @@ def One_D_ellipse_tilt_hist(df):
     Takes the dataframe to plot the tilt angles in a 1D histogram
     """
     ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
-    ax.set_title('Fiber x-tilt Histogram')
+    ax.set_title('Fiber x-tilt histogram')
     ax.set_xlabel(r'$\theta_x$ (°)')
     ax.set_ylabel('Frequency')
     handles, labels = ax.get_legend_handles_labels()
@@ -431,7 +431,7 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
     ax = plt.gca()
     ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
-    ax.set_title('Fiber y-tilt Histogram')
+    ax.set_title('Fiber y-tilt histogram')
     ax.set_xlabel(r'$\theta_y$ (°)')
     ax.set_ylabel('Frequency')
     handles, labels = ax.get_legend_handles_labels()
@@ -444,11 +444,13 @@ def Two_D_hex_plot(df):
     Takes the dataframe to plot the tilt angles in a 2D histogram
     """
     ax = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax.set_title('Fiber x- and y-tilt histogram (Ellipse-plane method)')
     ax.set_xlabel(r'$\theta_x$ (°)')
     ax.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="EllipseTiltHex.png")
     plt.close('all')
     ax = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax.set_title('Fiber x- and y-tilt histogram (Finite-difference method)')
     ax.set_xlabel(r'$\theta_x$ (°)')
     ax.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="FiniteTiltHex.png")
