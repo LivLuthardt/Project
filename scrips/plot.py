@@ -3,8 +3,8 @@ from matplotlib.offsetbox import AnchoredText
 from matplotlib.patches import Ellipse
 import numpy as np
 import plotly.express as px
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 from clustering import perform_kmeans_clustering, perform_kmeans_clustering_with_pca, perform_gmm_clustering, perform_agglomerative_clustering
 from copula import sort
@@ -32,6 +32,7 @@ def plot_ellipse(df,z):
 
     ax.set_aspect('equal')
     plt.savefig(fname="EllipsePlot.png")
+    plt.close('all')
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
@@ -51,9 +52,8 @@ def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
 
 def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
-        plt.close('all')
 
-        # Take approriate data to plot
+        # Take appropriate data to plot
         df_z = df[df['z_idx'] == z]
         x1_df = df_z[[x1]].to_numpy()
         x2_df = df_z[[x2]].to_numpy()
@@ -73,7 +73,8 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
         plt.xlim(pltlims), plt.ylim(pltlims)
         plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
         plt.title(f'Scatterplot at z = {z} with Depth Memory')
-        plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
+        # plt.xlabel(rf'$\theta_x$ [deg]'),plt.ylabel(rf'$\theta_y$ [deg]', rotation='horizontal', ha='right', va='center')
+        plt.xlabel(rf'$\theta_x$ [deg]'),plt.ylabel(rf'$\theta_y$ [deg]')
         plt.tight_layout()
 
         
@@ -97,38 +98,38 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.subplot(2,2,1)
         plt.hist(x1_df,label='Actual Data',bins=150)
-        plt.xlabel(f'{x1}')
+        plt.xlabel(rf'$\theta_x$ [deg]')
         plt.axvline(mean_arr[z,0], color='k', linestyle='dashed', linewidth=1)
         plt.title('Actual Data')
         plt.xlim(pltlims)
 
         plt.subplot(2,2,2)
         plt.hist(x2_df,label='Actual Data',bins=150)
-        plt.xlabel(f'{x2}')
+        plt.xlabel(rf'$\theta_y$ [deg]')
         plt.title('Actual Data')
         plt.axvline(mean_arr[z,1], color='k', linestyle='dashed', linewidth=1)
         plt.xlim(pltlims)
 
         plt.subplot(2,2,3)
         plt.hist(arr_sim[z,:,0],label='Synthetic',bins=150)
-        plt.xlabel(f'{x1}')
+        plt.xlabel(rf'$\theta_x$ [deg]')
         plt.title('Synthetic')
         plt.axvline(arr_sim[z,:,0].mean(), color='k', linestyle='dashed', linewidth=1)
         plt.xlim(pltlims)
 
         plt.subplot(2,2,4)
         plt.hist(arr_sim[z,:,1],label='Synthetic',bins=150)
-        plt.xlabel(f'{x2}')
+        plt.xlabel(rf'$\theta_y$ [deg]')
         plt.title('Synthetic')
         plt.axvline(arr_sim[z,:,1].mean(), color='k', linestyle='dashed', linewidth=1)
         plt.xlim(pltlims)
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
+        plt.close('all')
 
 def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
-        plt.close('all')
 
         # Take approriate data to plot
         df_z = df[df['z_idx'] == z]
@@ -150,7 +151,7 @@ def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,12
         plt.xlim(pltlims), plt.ylim(pltlims)
         plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
         plt.title(f'Scatterplot at z = {z} without Depth Memory')
-        plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
+        plt.xlabel(r'$\theta_x$ (°)'),plt.ylabel(r'$\theta_y$ (°)')
         plt.tight_layout()
 
         
@@ -174,7 +175,7 @@ def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,12
 
 def single_fiber_plot(df,id,category): #category here means if its a normal or abnormal fiber, only used for the title
     """
-    plots the projection of a single fiber onto the xy plane to show the misalignment
+    plots the projection of a single fiber onto the3 planes to show the misalignment
     """
     df = df[df['fibre_id'] == id] #get a dataframe of one fiber
 
@@ -190,13 +191,13 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
         # Specify the type of plot for each subplot
         specs=[[{"type": "scatter"}, {"type": "scatter"}, {"type": "scatter"}]]
     )
-    # Add X-Y projection (original)
+    # Add X-Y projection
     fig.add_trace(
         go.Scatter(
             x=df['x'],
             y=df['y'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=1
@@ -207,7 +208,7 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
             x=df['x'],
             y=df['z'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=2
@@ -218,25 +219,25 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
             x=df['y'],
             y=df['z'],
             mode='lines+markers',
-            marker=dict(size=2, color='red'),
+            marker=dict(size=3, color='red'),
             line=dict(shape='linear', color='black'),
         ),
         row=1, col=3
     )
     #update layout
     fig.update_layout(
-        title_text=f"Projections of {category} fiber",
+        title_text=f"Projections of {category} fiber (ID: {id})",
         height=500,
         width=1200,
         showlegend=False,
         plot_bgcolor='white',
         # Ensure proper axis labels
-        xaxis=dict(title="X", showgrid=True, gridcolor='gray'),
-        yaxis=dict(title="Y", showgrid=True, gridcolor='gray'),
-        xaxis2=dict(title="X", showgrid=True, gridcolor='gray'),
-        yaxis2=dict(title="Z", showgrid=True, gridcolor='gray'),
-        xaxis3=dict(title="Y", showgrid=True, gridcolor='gray'),
-        yaxis3=dict(title="Z", showgrid=True, gridcolor='gray')
+        xaxis=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
+        yaxis=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
+        xaxis2=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
+        yaxis2=dict(title="Z (µm)", showgrid=True, gridcolor='gray'),
+        xaxis3=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
+        yaxis3=dict(title="Z (µm)", showgrid=True, gridcolor='gray')
     )
 
     #fig.show()
@@ -280,7 +281,7 @@ def plot_fibers(df,title):
     """
     uses a dataframe and title to make a 3D plot of all fibers in the dataframe
     """
-    df = df[(df['x'] < 70) & (df['y'] > -70)]#change/uncomment this if you want to reduce the number of fibers for faster computation
+    #df = df[(df['x'] < 70) & (df['y'] > -70)] #change/uncomment this if you want to reduce the number of fibers for faster computation
     #plot a 3D plot of the fibers per number of clusters
     fig = px.line_3d(
         df, 
@@ -290,7 +291,7 @@ def plot_fibers(df,title):
     )
     fig.update_layout(
     scene=dict(aspectmode="manual",
-            aspectratio=dict(x=1, y=1, z=0.4)) #change these values if you want to change the aspect ratio of the image
+            aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
     #fig.show()
 
@@ -311,7 +312,7 @@ def plot_fibers_clustered(df,title):
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
-    #fig.show()
+    fig.show()
 
 def plot_score(df, n_clusters):
     """
@@ -418,20 +419,21 @@ def plot_aic_bic_gmm(df, n_clusters):
     print(f'Plot AIC BIC GMM finished')
 
 def One_D_ellipse_tilt_hist(df):
-    plt.figure()
+    """
+    Takes the dataframe to plot the tilt angles in a 1D histogram
+    """
     ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber x-tilt Histogram')
-    ax.set_xlabel('Fiber angle x-tilt (°)')
+    ax.set_xlabel(rf'$\theta_x$ [deg]')
     ax.set_ylabel('Frequency')
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
     plt.savefig(fname="XTiltHist.png")
     plt.close('all')
-    plt.figure()
     ax = plt.gca()
     ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber y-tilt Histogram')
-    ax.set_xlabel('Fiber angle y-tilt (°)')
+    ax.set_xlabel(rf'$\theta_y$ [deg]')
     ax.set_ylabel('Frequency')
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
@@ -439,10 +441,21 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
 
 def Two_D_hex_plot(df):
-    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    """
+    Takes the dataframe to plot the tilt angles in a 2D histogram
+    """
+    ax = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax.set_title('Fiber x- and y-tilt histogram (Ellipse-plane method)')
+    ax.set_xlabel(r'$\theta_x$ (°)')
+    ax.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="EllipseTiltHex.png")
-    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    plt.close('all')
+    ax = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax.set_title('Fiber x- and y-tilt histogram (Finite-difference method)')
+    ax.set_xlabel(r'$\theta_x$ (°)')
+    ax.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="FiniteTiltHex.png")
+    plt.close('all')
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     """ 
@@ -480,10 +493,8 @@ def plot_theta_z(df,data_sim_dm):
     plt.close('all')
     z_scale = 500/128
     
-    data_sim_dm['r'] = np.hypot(data_sim_dm['x'],data_sim_dm['y'])
-    data_sim_dm['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/data_sim_dm['r'])))
-    df['r'] = np.hypot(df['x'],df['y'])
-    df['theta_z'] = np.abs(np.degrees(np.arctan(z_scale/df['r'])))
+    data_sim_dm['theta_z'] = np.hypot(data_sim_dm['angle_x_deg'],data_sim_dm['angle_y_deg'])
+    df['theta_z'] = np.hypot(df['angle_x_deg'],df['angle_y_deg'])
 
     mean = data_sim_dm.groupby('z')['theta_z'].mean()
     std = data_sim_dm.groupby('z')['theta_z'].std()
@@ -493,14 +504,16 @@ def plot_theta_z(df,data_sim_dm):
     x = np.arange(129)*500/128
     x_og = np.arange(1,128)*500/128
 
-    plt.plot(mean,label='Simulated with Depth Memory',color='orangered')
-    plt.fill_between(x, mean - 2*std, mean + 2*std, color='orangered', alpha=0.2)
-    plt.plot(mean_og,label='Original Data',color='blue')
-    plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
+    plt.plot(x,mean.values,label='Simulated with Depth Memory',color='orangered')
+    plt.fill_between(x, (mean - 2*std).values, (mean + 2*std).values, color='orangered', alpha=0.2)
+    
+    plt.plot(x_og,mean_og.values,label='Original Data',color='blue')
+    plt.fill_between(x_og, (mean_og - 2*std_og).values, (mean_og + 2*std_og).values, color='blue', alpha=0.2)
     
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
+    plt.tight_layout()
     plt.savefig(fname='mean_theta_z',dpi=250)
     plt.close('all')
     

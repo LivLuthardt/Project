@@ -21,9 +21,12 @@ df = df.dropna(subset=['dx', 'dy', 'dz']) #Clean data
 #Ellipse plot
 plot_ellipse(df,1)
 
-#Single fiber projection plot
+#Make 2D plot of fiber projection plot
 single_fiber_plot(df,5,'normal')
-single_fiber_plot(raw_df,129,'highly misaligned')
+plot_df = raw_df.copy()
+Z_SCALE = 500 / (plot_df["z"].max() - plot_df["z"].min())   # µm per slice (n slices → n-1 intervals)
+plot_df["z"] = plot_df["z"] * Z_SCALE # This becomes your z-coordinate (code taken out of data_clean.py)
+single_fiber_plot(plot_df,129,'highly misaligned')
 
 #Make 1D histograms of ellipsetilt vs angle 
 One_D_ellipse_tilt_hist(df)
@@ -133,8 +136,6 @@ plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df),
                          'Simulated with Depth Memory',
                          'Simulated w/o Depth Memory '])
 
-chi_squared_2d(df,data_sim_arr,cop_models)
-chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 
@@ -181,18 +182,18 @@ fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
 df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
 
 # Make 3D plots with clusters
-# plot_fibers_clustered(df_k, 'K-means')
-# plot_fibers_clustered(df_k_pca, 'K-means with PCA')
-# plot_fibers_clustered(df_dbscan, 'DBSCAN')
-# plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
-# plot_fibers_clustered(df_gmm, 'GMM')
-# plot_fibers_clustered(df_agg, 'Agglomerative')
+plot_fibers_clustered(df_k, 'K-means')
+plot_fibers_clustered(df_k_pca, 'K-means with PCA')
+plot_fibers_clustered(df_dbscan, 'DBSCAN')
+plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
+plot_fibers_clustered(df_gmm, 'GMM')
+plot_fibers_clustered(df_agg, 'Agglomerative')
 
 # Make CH score plot for all pre-defined cluster methods, as well as aic and bic for gmm and sse for k-means 
 
-# plot_score(fiber_sum, n_clusters)
-# plot_sse_k(fiber_sum, n_clusters)
-# plot_aic_bic_gmm(fiber_sum, n_clusters)
+#plot_score(fiber_sum, n_clusters)
+#plot_sse_k(fiber_sum, n_clusters)
+#plot_aic_bic_gmm(fiber_sum, n_clusters)
 #fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
 #fig_k_error = sse_plot_k(fiber_sum)
 
