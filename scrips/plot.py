@@ -440,9 +440,14 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
 
 def Two_D_hex_plot(df):
-    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax3.set_xlabel("Ellipse X Tilt [deg]")
+    ax3.set_ylabel("Ellipse Y Tilt [deg]")
     plt.savefig(fname="EllipseTiltHex.png")
-    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+
+    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax4.set_xlabel("Finite X Tilt [deg]")
+    ax4.set_ylabel("Finite Y Tilt [deg]")
     plt.savefig(fname="FiniteTiltHex.png")
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
@@ -556,6 +561,7 @@ def plot_theta_y(df,data_sim_dm):
     plt.fill_between(x_og, mean_og - 2*std_og, mean_og + 2*std_og, color='blue', alpha=0.2)
     
     plt.legend()
+    plt.legend(loc='upper left')
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_y$ [deg]''')
     plt.grid()
     plt.savefig(fname='mean_theta_y',dpi=250)
@@ -580,8 +586,9 @@ def plot_correlation(zz,x1,x2,dfs,labels):
         corr_arr = corr_series.reindex(zz).to_numpy()
         ax.plot(zz*(500/128),corr_arr,label=labels[i])
 
-    ax.set_ylabel('Correlation')
+    ax.set_ylabel('Correlation (r)')
     ax.set_xlabel(rf'z ($\mu m$)')
+    ax.set_title("Intra-layer Tilt Correlation")
     ax.grid()
     # ax.set_xlim(zz[0],zz[-1])
     ax.legend()
