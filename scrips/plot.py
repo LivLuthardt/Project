@@ -312,7 +312,7 @@ def plot_fibers_clustered(df,title):
     scene=dict(aspectmode="manual",
             aspectratio=dict(x=1, y=1, z=1)) #change these values if you want to change the aspect ratio of the image
     )
-    #fig.show()
+    fig.show()
 
 def plot_score(df, n_clusters):
     """

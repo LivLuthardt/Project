@@ -9,6 +9,7 @@ from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
 from kneed import KneeLocator
 import matplotlib.patches as mpatches
+from plot import plot_fibers_clustered
 
 """ ------------------------------------------- Import data and manipulate dataframe ------------------------------------------- """
 #Import data and clean it
@@ -297,7 +298,7 @@ print("Cluster sizes:", [len(c) for c in clusters])
 
 
 """ ------------------------------ Iteration through layers to find outlier fibers for 3D cluster ------------------------------ """
-"""
+
 #Define constants
 number_of_layers = 130
 failure_fraction_allowed = 0.05
@@ -420,9 +421,9 @@ for clust in clusters:
 for isol in isolated_nodes:
     remove_arr.add(isol)
 clusters_updated.append(list(remove_arr))
-"""
+
 """ -------------------------------------------------------- The end! -------------------------------------------------------- """
-"""
+
 #Remove later! Not yet!
 print("Amount of updated clusters:", len(clusters_updated))
 for i, cluster in enumerate(clusters_updated, start=1):
@@ -435,4 +436,3 @@ for bruhh in range(len(clusters_updated)):
     total_fib += len(clusters_updated[bruhh])
 print(total_fib)
 
-"""
