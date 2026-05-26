@@ -32,6 +32,7 @@ def plot_ellipse(df,z):
 
     ax.set_aspect('equal')
     plt.savefig(fname="EllipsePlot.png")
+    plt.close('all')
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
@@ -51,7 +52,6 @@ def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
 
 def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
-        plt.close('all')
 
         # Take appropriate data to plot
         df_z = df[df['z_idx'] == z]
@@ -126,10 +126,10 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.tight_layout()
         plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
+        plt.close('all')
 
 def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
-        plt.close('all')
 
         # Take approriate data to plot
         df_z = df[df['z_idx'] == z]
@@ -151,7 +151,7 @@ def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,12
         plt.xlim(pltlims), plt.ylim(pltlims)
         plt.legend(), plt.gca().set_aspect('equal'), plt.grid()
         plt.title(f'Scatterplot at z = {z} without Depth Memory')
-        plt.xlabel(f'{x1}'),plt.ylabel(f'{x2}')
+        plt.xlabel(r'$\theta_x$ (°)'),plt.ylabel(r'$\theta_y$ (°)')
         plt.tight_layout()
 
         
@@ -232,12 +232,12 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
         showlegend=False,
         plot_bgcolor='white',
         # Ensure proper axis labels
-        xaxis=dict(title="X", showgrid=True, gridcolor='gray'),
-        yaxis=dict(title="Y", showgrid=True, gridcolor='gray'),
-        xaxis2=dict(title="X", showgrid=True, gridcolor='gray'),
-        yaxis2=dict(title="Z", showgrid=True, gridcolor='gray'),
-        xaxis3=dict(title="Y", showgrid=True, gridcolor='gray'),
-        yaxis3=dict(title="Z", showgrid=True, gridcolor='gray')
+        xaxis=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
+        yaxis=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
+        xaxis2=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
+        yaxis2=dict(title="Z (µm)", showgrid=True, gridcolor='gray'),
+        xaxis3=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
+        yaxis3=dict(title="Z (µm)", showgrid=True, gridcolor='gray')
     )
 
     #fig.show()
@@ -419,7 +419,9 @@ def plot_aic_bic_gmm(df, n_clusters):
     print(f'Plot AIC BIC GMM finished')
 
 def One_D_ellipse_tilt_hist(df):
-    plt.figure()
+    """
+    Takes the dataframe to plot the tilt angles in a 1D histogram
+    """
     ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber x-tilt Histogram')
     ax.set_xlabel(rf'$\theta_x$ [deg]')
@@ -428,7 +430,6 @@ def One_D_ellipse_tilt_hist(df):
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
     plt.savefig(fname="XTiltHist.png")
     plt.close('all')
-    plt.figure()
     ax = plt.gca()
     ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber y-tilt Histogram')
@@ -440,10 +441,21 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
 
 def Two_D_hex_plot(df):
-    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    """
+    Takes the dataframe to plot the tilt angles in a 2D histogram
+    """
+    ax = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax.set_title('Fiber x- and y-tilt histogram (Ellipse-plane method)')
+    ax.set_xlabel(r'$\theta_x$ (°)')
+    ax.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="EllipseTiltHex.png")
-    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    plt.close('all')
+    ax = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax.set_title('Fiber x- and y-tilt histogram (Finite-difference method)')
+    ax.set_xlabel(r'$\theta_x$ (°)')
+    ax.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="FiniteTiltHex.png")
+    plt.close('all')
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     """ 
