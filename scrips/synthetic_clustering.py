@@ -14,29 +14,30 @@ from plot import plot_fibers_clustered
 """ ------------------------------------------- Import data and manipulate dataframe ------------------------------------------- """
 #Import data and clean it
 raw_df = pd.read_csv('raw_data.csv')    #Original data
-syn_df = pd.read_csv('sim_data.csv')    #Synthetic data
 
 data_clean = data_cleaned(raw_df)       #Original data
 #No cleaned data for synthetic fibers
 
 df = tangent_angles_central(data_clean) #Original data
 
+syn_df = pd.read_csv('sim_data.csv')    #Synthetic data
+
 
 #Define layer_0 data
-layer_0 = df[df['z_idx'] == 0]
+layer_0 = syn_df[syn_df['z_idx'] == 0]
 layer_0 = layer_0.reset_index(drop=True)
 #Consider only required features for clustering
-features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
-cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
+features = ['fibre_id', 'x', 'y']
+cleaned_data = layer_0[['x', 'y']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
 #For all other layers create dataframe
 cleaned_data_i = []
-unique_layers = sorted(df['z_idx'].unique())
+unique_layers = sorted(syn_df['z_idx'].unique())
 for layer_i in unique_layers[1:]:
-    current_layer = df[df['z_idx'] == layer_i]
+    current_layer = syn_df[syn_df['z_idx'] == layer_i]
     current_layer = current_layer.reset_index(drop=True)
-    layer_features = current_layer[['fibre_id','x', 'y', 'angle_x_deg', 'angle_y_deg']]
+    layer_features = current_layer[['fibre_id','x', 'y']]
     cleaned_data_i.append(layer_features)
 
 
@@ -67,7 +68,7 @@ print(f"The optimal number of neighbors is: {optimal_k}")
 """ ------------------------------------------ """
 
 
-""" --------- Neighborhood rule functions, store cartesian distances and respective angles between each pair of fibers --------- """
+""" --------- Neighborhood rule functions, store cartesian distances between each pair of fibers --------- """
 def good_neighbor_distance(cleaned_data):
     #Determine distance metric and store as list
     results_d = []
@@ -87,25 +88,6 @@ def good_neighbor_distance(cleaned_data):
             results_d.append((fibre_id_i, fibre_id_j, D_distance))
 
     return results_d
-
-def good_neighbor_angle(cleaned_data):
-    results_a = []
-    for i in range(len(cleaned_data)):
-            for j in range(i+1, len(cleaned_data)):
-                #Difference in angles
-                delta_anglex_norm = np.abs(cleaned_data[i, 3] - cleaned_data[j, 3])
-                delta_angley_norm = np.abs(cleaned_data[i, 4] - cleaned_data[j, 4])
-
-                #Distance metric for angle
-                D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
-
-                #Store fiber metric score with respective fibre id's
-                fibre_id_i = cleaned_data[i, 0]
-                fibre_id_j = cleaned_data[j, 0]
-
-                results_a.append((fibre_id_i, fibre_id_j, D_angle))
-
-    return results_a
 
 
 """ ---------------------- Plot histogram of distances and angles, and determine threshold as percentiles ---------------------- """
@@ -133,33 +115,8 @@ plt.close('all')
 print("Threshold_Distance", threshold_distance)
 
 
-#Angles
-scores_0_a = []
-layer_0_results_a = good_neighbor_angle(cleaned_data)
-for item in layer_0_results_a:
-    scores_0_a.append(item[2])
-
-#Choose a threshold
-pct_a = 95
-
-threshold_angle = np.percentile(scores_0_a, pct_a)
-
-# Plot histogram
-plt.figure()
-plt.hist(scores_0_a, bins=100)
-plt.axvline(threshold_angle,color = 'r', label = 'Threshold') 
-plt.title("Angle Histogram")
-plt.xlabel("Angle bwetween pairs of points")
-plt.ylabel("Frequency")
-plt.legend()
-plt.savefig(fname = 'Angle_Histogram')
-plt.close('all')
-print("Threshold_Angle", threshold_angle)
-
-
 """ ------------------------------------- Build distance and angle matrix and create graph ------------------------------------- """
 results_distance = good_neighbor_distance(cleaned_data)
-results_angle = good_neighbor_angle(cleaned_data)
 
 #Map fibre_id to row index
 fibre_ids = cleaned_data[:, 0].astype(int)
@@ -170,9 +127,6 @@ n_d = len(fibre_ids)
 D_d = np.full((n_d, n_d), np.inf)
 np.fill_diagonal(D_d, 0)
 
-n_a = len(fibre_ids)
-D_a = np.full((n_a, n_a), np.inf)
-np.fill_diagonal(D_a, 0)
 
 #Fill matrices
 for fibre_d_i, fibre_d_j, score in results_distance:
@@ -180,12 +134,6 @@ for fibre_d_i, fibre_d_j, score in results_distance:
     j = id_to_idx[int(fibre_d_j)]
     D_d[i, j] = score
     D_d[j, i] = score
-
-for fibre_d_i, fibre_d_j, score in results_angle:
-    ii = id_to_idx[int(fibre_d_i)]
-    jj = id_to_idx[int(fibre_d_j)]
-    D_a[ii, jj] = score
-    D_a[jj, ii] = score
 
 
 """"Build combined graph"""
@@ -215,12 +163,11 @@ for i in range(len(fibre_ids)):
             continue
 
         score_d = D_d[i, j]
-        score_a = D_a[i, j]
 
         #Apply thresholds separately
-        if (score_d <= threshold_distance and score_a <= threshold_angle):
+        if (score_d <= threshold_distance):
 
-            combined_score = score_d + score_a
+            combined_score = score_d
             similarity = 1 / (combined_score + 1e-12)
             G_both.add_edge(fid_i, fid_j, weight=similarity)
 
@@ -281,12 +228,12 @@ nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Network plot")
 plt.axis('equal')
 plt.show()
-plt.savefig(f'Original network plot.png')
+plt.savefig(f'Synthetic Network plot.png')
 plt.close('all')
 nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Cluster plot")
 plt.axis('equal')
-plt.savefig(f'Original cluster plot.png')
+plt.savefig(f'Synthetic cluster plot.png')
 plt.show()
 plt.close('all')
  
@@ -450,4 +397,4 @@ cluster_df = pd.DataFrame(cluster_rows)
 #Merge with original dataframe
 df_clustered = df.merge(cluster_df, on='fibre_id', how='left')
 
-plot_fibers_clustered(df_clustered, "Clustered Fibres on original data")
+plot_fibers_clustered(df_clustered, "Clustered Fibres on synthetic data")
