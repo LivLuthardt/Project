@@ -231,12 +231,12 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
         showlegend=False,
         plot_bgcolor='white',
         # Ensure proper axis labels
-        xaxis=dict(title="X", showgrid=True, gridcolor='gray'),
-        yaxis=dict(title="Y", showgrid=True, gridcolor='gray'),
-        xaxis2=dict(title="X", showgrid=True, gridcolor='gray'),
-        yaxis2=dict(title="Z", showgrid=True, gridcolor='gray'),
-        xaxis3=dict(title="Y", showgrid=True, gridcolor='gray'),
-        yaxis3=dict(title="Z", showgrid=True, gridcolor='gray')
+        xaxis=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
+        yaxis=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
+        xaxis2=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
+        yaxis2=dict(title="Z (µm)", showgrid=True, gridcolor='gray'),
+        xaxis3=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
+        yaxis3=dict(title="Z (µm)", showgrid=True, gridcolor='gray')
     )
 
     #fig.show()
@@ -418,6 +418,9 @@ def plot_aic_bic_gmm(df, n_clusters):
     print(f'Plot AIC BIC GMM finished')
 
 def One_D_ellipse_tilt_hist(df):
+    """
+    Takes the dataframe to plot the tilt angles in a 1D histogram
+    """
     plt.figure()
     ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber x-tilt Histogram')
@@ -439,6 +442,9 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
 
 def Two_D_hex_plot(df):
+    """
+    Takes the dataframe to plot the tilt angles in a 2D histogram
+    """
     ax1 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
     ax1.set_xlabel(r'$\theta_x$ (°)')
     ax1.set_ylabel(r'$\theta_y$ (°)')
