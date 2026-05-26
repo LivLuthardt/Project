@@ -8,5 +8,5 @@ Ellipse Method Mean (x, y): 0.3920267584524051, 0.047774192891240186
 KS Test Central Diff (X): statistic=0.0042, p=1.3872e-02
 KS Test Central Diff (Y): statistic=0.0063, p=2.5175e-05
 
-KS Test Synthetic (X): statistic=0.0032, p=9.9674e-02
-KS Test Synthetic (Y): statistic=0.0082, p=8.4682e-09
+KS Test Synthetic (X): statistic=0.0079, p=2.9396e-08
+KS Test Synthetic (Y): statistic=0.0063, p=2.1683e-05
