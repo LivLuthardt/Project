@@ -436,3 +436,18 @@ for bruhh in range(len(clusters_updated)):
     total_fib += len(clusters_updated[bruhh])
 print(total_fib)
 
+
+#Create fibre_id -> cluster_id mapping
+cluster_rows = []
+
+for cluster_id, clust in enumerate(clusters):
+    for fibre_id in clust:
+        cluster_rows.append({'fibre_id': fibre_id, 'cluster_id': cluster_id})
+
+#Convert to dataframe
+cluster_df = pd.DataFrame(cluster_rows)
+
+#Merge with original dataframe
+df_clustered = df.merge(cluster_df, on='fibre_id', how='left')
+
+plot_fibers_clustered(df_clustered, "Clustered Fibres on original data")
