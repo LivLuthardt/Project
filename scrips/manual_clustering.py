@@ -12,9 +12,14 @@ import matplotlib.patches as mpatches
 
 """ ------------------------------------------- Import data and manipulate dataframe ------------------------------------------- """
 #Import data and clean it
-raw_df = pd.read_csv('raw_data.csv')
-data_clean = data_cleaned(raw_df)
-df = tangent_angles_central(data_clean)
+raw_df = pd.read_csv('raw_data.csv')    #Original data
+syn_df = pd.read_csv('sim_data.csv')    #Synthetic data
+
+data_clean = data_cleaned(raw_df)       #Original data
+#No cleaned data for synthetic fibers
+
+df = tangent_angles_central(data_clean) #Original data
+
 
 #Define layer_0 data
 layer_0 = df[df['z_idx'] == 0]
