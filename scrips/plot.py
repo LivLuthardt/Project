@@ -232,12 +232,12 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
         showlegend=False,
         plot_bgcolor='white',
         # Ensure proper axis labels
-        xaxis=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
-        yaxis=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
-        xaxis2=dict(title="X (µm)", showgrid=True, gridcolor='gray'),
-        yaxis2=dict(title="Z (µm)", showgrid=True, gridcolor='gray'),
-        xaxis3=dict(title="Y (µm)", showgrid=True, gridcolor='gray'),
-        yaxis3=dict(title="Z (µm)", showgrid=True, gridcolor='gray')
+        xaxis=dict(title="X [µm]", showgrid=True, gridcolor='gray'),
+        yaxis=dict(title="Y [µm]", showgrid=True, gridcolor='gray'),
+        xaxis2=dict(title="X [µm]", showgrid=True, gridcolor='gray'),
+        yaxis2=dict(title="Z [µm]", showgrid=True, gridcolor='gray'),
+        xaxis3=dict(title="Y [µm]", showgrid=True, gridcolor='gray'),
+        yaxis3=dict(title="Z [µm]", showgrid=True, gridcolor='gray')
     )
 
     #fig.show()
