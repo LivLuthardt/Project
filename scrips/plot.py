@@ -439,9 +439,13 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
 
 def Two_D_hex_plot(df):
-    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax1 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax1.set_xlabel(r'$\theta_x$ (°)')
+    ax1.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="EllipseTiltHex.png")
-    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax2 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim = (-10, 10), ylim = (-10, 10))
+    ax2.set_xlabel(r'$\theta_x$ (°)')
+    ax2.set_ylabel(r'$\theta_y$ (°)')
     plt.savefig(fname="FiniteTiltHex.png")
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
