@@ -23,7 +23,10 @@ plot_ellipse(df,1)
 
 #Make 2D plot of fiber projection plot
 single_fiber_plot(df,5,'normal')
-single_fiber_plot(raw_df,129,'highly misaligned')
+plot_df = raw_df.copy()
+Z_SCALE = 500 / (plot_df["z"].max() - plot_df["z"].min())   # µm per slice (n slices → n-1 intervals)
+plot_df["z"] = plot_df["z"] * Z_SCALE # This becomes your z-coordinate (code taken out of data_clean.py)
+single_fiber_plot(plot_df,129,'highly misaligned')
 
 #Make 1D histograms of ellipsetilt vs angle 
 One_D_ellipse_tilt_hist(df)
@@ -133,8 +136,6 @@ plot_correlation(zz,par_1,par_2,(df,sim_df_dm,sim_df),
                          'Simulated with Depth Memory',
                          'Simulated w/o Depth Memory '])
 
-chi_squared_2d(df,data_sim_arr,cop_models)
-chi_squared_1d(par_1,par_2,df,data_sim_arr,cop_models,zz)
 
 # ADD THE OTHER COLOUMNS TO SIMM_DF 
 

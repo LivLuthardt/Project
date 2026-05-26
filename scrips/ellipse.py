@@ -9,7 +9,7 @@ def eTiltAngles(x1, x2):
     #Angle from horizontal plane instead of vertical
     return alpha, beta
 
-def getEllipse(x1, x2, r = 3.5): 
+def getEllipse(x1, x2, r = 3): 
     
     #Define coordinates as arrays
     x1, x2 = np.array(x1), np.array(x2)
