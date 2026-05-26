@@ -110,7 +110,7 @@ for item in layer_0_results_d:
 
 
 #Choose threshold percentile
-pct_d = 85
+pct_d = 95
 
 threshold_distance = np.percentile(scores_0_d, pct_d)
 
@@ -133,7 +133,7 @@ for item in layer_0_results_a:
     scores_0_a.append(item[2])
 
 #Choose a threshold
-pct_a = 85
+pct_a = 95
 
 threshold_angle = np.percentile(scores_0_a, pct_a)
 
@@ -186,7 +186,7 @@ G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
 #Build graph directly from thresholds
 #Maximum physical interaction radius
-max_radius = 50
+max_radius = 25
 
 for i in range(len(fibre_ids)):
     fid_i = int(fibre_ids[i])
@@ -215,32 +215,11 @@ for i in range(len(fibre_ids)):
             combined_score = score_d + score_a
             similarity = 1 / (combined_score + 1e-12)
             G_both.add_edge(fid_i, fid_j, weight=similarity)
-"""
-knn_d = NearestNeighbors(n_neighbors=optimal_k, metric='precomputed')
-knn_d.fit(D_d)
 
-distances_d, indices_d = knn_d.kneighbors(D_d)
-
-for i in range(len(indices_d)):
-    fid_i = int(fibre_ids[i])
-
-    for jj in range(1, len(indices_d[i])):  #Skip self
-        neighbor_idx = indices_d[i, jj]
-        fid_j = int(fibre_ids[neighbor_idx])
-
-        score_d = D_d[i, neighbor_idx]
-        score_a = D_a[i, neighbor_idx]
-
-        if score_d <= threshold_distance and score_a <= threshold_angle:
-            combined_score = score_d + score_a
-            similarity = 1 / (combined_score + 1e-12)
-            G_both.add_edge(fid_i, fid_j, weight=similarity)
-
-"""
-            
 print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
+
 #Create list for isolated nodes
 isolated_nodes = []
 for isol in nx.isolates(G_both):
@@ -250,10 +229,10 @@ print(isolated_nodes)
 G_cluster = G_both.copy()
 
 #Remove isolated fibres
-#G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
+G_cluster.remove_nodes_from(list(nx.isolates(G_cluster)))
 
 #Creates clusters based on densely populated nodes
-communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight", resolution=5, cutoff=10)
+communities = nx.community.greedy_modularity_communities(G_cluster, weight="weight", resolution=15, cutoff=10)
 clusters = [sorted(list(c)) for c in communities]
 
 #Remove tiny clusters
@@ -278,22 +257,28 @@ isolated_nodes = list(nx.isolates(G_both))
 for node in isolated_nodes:
     node_to_cluster[node] = -1  # Default cluster for isolated nodes
 
-#Assign a color to each cluster (including the default cluster)
-num_clusters = len(clusters)
-colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))  # +1 for the default cluster
 
-#Create a list of node colors based on their cluster
-node_colors = [colors[node_to_cluster[node]] for node in G_both.nodes()]
 
+# Assign colors
+num_clusters = max(node_to_cluster.values()) + 1
+colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))
+
+# Last color reserved for unclustered nodes
+default_cluster = num_clusters
+
+# Create node colors safely
+node_colors = [colors[node_to_cluster.get(node, default_cluster)] for node in G_both.nodes()]
 
 pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Network plot")
+plt.axis('equal')
 plt.show()
 plt.savefig(f'Network plot.png')
 plt.close('all')
 nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Cluster plot")
+plt.axis('equal')
 plt.savefig(f'Cluster plot.png')
 plt.show()
 plt.close('all')
