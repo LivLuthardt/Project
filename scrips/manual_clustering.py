@@ -7,20 +7,20 @@ from sklearn.preprocessing import StandardScaler
 from data_clean import data_cleaned
 from tangent import tangent_angles_central
 import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
 from kneed import KneeLocator
 import matplotlib.patches as mpatches
 
-"""Import data and manipulate dataframe"""
+""" ------------------------------------------- Import data and manipulate dataframe ------------------------------------------- """
+#Import data and clean it
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
 df = tangent_angles_central(data_clean)
 
+#Define layer_0 data
 layer_0 = df[df['z_idx'] == 0]
 layer_0 = layer_0.reset_index(drop=True)
-
+#Consider only required features for clustering
 features = ['fibre_id', 'x', 'y', 'angle_x_deg', 'angle_y_deg']
-
 cleaned_data = layer_0[['x', 'y', 'angle_x_deg', 'angle_y_deg']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
@@ -34,7 +34,7 @@ for layer_i in unique_layers[1:]:
     cleaned_data_i.append(layer_features)
 
 
-""" --- Optimal n_neighbors (Elbow Method) --- """
+""" ---------------------------------- Optimal n_neighbors (Elbow Method) (Unused currently) ---------------------------------- """
 X_eval = cleaned_data[:, 1:] # Exclude fibre_id
 
 avg_distances = []
@@ -61,7 +61,7 @@ print(f"The optimal number of neighbors is: {optimal_k}")
 """ ------------------------------------------ """
 
 
-"""Neighborhood rule"""
+""" --------- Neighborhood rule functions, store cartesian distances and respective angles between each pair of fibers --------- """
 def good_neighbor_distance(cleaned_data):
     #Determine distance metric and store as list
     results_d = []
@@ -102,18 +102,17 @@ def good_neighbor_angle(cleaned_data):
     return results_a
 
 
-"""Plot histogram and determine threshold"""
+""" ---------------------- Plot histogram of distances and angles, and determine threshold as percentiles ---------------------- """
+#Distance
 scores_0_d = []
 layer_0_results_d = good_neighbor_distance(cleaned_data)
 for item in layer_0_results_d:
     scores_0_d.append(item[2])
 
-
 #Choose threshold percentile
 pct_d = 95
 
 threshold_distance = np.percentile(scores_0_d, pct_d)
-
 
 # Plot histogram
 plt.figure()
@@ -127,6 +126,8 @@ plt.savefig(fname = 'Distance_Histogram')
 plt.close('all')
 print("Threshold_Distance", threshold_distance)
 
+
+#Angles
 scores_0_a = []
 layer_0_results_a = good_neighbor_angle(cleaned_data)
 for item in layer_0_results_a:
@@ -150,7 +151,7 @@ plt.close('all')
 print("Threshold_Angle", threshold_angle)
 
 
-"""Initialise knn and deteremine clusters + graph from this"""
+""" ------------------------------------- Build distance and angle matrix and create graph ------------------------------------- """
 results_distance = good_neighbor_distance(cleaned_data)
 results_angle = good_neighbor_angle(cleaned_data)
 
@@ -158,7 +159,7 @@ results_angle = good_neighbor_angle(cleaned_data)
 fibre_ids = cleaned_data[:, 0].astype(int)
 id_to_idx = {fid: i for i, fid in enumerate(fibre_ids)}
 
-#Build distance matrices
+#Build distance and angle matrices
 n_d = len(fibre_ids)
 D_d = np.full((n_d, n_d), np.inf)
 np.fill_diagonal(D_d, 0)
@@ -167,6 +168,7 @@ n_a = len(fibre_ids)
 D_a = np.full((n_a, n_a), np.inf)
 np.fill_diagonal(D_a, 0)
 
+#Fill matrices
 for fibre_d_i, fibre_d_j, score in results_distance:
     i = id_to_idx[int(fibre_d_i)]
     j = id_to_idx[int(fibre_d_j)]
@@ -220,7 +222,7 @@ print("Combined graph nodes:", G_both.number_of_nodes())
 print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
 
-#Create list for isolated nodes
+#Create list for isolated nodes to store in 3D outlier cluster
 isolated_nodes = []
 for isol in nx.isolates(G_both):
     isolated_nodes.append(isol)
@@ -245,7 +247,6 @@ print("Cluster sizes:", [len(c) for c in clusters])
 for i, cluster in enumerate(clusters, start=1):
     print(f"Cluster {i}: {cluster}")
 
-
 #Create a dictionary to map each node to its cluster
 node_to_cluster = {}
 for cluster_id, cluster in enumerate(clusters):
@@ -258,15 +259,15 @@ for node in isolated_nodes:
     node_to_cluster[node] = -1  # Default cluster for isolated nodes
 
 
-
-# Assign colors
+""" ---------------------------------------- Assign colors to clusters and show graphs ---------------------------------------- """
+#Assign colors
 num_clusters = max(node_to_cluster.values()) + 1
 colors = plt.cm.tab20(np.linspace(0, 1, num_clusters + 1))
 
-# Last color reserved for unclustered nodes
+#Last color reserved for unclustered nodes
 default_cluster = num_clusters
 
-# Create node colors safely
+#Create node colors safely
 node_colors = [colors[node_to_cluster.get(node, default_cluster)] for node in G_both.nodes()]
 
 pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i in range(len(cleaned_data))}
@@ -290,10 +291,7 @@ print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
 
 
-"""Iteration through layers"""
-"""Explanation for myself/group: We currently have a graph with all branches (connections between couples of nodes) 
-that satisfy both thresholds. For each layer, the iteration will check if that branch (between two nodes/fibres) satisfies
-again both set thresholds to determine whether a fibre is clusterable throughout the full length."""
+""" ------------------------------ Iteration through layers to find outlier fibers for 3D cluster ------------------------------ """
 """
 #Define constants
 number_of_layers = 130
@@ -417,7 +415,10 @@ for clust in clusters:
 for isol in isolated_nodes:
     remove_arr.add(isol)
 clusters_updated.append(list(remove_arr))
-
+"""
+""" -------------------------------------------------------- The end! -------------------------------------------------------- """
+"""
+#Remove later! Not yet!
 print("Amount of updated clusters:", len(clusters_updated))
 for i, cluster in enumerate(clusters_updated, start=1):
     print(f"Cluster {i}: {clusters_updated}")
