@@ -298,7 +298,7 @@ print("Cluster sizes:", [len(c) for c in clusters])
 
 
 """ ------------------------------ Iteration through layers to find outlier fibers for 3D cluster ------------------------------ """
-
+ 
 #Define constants
 number_of_layers = 130
 failure_fraction_allowed = 0.05
