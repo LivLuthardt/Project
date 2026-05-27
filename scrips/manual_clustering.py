@@ -440,7 +440,7 @@ print(total_fib)
 #Create fibre_id -> cluster_id mapping
 cluster_rows = []
 
-for cluster_id, clust in enumerate(clusters):
+for cluster_id, clust in enumerate(clusters_updated):
     for fibre_id in clust:
         cluster_rows.append({'fibre_id': fibre_id, 'cluster_id': cluster_id})
 
