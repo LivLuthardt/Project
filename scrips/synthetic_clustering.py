@@ -356,7 +356,7 @@ for clust in clusters:
 
     #Created new updated clusters
     new_clust = []
-
+ 
     for fibre_id in clust:
 
         if fibre_id not in current_remove:

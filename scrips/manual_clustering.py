@@ -306,7 +306,7 @@ threshold_multiplier = 1.01 #1.05 removed 3 fibers only
 failure_limit = failure_fraction_allowed * number_of_layers
 number_of_fibres = G_both.number_of_nodes()
 clusters_updated = []
-
+ 
 #Storage of removed fibers after iteration
 remove_arr = set() 
 
