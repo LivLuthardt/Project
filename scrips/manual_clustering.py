@@ -194,7 +194,7 @@ G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
 #Build graph directly from thresholds
 #Maximum physical interaction radius
-max_radius = 25
+max_radius = 25  #7*6
 
 for i in range(len(fibre_ids)):
     fid_i = int(fibre_ids[i])
