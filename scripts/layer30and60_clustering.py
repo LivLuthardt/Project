@@ -21,9 +21,11 @@ data_clean = data_cleaned(raw_df)       #Original data
 
 df = tangent_angles_central(data_clean) #Original data
 
+layer = 60
+dataset = 'sythetic' #either put 'original' if df is used or 'synthetic' if syn_df is used
 
 #Define layer_0 data
-layer_0 = syn_df[syn_df['z_idx'] == 60]
+layer_0 = syn_df[syn_df['z_idx'] == layer] #change the dataset depending on if you want to use the original or synthetic dataset
 layer_0 = layer_0.reset_index(drop=True)
 #Consider only required features for clustering
 features = ['fibre_id', 'x', 'y']
@@ -103,7 +105,7 @@ plt.title("Distance Histogram")
 plt.xlabel("Distance between pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
-plt.savefig(fname = 'Images/Layer 60 distance histogram')
+plt.savefig(fname = f'Images/Layer {layer} {dataset} distance histogram')
 plt.close('all')
 print("Threshold_Distance", threshold_distance)
 
@@ -127,7 +129,7 @@ plt.title("Angle Histogram")
 plt.xlabel("Angle bwetween pairs of points")
 plt.ylabel("Frequency")
 plt.legend()
-plt.savefig(fname = 'Images/Layer 60 angle histogram')
+plt.savefig(fname = f'Images/Layer {layer} {dataset} angle histogram')
 plt.close('all')
 print("Threshold_Angle", threshold_angle)
 """
@@ -254,14 +256,14 @@ pos = {int(cleaned_data[i, 0]): (cleaned_data[i, 1], cleaned_data[i, 2]) for i i
 nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Network plot")
 plt.axis('equal')
-plt.show()
-plt.savefig(f'Images/Layer 60 synthetic network plot.png')
+#plt.show()
+plt.savefig(f'Images/Layer {layer} {dataset} network plot.png')
 plt.close('all')
 nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Cluster plot")
 plt.axis('equal')
-plt.savefig(f'Images/Layer 60 synthetic cluster plot.png')
-plt.show()
+plt.savefig(f'Images/Layer {layer} {dataset} cluster plot.png')
+#plt.show()
 plt.close('all')
  
 print("Combined graph nodes:", G_both.number_of_nodes())
