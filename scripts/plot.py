@@ -448,14 +448,16 @@ def Two_D_hex_plot(df):
     ax.set_title('Fiber x- and y-tilt using ellipse method')
     ax.set_xlabel(rf'$\theta_x$ [deg]')
     ax.set_ylabel(rf'$\theta_y$ [deg]')
-    plt.savefig(fname="Images/Ellipse tilt hex.png")
+    ax.set_xlim(-4,4), ax.set_ylim(-4,4)
+    plt.savefig(fname="Images/Ellipse tilt hex.png",dpi=200)
     plt.close('all')
 
-    ax = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
-    ax.set_title('Fiber x- and y-tilt using finite difference method')
-    ax.set_xlabel(rf'$\theta_x$ [deg]')
-    ax.set_ylabel(rf'$\theta_y$ [deg]')
-    plt.savefig(fname="Images/Finite tilt hex.png")
+    ax1 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax1.set_title('Fiber x- and y-tilt using finite difference method')
+    ax1.set_xlabel(rf'$\theta_x$ [deg]')
+    ax1.set_ylabel(rf'$\theta_y$ [deg]')
+    ax1.set_xlim(-4,4), ax1.set_ylim(-4,4)
+    plt.savefig(fname="Images/Finite tilt hex.png",dpi=200)
     plt.close('all')
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
