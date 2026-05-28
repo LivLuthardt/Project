@@ -383,6 +383,8 @@ for bruhh in range(len(clusters_updated)):
     total_fib += len(clusters_updated[bruhh])
 print(total_fib)
 """
+print("Amount of clusters:", len(clusters_updated))
+print("Cluster sizes:", [len(c) for c in clusters_updated])
 
 #Create fibre_id -> cluster_id mapping
 cluster_rows = []
