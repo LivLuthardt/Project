@@ -23,13 +23,14 @@ df = tangent_angles_central(data_clean) #Original data
 
 
 #Define layer_0 data
-layer_0 = df[df['z_idx'] == 0]
+layer_0 = syn_df[syn_df['z_idx'] == 60]
 layer_0 = layer_0.reset_index(drop=True)
 #Consider only required features for clustering
 features = ['fibre_id', 'x', 'y']
 cleaned_data = layer_0[['x', 'y']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
+"""
 #For all other layers create dataframe
 cleaned_data_i = []
 unique_layers = sorted(df['z_idx'].unique())
@@ -38,6 +39,7 @@ for layer_i in unique_layers[1:]:
     current_layer = current_layer.reset_index(drop=True)
     layer_features = current_layer[['fibre_id','x', 'y']]
     cleaned_data_i.append(layer_features)
+"""    
 
 
 """ --------- Neighborhood rule functions, store cartesian distances and respective angles between each pair of fibers --------- """
@@ -253,12 +255,12 @@ nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Network plot")
 plt.axis('equal')
 plt.show()
-plt.savefig(f'Layer 0 network plot.png')
+plt.savefig(f'layer 60 synthetic network plot.png')
 plt.close('all')
 nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Cluster plot")
 plt.axis('equal')
-plt.savefig(f'Layer 0 cluster plot.png')
+plt.savefig(f'layer 60 synthetic cluster plot.png')
 plt.show()
 plt.close('all')
  
@@ -267,159 +269,3 @@ print("Combined graph edges:", G_both.number_of_edges())
 print("Isolated nodes:", len(list(nx.isolates(G_both))))
 print("Amount of clusters:", len(clusters))
 print("Cluster sizes:", [len(c) for c in clusters])
-
-
-""" ------------------------------ Iteration through layers to find outlier fibers for 3D cluster ------------------------------ """
- 
-#Define constants
-number_of_layers = 130
-failure_fraction_allowed = 0.05
-threshold_multiplier = 1.01 #1.05 removed 3 fibers only
-failure_limit = failure_fraction_allowed * number_of_layers
-number_of_fibres = G_both.number_of_nodes()
-clusters_updated = []
- 
-#Storage of removed fibers after iteration
-remove_arr = set() 
-
-thresholds = {}
-
-previous_centroid = {"x": 0.0, "y": 0.0}
-
-#Iterate through clusters
-for clust in clusters:
-    #Storage containers for fibers and clusters through layers
-    fibre_counter = {}
-    for fibre_id in clust:
-        fibre_counter[fibre_id] = 0 
-
-    cluster_fibre_id = clust
-
-    sum_x = 0 
-    sum_y = 0
-
-    #Loop through fibres in current cluster (layer 0)
-    for fibre_id in clust:
-        fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
-
-        x = fibre_row[1]
-        y = fibre_row[2]
-
-        sum_x += x
-        sum_y += y
-
-    #Compute centroid for layer 0
-    previous_centroid["x"] = sum_x / len(clust)
-    previous_centroid["y"] = sum_y / len(clust)
-
-    #Determine thresholds for layer 0
-    for fibre_id in clust:
-        fibre_row = cleaned_data[cleaned_data[:,0] == fibre_id][0]
-
-        x = fibre_row[1]
-        y = fibre_row[2]
-
-        distance_centroid_0 = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
-
-        #Threshold = distance + some percentage
-        thresholds[fibre_id] = (distance_centroid_0 * threshold_multiplier)
-
-    #Iterate through layers
-    for layer_idx, current_layer in enumerate(cleaned_data_i):
-
-        for fibre_id in clust:
-
-            #Find row belonging to this fibre
-            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
-
-            x = fibre_row['x']
-            y = fibre_row['y']
-
-            #Distance to previous centroid
-            distance = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
-
-            #Compare against threshold
-            if distance > thresholds[fibre_id]:
-                fibre_counter[fibre_id] += 1
-
-        #Update centroids to pass onto next layer
-        sum_x = 0
-        sum_y = 0
-
-        for fibre_id in clust:
-
-            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
-
-            x = fibre_row['x']
-            y = fibre_row['y']
-
-            sum_x += x
-            sum_y += y
-
-        previous_centroid["x"] = sum_x / len(clust)
-        previous_centroid["y"] = sum_y / len(clust)
-
-        #Update thresholds to pass onto next layer
-        for fibre_id in clust:
-
-            fibre_row = current_layer[current_layer['fibre_id'] == fibre_id].iloc[0]
-
-            x = fibre_row['x']
-            y = fibre_row['y']
-
-            distance_i = np.sqrt((x - previous_centroid["x"]) ** 2 + (y - previous_centroid["y"]) ** 2)
-
-            thresholds[fibre_id] = (distance_i * threshold_multiplier)
-
-    current_remove = []
-
-    for fibre_id in clust:
-
-        if fibre_counter[fibre_id] > failure_limit:
-            remove_arr.add(fibre_id)
-            current_remove.append(fibre_id)
-
-    #Created new updated clusters
-    new_clust = []
-
-    for fibre_id in clust:
-
-        if fibre_id not in current_remove:
-            new_clust.append(fibre_id)
-
-    clusters_updated.append(new_clust)
-
-#Add one final cluster containing all outliers
-for isol in isolated_nodes:
-    remove_arr.add(isol)
-clusters_updated.append(list(remove_arr))
-
-""" -------------------------------------------------------- The end! -------------------------------------------------------- """
-"""
-#Remove later! Not yet!
-print("Amount of updated clusters:", len(clusters_updated))
-for i, cluster in enumerate(clusters_updated, start=1):
-    print(f"Cluster {i}: {clusters_updated}")
-print("Updated cluster sizes:", [len(c) for c in clusters_updated])
-for bruh in range(len(clusters_updated[11])):
-    print("Dropout fibre cluster:", clusters_updated[11][bruh])
-total_fib = 0
-for bruhh in range(len(clusters_updated)):
-    total_fib += len(clusters_updated[bruhh])
-print(total_fib)
-"""
-
-#Create fibre_id -> cluster_id mapping
-cluster_rows = []
-
-for cluster_id, clust in enumerate(clusters_updated):
-    for fibre_id in clust:
-        cluster_rows.append({'fibre_id': fibre_id, 'cluster_id': cluster_id})
-
-#Convert to dataframe
-cluster_df = pd.DataFrame(cluster_rows)
-
-#Merge with original dataframe
-df_clustered = df.merge(cluster_df, on='fibre_id', how='left')
-
-plot_fibers_clustered(df_clustered, "Clustered Fibres on original data")
