@@ -440,15 +440,17 @@ def One_D_ellipse_tilt_hist(df):
     plt.close('all')
 
 def Two_D_hex_plot(df):
-    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis")
     ax3.set_xlabel("Ellipse X Tilt [deg]")
     ax3.set_ylabel("Ellipse Y Tilt [deg]")
-    plt.savefig(fname="EllipseTiltHex.png")
+    ax3.set_xlim(-4,4),ax3.set_ylim(-4,4)
+    plt.savefig(fname="EllipseTiltHex.png",dpi=200)
 
-    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis")
     ax4.set_xlabel("Finite X Tilt [deg]")
     ax4.set_ylabel("Finite Y Tilt [deg]")
-    plt.savefig(fname="FiniteTiltHex.png")
+    ax4.set_xlim(-4,4),ax4.set_ylim(-4,4)
+    plt.savefig(fname="FiniteTiltHex.png",dpi=200)
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     """ 
