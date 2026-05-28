@@ -303,7 +303,7 @@ def plot_fibers_clustered(df,title):
     #plot a 3D plot of the clustered fibers per number of clusters
     fig = px.line_3d(
         df, 
-        x='x', y='y', z='z', 
+        x='x', y='y', z='z_idx', 
         color='cluster_id',
         line_group='fibre_id',
         title=title

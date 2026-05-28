@@ -13,12 +13,12 @@ from plot import plot_fibers_clustered
 
 """ ------------------------------------------- Import data and manipulate dataframe ------------------------------------------- """
 #Import data and clean it
-raw_df = pd.read_csv('raw_data.csv')    #Original data
+#raw_df = pd.read_csv('raw_data.csv')    #Original data
 
-data_clean = data_cleaned(raw_df)       #Original data
+#data_clean = data_cleaned(raw_df)       #Original data
 #No cleaned data for synthetic fibers
 
-df = tangent_angles_central(data_clean) #Original data
+#df = tangent_angles_central(data_clean) #Original data
 
 syn_df = pd.read_csv('sim_data.csv')    #Synthetic data
 
@@ -142,7 +142,7 @@ G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
 #Build graph directly from thresholds
 #Maximum physical interaction radius
-max_radius = 25
+max_radius = 42 
 
 for i in range(len(fibre_ids)):
     fid_i = int(fibre_ids[i])
@@ -228,12 +228,12 @@ nx.draw(G_both, pos, node_size=8, width=0.2, alpha=0.5, with_labels=False)
 plt.title("Network plot")
 plt.axis('equal')
 plt.show()
-plt.savefig(f'Synthetic Network plot.png')
+plt.savefig(f'Layer 0 Synthetic Network plot.png')
 plt.close('all')
 nx.draw(G_both, pos, node_size=8, width=0, alpha=0.5, with_labels=False, node_color=node_colors)
 plt.title("Cluster plot")
 plt.axis('equal')
-plt.savefig(f'Synthetic cluster plot.png')
+plt.savefig(f'Layer 0 Synthetic cluster plot.png')
 plt.show()
 plt.close('all')
  
@@ -370,7 +370,7 @@ for isol in isolated_nodes:
 clusters_updated.append(list(remove_arr))
 
 """ -------------------------------------------------------- The end! -------------------------------------------------------- """
-
+"""
 #Remove later! Not yet!
 print("Amount of updated clusters:", len(clusters_updated))
 for i, cluster in enumerate(clusters_updated, start=1):
@@ -382,7 +382,7 @@ total_fib = 0
 for bruhh in range(len(clusters_updated)):
     total_fib += len(clusters_updated[bruhh])
 print(total_fib)
-
+"""
 
 #Create fibre_id -> cluster_id mapping
 cluster_rows = []
@@ -395,6 +395,6 @@ for cluster_id, clust in enumerate(clusters_updated):
 cluster_df = pd.DataFrame(cluster_rows)
 
 #Merge with original dataframe
-df_clustered = df.merge(cluster_df, on='fibre_id', how='left')
+df_clustered = syn_df.merge(cluster_df, on='fibre_id', how='left')
 
 plot_fibers_clustered(df_clustered, "Clustered Fibres on synthetic data")
