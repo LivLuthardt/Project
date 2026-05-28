@@ -146,7 +146,7 @@ sim_df_dm = tangent_angles_central(sim_df_dm)
 sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df_dm)
 
 # Save the new simulated date to file
-sim_df_dm[['fibre_id','x', 'y', 'z_idx']].to_csv('./sim_data.csv',sep=',',index=False,float_format="%.7f")
+sim_df_dm[['fibre_id','x', 'y', 'z_idx']].to_csv('sim_data.csv',sep=',',index=False,float_format="%.7f")
 
 #-------------------------------------------------------------Global clustering (not used anymore)-------------------------------------------------------------
 
