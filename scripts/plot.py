@@ -445,14 +445,14 @@ def One_D_ellipse_tilt_hist(df):
 
 def Two_D_hex_plot(df):
     ax = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
-    ax.set_title('Fiber x- and y-tilt using ellipse method')
+    ax.set_title('Ellipse method: Fiber X- and Y-tilt')
     ax.set_xlabel(rf'$\theta_x$ [deg]')
     ax.set_ylabel(rf'$\theta_y$ [deg]')
     plt.savefig(fname="Images/Ellipse tilt hex.png")
     plt.close('all')
 
     ax = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
-    ax.set_title('Fiber x- and y-tilt using finite difference method')
+    ax.set_title('Finite difference method: Fiber X- and Y-tilt')
     ax.set_xlabel(rf'$\theta_x$ [deg]')
     ax.set_ylabel(rf'$\theta_y$ [deg]')
     plt.savefig(fname="Images/Finite tilt hex.png")
