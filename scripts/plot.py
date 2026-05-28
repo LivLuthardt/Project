@@ -31,7 +31,8 @@ def plot_ellipse(df,z):
     ax.set_ylim(-170, 5)
 
     ax.set_aspect('equal')
-    plt.savefig(fname="EllipsePlot.png")
+    plt.savefig(fname="Images/EllipsePlot.png")
+    plt.close('all')
 
 def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
     for z in z_values:
@@ -51,7 +52,6 @@ def plot_og_data(x1,x2,mean_arr,df,z_values=range(1,128)):
 
 def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
-        plt.close('all')
 
         # Take appropriate data to plot
         df_z = df[df['z_idx'] == z]
@@ -92,7 +92,7 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
 
         plt.gca().add_artist(text_box)
 
-        plt.savefig(fname=f'Real_synthetic_scatterplot_z_{z}',dpi=200)
+        plt.savefig(fname=f'Images/Real_synthetic_scatterplot_z_{z}',dpi=200)
         print('Real and Synthetic scatterplot saved')
         plt.close('all')
 
@@ -125,11 +125,11 @@ def plot_synthetic_data(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128))
         plt.xlim(pltlims)
 
         plt.tight_layout()
-        plt.savefig(fname=f'Real_synthetic_histograms_z_{z}',dpi=200)
+        plt.savefig(fname=f'Images/Real_synthetic_histograms_z_{z}',dpi=200)
+        plt.close('all')
 
 def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,128)):
     for z in z_values:
-        plt.close('all')
 
         # Take approriate data to plot
         df_z = df[df['z_idx'] == z]
@@ -169,7 +169,7 @@ def plot_synthetic_data_og(x1,x2,mean_arr,std_arr,df,arr_sim,z_values=range(1,12
 
         plt.gca().add_artist(text_box)
 
-        plt.savefig(fname=f'OG_Real_synthetic_scatterplot_z_{z}',dpi=200)
+        plt.savefig(fname=f'Images/OG_Real_synthetic_scatterplot_z_{z}',dpi=200)
         print('Real and Synthetic scatterplot saved')
         plt.close('all')
 
@@ -241,7 +241,7 @@ def single_fiber_plot(df,id,category): #category here means if its a normal or a
     )
 
     #fig.show()
-    fig.write_image(f"Fiber_{category}_proj_plot.png")
+    fig.write_image(f"Images/Fiber_{category}_proj_plot.png")
 
 def sse_plot_kmeans_pca(df, n_components=3):
     """
@@ -354,7 +354,7 @@ def plot_score(df, n_clusters):
     )
 
     #fig.show()
-    fig.write_image(f"CD_score_plot.png")
+    fig.write_image(f"Images/CD_score_plot.png")
     print(f'Plot CD finished')
 
 def plot_sse_k(df, n_clusters):
@@ -385,7 +385,7 @@ def plot_sse_k(df, n_clusters):
     )
 
     #fig.show()
-    fig.write_image(f"SSE_k_means.png")
+    fig.write_image(f"Images/SSE_k_means.png")
     print(f'Plot SSE K-means finished')
 
 def plot_aic_bic_gmm(df, n_clusters):
@@ -419,20 +419,20 @@ def plot_aic_bic_gmm(df, n_clusters):
     )
 
     #fig.show()
-    fig.write_image(f"AIC_BIC_GMM.png")
+    fig.write_image(f"Images/AIC_BIC_GMM.png")
     print(f'Plot AIC BIC GMM finished')
 
 def One_D_ellipse_tilt_hist(df):
-    plt.figure()
+
     ax = df[["EllipseXTilt","angle_x_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber x-tilt Histogram')
     ax.set_xlabel(rf'$\theta_x$ [deg]')
     ax.set_ylabel('Frequency')
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
-    plt.savefig(fname="XTiltHist.png")
+    plt.savefig(fname="Images/XTiltHist.png")
     plt.close('all')
-    plt.figure()
+
     ax = plt.gca()
     ax = df[["EllipseYTilt", "angle_y_deg"]].plot.hist(bins=200, alpha=0.5, legend = True)
     ax.set_title('Fiber y-tilt Histogram')
@@ -440,19 +440,23 @@ def One_D_ellipse_tilt_hist(df):
     ax.set_ylabel('Frequency')
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, ["Ellipse method", "Finite difference method"])
-    plt.savefig(fname="YTiltHist.png")
+    plt.savefig(fname="Images/YTiltHist.png")
     plt.close('all')
 
 def Two_D_hex_plot(df):
-    ax3 = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
-    ax3.set_xlabel("Ellipse X Tilt [deg]")
-    ax3.set_ylabel("Ellipse Y Tilt [deg]")
-    plt.savefig(fname="EllipseTiltHex.png")
+    ax = df.plot.hexbin(x="EllipseXTilt", y="EllipseYTilt", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax.set_title('Fiber x- and y-tilt using ellipse method')
+    ax.set_xlabel(rf'$\theta_x$ [deg]')
+    ax.set_ylabel(rf'$\theta_y$ [deg]')
+    plt.savefig(fname="Images/EllipseTiltHex.png")
+    plt.close('all')
 
-    ax4 = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
-    ax4.set_xlabel("Finite X Tilt [deg]")
-    ax4.set_ylabel("Finite Y Tilt [deg]")
-    plt.savefig(fname="FiniteTiltHex.png")
+    ax = df.plot.hexbin(x="angle_x_deg", y="angle_y_deg", gridsize=100, cmap="viridis", xlim=(-10, 10), ylim=(-10, 10))
+    ax.set_title('Fiber x- and y-tilt using finite difference method')
+    ax.set_xlabel(rf'$\theta_x$ [deg]')
+    ax.set_ylabel(rf'$\theta_y$ [deg]')
+    plt.savefig(fname="Images/FiniteTiltHex.png")
+    plt.close('all')
 
 def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     """ 
@@ -478,7 +482,7 @@ def plot_alpha_z(data_raw,data_sim_arr,cop_models):
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
-    plt.savefig(fname='mean_alpha_z',dpi=200)
+    plt.savefig(fname='Images/mean_alpha_z',dpi=200)
     plt.close('all')
 
 def plot_theta_z(df,data_sim_dm):
@@ -511,7 +515,7 @@ def plot_theta_z(df,data_sim_dm):
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_z$ [deg]''')
     plt.grid()
     plt.tight_layout()
-    plt.savefig(fname='mean_theta_z',dpi=250)
+    plt.savefig(fname='Images/mean_theta_z',dpi=250)
     plt.close('all')
     
 def plot_theta_x(df,data_sim_dm):
@@ -539,7 +543,7 @@ def plot_theta_x(df,data_sim_dm):
     plt.legend()
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_x$ [deg]''')
     plt.grid()
-    plt.savefig(fname='mean_theta_x',dpi=250)
+    plt.savefig(fname='Images/mean_theta_x',dpi=250)
     plt.close('all')
 
 def plot_theta_y(df,data_sim_dm):
@@ -568,7 +572,7 @@ def plot_theta_y(df,data_sim_dm):
     plt.legend(loc='upper left')
     plt.xlabel(rf'''z [$\mu m$]'''), plt.ylabel(rf'''$\theta_y$ [deg]''')
     plt.grid()
-    plt.savefig(fname='mean_theta_y',dpi=250)
+    plt.savefig(fname='Images/mean_theta_y',dpi=250)
     plt.close('all')
 
 def plot_correlation(zz,x1,x2,dfs,labels):
@@ -598,5 +602,5 @@ def plot_correlation(zz,x1,x2,dfs,labels):
     ax.legend()
 
     fig.tight_layout()
-    fig.savefig(fname='Copula_correlation',dpi=200)
+    fig.savefig(fname='Images/Copula_correlation',dpi=200)
     plt.close('all')
