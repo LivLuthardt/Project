@@ -60,26 +60,6 @@ def good_neighbor_distance(cleaned_data):
             results_d.append((fibre_id_i, fibre_id_j, D_distance))
 
     return results_d
-"""
-def good_neighbor_angle(cleaned_data):
-    results_a = []
-    for i in range(len(cleaned_data)):
-            for j in range(i+1, len(cleaned_data)):
-                #Difference in angles
-                delta_anglex_norm = np.abs(cleaned_data[i, 3] - cleaned_data[j, 3])
-                delta_angley_norm = np.abs(cleaned_data[i, 4] - cleaned_data[j, 4])
-
-                #Distance metric for angle
-                D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
-
-                #Store fiber metric score with respective fibre id's
-                fibre_id_i = cleaned_data[i, 0]
-                fibre_id_j = cleaned_data[j, 0]
-
-                results_a.append((fibre_id_i, fibre_id_j, D_angle))
-
-    return results_a
-"""
 
 """ ---------------------- Plot histogram of distances and angles, and determine threshold as percentiles ---------------------- """
 #Distance
@@ -105,34 +85,8 @@ plt.savefig(fname = 'Images/Original distance histogram')
 plt.close('all')
 print("Threshold_Distance", threshold_distance)
 
-"""
-#Angles
-scores_0_a = []
-layer_0_results_a = good_neighbor_angle(cleaned_data)
-for item in layer_0_results_a:
-    scores_0_a.append(item[2])
-
-#Choose a threshold
-pct_a = 95
-
-threshold_angle = np.percentile(scores_0_a, pct_a)
-
-# Plot histogram
-plt.figure()
-plt.hist(scores_0_a, bins=100)
-plt.axvline(threshold_angle,color = 'r', label = 'Threshold') 
-plt.title("Angle Histogram")
-plt.xlabel("Angle bwetween pairs of points")
-plt.ylabel("Frequency")
-plt.legend()
-plt.savefig(fname = 'Images/Original angle histogram')
-plt.close('all')
-print("Threshold_Angle", threshold_angle)
-"""
-
 """ ------------------------------------- Build distance and angle matrix and create graph ------------------------------------- """
 results_distance = good_neighbor_distance(cleaned_data)
-"""results_angle = good_neighbor_angle(cleaned_data)"""
 
 #Map fibre_id to row index
 fibre_ids = cleaned_data[:, 0].astype(int)
@@ -153,13 +107,6 @@ for fibre_d_i, fibre_d_j, score in results_distance:
     j = id_to_idx[int(fibre_d_j)]
     D_d[i, j] = score
     D_d[j, i] = score
-"""
-for fibre_d_i, fibre_d_j, score in results_angle:
-    ii = id_to_idx[int(fibre_d_i)]
-    jj = id_to_idx[int(fibre_d_j)]
-    D_a[ii, jj] = score
-    D_a[jj, ii] = score
-"""
 
 """"Build combined graph"""
 G_both = nx.Graph()
@@ -235,7 +182,6 @@ for cluster_id, cluster in enumerate(clusters):
 isolated_nodes = list(nx.isolates(G_both))
 for node in isolated_nodes:
     node_to_cluster[node] = -1  # Default cluster for isolated nodes
-
 
 """ ---------------------------------------- Assign colors to clusters and show graphs ---------------------------------------- """
 #Assign colors
@@ -395,20 +341,7 @@ for isol in isolated_nodes:
     remove_arr.add(isol)
 clusters_updated.append(list(remove_arr))
 
-""" -------------------------------------------------------- The end! -------------------------------------------------------- """
-"""
-#Remove later! Not yet!
-print("Amount of updated clusters:", len(clusters_updated))
-for i, cluster in enumerate(clusters_updated, start=1):
-    print(f"Cluster {i}: {clusters_updated}")
-print("Updated cluster sizes:", [len(c) for c in clusters_updated])
-for bruh in range(len(clusters_updated[11])):
-    print("Dropout fibre cluster:", clusters_updated[11][bruh])
-total_fib = 0
-for bruhh in range(len(clusters_updated)):
-    total_fib += len(clusters_updated[bruhh])
-print(total_fib)
-"""
+
 print("Amount of clusters:", len(clusters_updated))
 print("Cluster sizes:", [len(c) for c in clusters_updated])
 
@@ -426,3 +359,4 @@ cluster_df = pd.DataFrame(cluster_rows)
 df_clustered = df.merge(cluster_df, on='fibre_id', how='left')
 
 plot_fibers_clustered(df_clustered, "Clustered Fibres on original data")
+""" -------------------------------------------------------- The end! -------------------------------------------------------- """

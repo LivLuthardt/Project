@@ -41,33 +41,6 @@ for layer_i in unique_layers[1:]:
     cleaned_data_i.append(layer_features)
 
 
-""" ---------------------------------- Optimal n_neighbors (Elbow Method) (Unused currently) ---------------------------------- """
-X_eval = cleaned_data[:, 1:] # Exclude fibre_id
-
-avg_distances = []
-k_range = range(1, 50) 
-
-for k in k_range:
-    knn_eval = NearestNeighbors(n_neighbors=k)
-    knn_eval.fit(X_eval)
-    distances, _ = knn_eval.kneighbors(X_eval)
-    avg_distances.append(np.mean(distances[:, -1]))
-
-plt.figure(figsize=(10,6))
-plt.plot(k_range, avg_distances, color='blue', linestyle='dashed', marker='o', markerfacecolor='red', markersize=6)
-plt.title('Average K-Distance vs. K Value (Find the Elbow)')
-plt.xlabel('K (Number of Neighbors)')
-plt.ylabel('Average Distance to K-th Neighbor')
-#plt.show()
-plt.savefig(fname = 'Images/Sythetic elbow')
-plt.close('all')
-
-kneedle = KneeLocator(k_range, avg_distances, S=1.0, curve='concave', direction='increasing')
-optimal_k = kneedle.knee
-print(f"The optimal number of neighbors is: {optimal_k}")
-""" ------------------------------------------ """
-
-
 """ --------- Neighborhood rule functions, store cartesian distances between each pair of fibers --------- """
 def good_neighbor_distance(cleaned_data):
     #Determine distance metric and store as list
@@ -369,20 +342,7 @@ for isol in isolated_nodes:
     remove_arr.add(isol)
 clusters_updated.append(list(remove_arr))
 
-""" -------------------------------------------------------- The end! -------------------------------------------------------- """
-"""
-#Remove later! Not yet!
-print("Amount of updated clusters:", len(clusters_updated))
-for i, cluster in enumerate(clusters_updated, start=1):
-    print(f"Cluster {i}: {clusters_updated}")
-print("Updated cluster sizes:", [len(c) for c in clusters_updated])
-for bruh in range(len(clusters_updated[11])):
-    print("Dropout fibre cluster:", clusters_updated[11][bruh])
-total_fib = 0
-for bruhh in range(len(clusters_updated)):
-    total_fib += len(clusters_updated[bruhh])
-print(total_fib)
-"""
+
 print("Amount of clusters:", len(clusters_updated))
 print("Cluster sizes:", [len(c) for c in clusters_updated])
 
@@ -400,3 +360,4 @@ cluster_df = pd.DataFrame(cluster_rows)
 df_clustered = syn_df.merge(cluster_df, on='fibre_id', how='left')
 
 plot_fibers_clustered(df_clustered, "Clustered Fibres on synthetic data")
+""" -------------------------------------------------------- The end! -------------------------------------------------------- """

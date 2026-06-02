@@ -32,17 +32,6 @@ features = ['fibre_id', 'x', 'y']
 cleaned_data = layer_0[['x', 'y']]
 cleaned_data = np.column_stack((layer_0['fibre_id'].values, cleaned_data))
 
-"""
-#For all other layers create dataframe
-cleaned_data_i = []
-unique_layers = sorted(df['z_idx'].unique())
-for layer_i in unique_layers[1:]:
-    current_layer = df[df['z_idx'] == layer_i]
-    current_layer = current_layer.reset_index(drop=True)
-    layer_features = current_layer[['fibre_id','x', 'y']]
-    cleaned_data_i.append(layer_features)
-"""    
-
 
 """ --------- Neighborhood rule functions, store cartesian distances and respective angles between each pair of fibers --------- """
 def good_neighbor_distance(cleaned_data):
@@ -64,26 +53,6 @@ def good_neighbor_distance(cleaned_data):
             results_d.append((fibre_id_i, fibre_id_j, D_distance))
 
     return results_d
-"""
-def good_neighbor_angle(cleaned_data):
-    results_a = []
-    for i in range(len(cleaned_data)):
-            for j in range(i+1, len(cleaned_data)):
-                #Difference in angles
-                delta_anglex_norm = np.abs(cleaned_data[i, 3] - cleaned_data[j, 3])
-                delta_angley_norm = np.abs(cleaned_data[i, 4] - cleaned_data[j, 4])
-
-                #Distance metric for angle
-                D_angle = np.arctan(np.sqrt(delta_anglex_norm ** 2 + delta_angley_norm ** 2))
-
-                #Store fiber metric score with respective fibre id's
-                fibre_id_i = cleaned_data[i, 0]
-                fibre_id_j = cleaned_data[j, 0]
-
-                results_a.append((fibre_id_i, fibre_id_j, D_angle))
-
-    return results_a
-"""
 
 """ ---------------------- Plot histogram of distances and angles, and determine threshold as percentiles ---------------------- """
 #Distance
@@ -109,34 +78,9 @@ plt.savefig(fname = f'Images/Layer {layer} {dataset} distance histogram')
 plt.close('all')
 print("Threshold_Distance", threshold_distance)
 
-"""
-#Angles
-scores_0_a = []
-layer_0_results_a = good_neighbor_angle(cleaned_data)
-for item in layer_0_results_a:
-    scores_0_a.append(item[2])
-
-#Choose a threshold
-pct_a = 95
-
-threshold_angle = np.percentile(scores_0_a, pct_a)
-
-# Plot histogram
-plt.figure()
-plt.hist(scores_0_a, bins=100)
-plt.axvline(threshold_angle,color = 'r', label = 'Threshold') 
-plt.title("Angle Histogram")
-plt.xlabel("Angle bwetween pairs of points")
-plt.ylabel("Frequency")
-plt.legend()
-plt.savefig(fname = f'Images/Layer {layer} {dataset} angle histogram')
-plt.close('all')
-print("Threshold_Angle", threshold_angle)
-"""
 
 """ ------------------------------------- Build distance and angle matrix and create graph ------------------------------------- """
 results_distance = good_neighbor_distance(cleaned_data)
-"""results_angle = good_neighbor_angle(cleaned_data)"""
 
 #Map fibre_id to row index
 fibre_ids = cleaned_data[:, 0].astype(int)
@@ -157,13 +101,7 @@ for fibre_d_i, fibre_d_j, score in results_distance:
     j = id_to_idx[int(fibre_d_j)]
     D_d[i, j] = score
     D_d[j, i] = score
-"""
-for fibre_d_i, fibre_d_j, score in results_angle:
-    ii = id_to_idx[int(fibre_d_i)]
-    jj = id_to_idx[int(fibre_d_j)]
-    D_a[ii, jj] = score
-    D_a[jj, ii] = score
-"""
+
 
 """"Build combined graph"""
 G_both = nx.Graph()
