@@ -108,7 +108,7 @@ for fibre_d_i, fibre_d_j, score in results_distance:
     D_d[i, j] = score
     D_d[j, i] = score
 
-""""Build combined graph"""
+""" -------------------------Build combined graph------------------------- """
 G_both = nx.Graph()
 G_both.add_nodes_from([int(fid) for fid in fibre_ids])
 
