@@ -55,7 +55,9 @@ z_ell_3d = np.full_like(t_ell, h + h_offset)
 ax.plot(x_ell, y_ell, z_ell_3d, color="#6392C1", lw=4, zorder=5)
 
 # Plot Global Axes (x, y, z)
-for vec, label in zip(np.eye(3)*6, ['x', 'y', 'z']):
+
+axes_vecs = [np.array([6.0, 0, 0]), np.array([0, 6.0, 0]), np.array([0, 0, 5.0])]
+for vec, label in zip(axes_vecs, ['x', 'y', 'z']):
     ax.quiver(0, 0, 0, *vec, color='black', arrow_length_ratio=0.05, lw=1.4)
     ax.text(*(vec * 1.1), label, fontsize=16)
 
