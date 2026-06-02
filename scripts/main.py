@@ -2,9 +2,10 @@ from data_clean import*
 from ellipse import*
 from tangent import*
 from copula import*
-from clustering import*
 from plot import *
 import matplotlib.pyplot as plt
+
+#Get cleaned dataframe
 
 raw_df = pd.read_csv('raw_data.csv')
 data_clean = data_cleaned(raw_df)
@@ -12,7 +13,7 @@ df = tangent_angles_central(data_clean)
 fiber_sum,n_fibers = fiber_summary(df)
 
 #plot_fibers(df,'Original Fibers')
-#-------------------------------------------------------------Ellipse-------------------------------------------------------------
+"""-------------------------------------------------------------Ellipse-------------------------------------------------------------"""
 
 xtiltAngles, ytiltAngles, xytiltAngles, alist, blist = getEllipseValues(data_clean)
 df = df.assign(EllipseXTilt = xtiltAngles, EllipseYTilt = ytiltAngles, xytilt = xytiltAngles, a = alist, b = blist) #Add the tilt angles as a df column
@@ -50,29 +51,25 @@ with open("Output.txt", "w") as text_file:
     text_file.write(f"Finite Difference Mean (x, y): {fmean_x}, {fmean_y}\n")
     text_file.write(f"Ellipse Method Mean (x, y): {emean_x}, {emean_y}\n")
 
-#-------------------------------------------------------------Copulas-------------------------------------------------------------
+"""-------------------------------------------------------------Copulas-------------------------------------------------------------"""
 
 #copulas
 zz = np.arange(1,128)
 zz_complete = np.arange(129)
 
-### Choose parameters to plot and predict with copula
+# Choose parameters to plot and predict with copula
 par_1,par_2 = 'angle_x_deg','angle_y_deg'
 df_grouped = df.groupby('z_idx')
 
 mean_arr = df_grouped.mean()[[par_1,par_2]].to_numpy()
 std_arr = df_grouped.std()[[par_1,par_2]].to_numpy()
 
-### Magic
 cov_series = df_grouped.apply(
     lambda group: group[par_1].corr(group[par_2]),
     include_groups=False)
 cov_arr = cov_series.reindex(zz).to_numpy()
 
 cop_models = [pv.gaussian,pv.student,pv.student,pv.frank]
-
-### Plot original data
-# plot_og_data(par_1,par_2,mean_arr,df,[67])
 
 # 129 is the amount of z values
 # n_fibers is the amount of unique fibers
@@ -148,56 +145,7 @@ sim_fiber_sum, n_sim_fibers = fiber_summary(sim_df_dm)
 # Save the new simulated date to file
 sim_df_dm[['fibre_id','x', 'y', 'z_idx']].to_csv('sim_data.csv',sep=',',index=False,float_format="%.7f")
 
-#-------------------------------------------------------------Global clustering (not used anymore)-------------------------------------------------------------
-
-#PCA method figure
-pca, data_pca, coverage_lst = PCA_determination(fiber_sum)
-
-# Number of pre-defined clusters and range for score plots
-n = 5
-n_clusters = range(2,16)
-
-#K-means clustering
-fiber_summary_k,_,_ = perform_kmeans_clustering(fiber_sum.copy(),n)
-df_k = df.merge(fiber_summary_k[['fibre_id', 'cluster_id']], on='fibre_id')
-
-# K-means clustering with PCA
-fiber_summary_k_pca,_,_,_ = perform_kmeans_clustering_with_pca(
-    fiber_sum, n_clusters=n, n_components=3)
-df_k_pca = df.merge(fiber_summary_k_pca[['fibre_id', 'cluster_id']], on='fibre_id')
-
-# DBSCAN clustering
-fiber_summary_dbscan,_ = perform_DBSCAN_clustering(fiber_sum.copy())
-df_dbscan = df.merge(fiber_summary_dbscan[['fibre_id', 'cluster_id']], on='fibre_id')
-
-# HDBSCAN clustering
-fiber_summary_hdbscan,_ = perform_HDBSCAN_clustering(fiber_sum.copy())
-df_hdbscan = df.merge(fiber_summary_hdbscan[['fibre_id', 'cluster_id']], on='fibre_id')
-
-# GMM clustering
-fiber_summary_gmm,_,_,_ = perform_gmm_clustering(fiber_sum.copy(),n)
-df_gmm = df.merge(fiber_summary_gmm[['fibre_id', 'cluster_id']], on='fibre_id')
-
-fiber_summary_agg,_,_ = perform_agglomerative_clustering(fiber_sum,n)
-df_agg = df.merge(fiber_summary_agg[['fibre_id', 'cluster_id']], on='fibre_id')
-
-# Make 3D plots with clusters
-plot_fibers_clustered(df_k, 'K-means')
-plot_fibers_clustered(df_k_pca, 'K-means with PCA')
-plot_fibers_clustered(df_dbscan, 'DBSCAN')
-plot_fibers_clustered(df_hdbscan, 'HDBSCAN')
-plot_fibers_clustered(df_gmm, 'GMM')
-plot_fibers_clustered(df_agg, 'Agglomerative')
-
-# Make CH score plot for all pre-defined cluster methods, as well as aic and bic for gmm and sse for k-means 
-
-#plot_score(fiber_sum, n_clusters)
-#plot_sse_k(fiber_sum, n_clusters)
-#plot_aic_bic_gmm(fiber_sum, n_clusters)
-#fig_gmm_error = aic_bic_plot_gmm(fiber_sum.copy())
-#fig_k_error = sse_plot_k(fiber_sum)
-
-# neighbors(df) 
+"""--------------------------------------------------------KS tests------------------------------------------------------------"""
 
 ks_x_cd, ks_y_cd = ks_global(df)  # original (finite diff vs ellipse)
 

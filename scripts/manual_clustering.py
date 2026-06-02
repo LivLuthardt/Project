@@ -359,4 +359,3 @@ cluster_df = pd.DataFrame(cluster_rows)
 df_clustered = df.merge(cluster_df, on='fibre_id', how='left')
 
 plot_fibers_clustered(df_clustered, "Clustered Fibres on original data")
-""" -------------------------------------------------------- The end! -------------------------------------------------------- """
