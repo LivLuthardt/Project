@@ -40,7 +40,7 @@ for layer_i in unique_layers[1:]:
     cleaned_data_i.append(layer_features)
 
 
-""" --------- Neighborhood rule functions, store cartesian distances and respective angles between each pair of fibers --------- """
+""" --------- Neighborhood rule functions, store cartesian distances between each pair of fibers --------- """
 def good_neighbor_distance(cleaned_data):
     #Determine distance metric and store as list
     results_d = []
@@ -61,7 +61,7 @@ def good_neighbor_distance(cleaned_data):
 
     return results_d
 
-""" ---------------------- Plot histogram of distances and angles, and determine threshold as percentiles ---------------------- """
+""" ---------------------- Plot histogram of distances and determine threshold as percentiles ---------------------- """
 #Distance
 scores_0_d = []
 layer_0_results_d = good_neighbor_distance(cleaned_data)
@@ -85,14 +85,14 @@ plt.savefig(fname = 'Images/Original distance histogram')
 plt.close('all')
 print("Threshold_Distance", threshold_distance)
 
-""" ------------------------------------- Build distance and angle matrix and create graph ------------------------------------- """
+""" ------------------------------------- Build distance matrix and create graph ------------------------------------- """
 results_distance = good_neighbor_distance(cleaned_data)
 
 #Map fibre_id to row index
 fibre_ids = cleaned_data[:, 0].astype(int)
 id_to_idx = {fid: i for i, fid in enumerate(fibre_ids)}
 
-#Build distance and angle matrices
+#Build distance matrix
 n_d = len(fibre_ids)
 D_d = np.full((n_d, n_d), np.inf)
 np.fill_diagonal(D_d, 0)
